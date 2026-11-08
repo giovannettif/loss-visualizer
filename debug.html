@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Landscape debug — You Can't See the Loss</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400..700;1,400..700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="/src/debug.ts"></script>
+  </head>
+  <body>
+    <div id="stage"></div>
+    <header id="hud" class="panel">
+      <h1><span class="math">ℒ</span> Landscape debug</h1>
+      <p class="caption">
+        WP0 viewport check · drag to orbit (flick to glide) · scroll to zoom ·
+        double-click to reset
+      </p>
+      <div id="fn-buttons">
+        <button type="button" class="btn" data-fn="bowl">bowl</button>
+        <button type="button" class="btn" data-fn="rosenbrock">rosenbrock</button>
+        <button type="button" class="btn" data-fn="rastrigin">rastrigin</button>
+      </div>
+      <dl class="readout">
+        <dt>f</dt><dd id="ro-fn" class="mono">—</dd>
+        <dt>azim</dt><dd id="ro-azim" class="mono">—</dd>
+        <dt>elev</dt><dd id="ro-elev" class="mono">—</dd>
+        <dt>zoom</dt><dd id="ro-zoom" class="mono">—</dd>
+      </dl>
+    </header>
+  </body>
+</html>

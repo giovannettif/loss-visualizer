@@ -1,0 +1,1300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>You Can't See the Loss</title>
+    <style>
+      /* Boot overlay: styled INLINE so it is correct from the very first
+         paint (no flash of blank while the module graph loads). The app
+         fades it out only after the scene is built and the fonts are ready —
+         first load never pops or flashes. See main.ts (boot overlay block). */
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background: #0b0d10;
+        color: #dfe5ec;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        transition: opacity 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+      }
+      #boot[data-done="true"] { opacity: 0; pointer-events: none; }
+      #boot .boot-kicker {
+        margin: 0;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: #9aa4b2;
+      }
+      #boot h1 {
+        margin: 0;
+        font: 600 clamp(28px, 4vw, 44px)/1.15 Georgia, "Times New Roman", serif;
+        letter-spacing: 0.01em;
+        text-align: center;
+      }
+      #boot .boot-bar {
+        width: min(280px, 60vw);
+        height: 2px;
+        margin-top: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 1px;
+        overflow: hidden;
+      }
+      #boot .boot-fill {
+        width: 0%;
+        height: 100%;
+        background: #58c4dd;
+        transition: width 0.2s ease;
+      }
+      #boot .boot-msg {
+        margin: 6px 0 0;
+        max-width: min(520px, 84vw);
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #9aa4b2;
+        white-space: pre-line;
+      }
+      #boot[data-error="true"] .boot-bar { visibility: hidden; }
+    </style>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div id="app">
+      <div id="boot" aria-live="polite">
+        <p class="boot-kicker">An explorable explanation</p>
+        <h1>You Can&rsquo;t See the Loss</h1>
+        <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+        <p class="boot-msg" id="boot-msg" hidden></p>
+      </div>
+      <!-- Sticky full-height landscape viewport + HUD -->
+      <div id="stage-wrap">
+        <div id="stage"></div>
+
+        <div id="hero-overlay" class="hud" data-visible="false">
+          <p class="kicker">An explorable explanation</p>
+          <h1>You Can&rsquo;t See the Loss</h1>
+          <p class="subtitle">
+            Three optimizers cross the same landscape &mdash; and none of them
+            can see it.
+          </p>
+          <p class="intro-hint">scroll to descend <span class="down-glyph">&darr;</span></p>
+        </div>
+
+        <div id="hud-left">
+          <aside id="fit-panel" class="hud panel" data-visible="false">
+            <canvas id="fit-canvas"></canvas>
+            <div class="hud-caption caption">
+              <span class="math">&#375; = w·x + b</span> &mdash; drag the line or its ends
+            </div>
+            <div class="hud-readout">
+              <span><span class="math">w</span>&nbsp;=&nbsp;<span id="ro-w" class="mono">&mdash;</span></span>
+              <span><span class="math">b</span>&nbsp;=&nbsp;<span id="ro-b" class="mono">&mdash;</span></span>
+            </div>
+          </aside>
+          <aside id="loss-panel" class="hud panel" data-visible="false">
+            <div class="hud-label caption">
+              loss &middot; <span class="math">L(w, b) = &Sigma;&#7522; (w·x&#7522; + b &minus; y&#7522;)²</span>
+            </div>
+            <div id="loss-value" class="mono">&mdash;</div>
+          </aside>
+        </div>
+
+        <!-- §4 inspector: absolutely positioned (§1 panels never show at the
+             same time, and it must not inherit #hud-left's flow height). -->
+        <aside id="adam-panel" class="hud panel" data-visible="false">
+          <div class="hud-label caption">
+            Adam inspector &middot; <span class="math"><span class="hat">m<span class="hat-mark">&#710;</span></span>/&radic;<span class="hat">v<span class="hat-mark">&#710;</span></span></span> per coordinate
+          </div>
+          <div class="bar-row">
+            <span class="bar-name math">x</span>
+            <div class="bar-track"><div id="bar-x" class="bar-fill"></div></div>
+            <span id="bar-x-val" class="mono">&mdash;</span>
+          </div>
+          <div class="bar-row">
+            <span class="bar-name math">y</span>
+            <div class="bar-track"><div id="bar-y" class="bar-fill"></div></div>
+            <span id="bar-y-val" class="mono">&mdash;</span>
+          </div>
+          <div class="inspector-readout mono">
+            <div>&ange;(−<span class="math">&#8711;f</span>, <span class="adam-y">&#916;adam</span>) = <span id="adam-angle">&mdash;</span></div>
+            <div>&Vert;<span class="math">&eta;&#8711;f</span>&Vert; = <span id="adam-gd-len">&mdash;</span></div>
+            <div>&Vert;<span class="adam-y">&#916;adam</span>&Vert; = <span id="adam-adam-len">&mdash;</span></div>
+          </div>
+          <div class="hud-caption caption">on-surface arrows drawn &times;30 &middot; lengths &prop; true steps</div>
+        </aside>
+
+        <!-- §5 loss curves: same top-left slot (lab never co-shows §1/§4). -->
+        <aside id="curves-panel" class="hud panel" data-visible="false">
+          <div class="hud-label caption">
+            loss curves &middot; <span class="mono">ℒ vs step</span>
+          </div>
+          <canvas id="curves-canvas"></canvas>
+          <label class="toggle caption">
+            <input type="checkbox" id="curves-log" checked />
+            <span>log <span class="math">ℒ</span></span>
+          </label>
+        </aside>
+
+        <aside id="minimap-panel" class="hud panel" data-visible="false">
+          <canvas id="minimap-canvas"></canvas>
+          <div class="hud-caption caption">
+            <span class="math">w</span>&ndash;<span class="math">b</span> compass
+            &middot; needle = &minus;<span class="math">&nabla;L</span>
+          </div>
+        </aside>
+
+        <!-- §6 fog game: measurements/budget + live loss + Finish control
+             (same canvas-pane top-left slot; fog scenes never co-show §1/§4). -->
+        <aside id="fog-panel" class="hud panel" data-visible="false">
+          <div class="hud-label caption">
+            fog game &middot; <span id="fog-level" class="mono">&mdash;</span>
+          </div>
+          <div class="fog-readouts">
+            <div class="fog-readout">
+              <span class="caption">measurements</span>
+              <span id="fog-meas" class="mono">0 / 10</span>
+            </div>
+            <div class="fog-readout">
+              <span class="caption">loss &middot; <span class="math">ℒ(θ)</span></span>
+              <span id="fog-loss" class="mono">&mdash;</span>
+            </div>
+          </div>
+          <div class="fog-budget"><div id="fog-budget-fill"></div></div>
+          <button id="fog-finish" type="button" class="btn" hidden>Finish run &middot; reveal</button>
+          <div class="hud-caption caption">
+            drag on the compass to step &mdash; each landing measures the loss
+            and gradient there
+          </div>
+        </aside>
+
+        <!-- §6 reveal annotation: pinned above the gold global-minimum marker. -->
+        <div id="fog-reveal-note" class="hud" data-visible="false"></div>
+
+        <!-- §7 tilt game: live physics readouts, the damping slider (the β
+             analogy), level picker, scorecard + replay scrubber, swarm line. -->
+        <aside id="tilt-panel" class="hud panel" data-visible="false">
+          <div class="hud-label caption">
+            tilt game &middot; <span id="tilt-level" class="mono">&mdash;</span>
+          </div>
+          <div class="fog-readouts">
+            <div class="fog-readout">
+              <span class="caption">tilt <span class="mono">x / y</span></span>
+              <span id="tilt-input" class="mono">&mdash;</span>
+            </div>
+            <div class="fog-readout">
+              <span class="caption">measurements &middot; unique cells</span>
+              <span id="tilt-cells" class="mono">0</span>
+            </div>
+            <div class="fog-readout">
+              <span class="caption">steps elapsed</span>
+              <span id="tilt-steps" class="mono">0</span>
+            </div>
+            <div class="fog-readout">
+              <span class="caption">loss &middot; <span class="math">ℒ(θ)</span></span>
+              <span id="tilt-loss" class="mono">&mdash;</span>
+            </div>
+          </div>
+          <div class="eta-control">
+            <div class="eta-row">
+              <span class="math">c</span>
+              <input
+                id="tilt-friction"
+                class="knob"
+                type="range"
+                min="0"
+                max="1000"
+                step="1"
+                value="545"
+                aria-label="damping friction"
+              />
+              <span id="tilt-friction-value" class="mono">1.20</span>
+            </div>
+            <div class="eta-regime-row">
+              <span>damping &middot; the <span class="math">β</span> analogy</span>
+              <span id="tilt-friction-regime" class="mono" data-regime="damped">damped</span>
+            </div>
+          </div>
+          <div id="tilt-levels" class="tilt-levels">
+            <button type="button" class="btn" data-level="valley" data-on="true">1 · valley</button>
+            <button type="button" class="btn" data-level="rosen" data-on="false">2 · Rosenbrock</button>
+            <button type="button" class="btn" data-level="rastr" data-on="false">3 · Rastrigin</button>
+          </div>
+          <button id="tilt-finish" type="button" class="btn" hidden>Finish run &middot; score</button>
+          <button id="tilt-restart" type="button" class="btn" hidden>&#8635; Restart run</button>
+          <div id="tilt-score" hidden>
+            <table class="scorecard">
+              <thead>
+                <tr><th>run</th><th>steps</th><th>cells</th><th>final <span class="math">ℒ</span></th></tr>
+              </thead>
+              <tbody id="tilt-scorecard-body"></tbody>
+            </table>
+            <p id="tilt-verdict" class="caption"></p>
+          </div>
+          <div id="tilt-replay" class="eta-row" hidden>
+            <button id="tilt-replay-play" type="button" class="btn">▶ ghost</button>
+            <button id="tilt-replay-restart" type="button" class="btn" aria-label="restart ghost ride">&#8635; replay</button>
+            <input
+              id="tilt-scrub"
+              class="knob scrub"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="1000"
+              aria-label="ghost replay scrubber"
+            />
+          </div>
+          <div id="tilt-swarm-line" class="mono caption" hidden>&mdash;</div>
+          <ul id="tilt-swarm-clusters" class="tilt-clusters" hidden></ul>
+          <div class="hud-caption caption">
+            <span class="mono">W A S D</span> / arrow keys tilt the board
+            &mdash; screen-relative; the physics runs in the parameter plane
+            <br />
+            <span class="mono">wheel / Space</span> still drive the reader
+            &mdash; the tilt keys never capture them
+          </div>
+        </aside>
+
+        <!-- §8 optimizer workbench: the four parts (rule assembly) + the
+             landscape picker; the benchmark scoreboard lives in the reader
+             steps (both copies stay synced). -->
+        <aside id="rule-panel" class="hud panel" data-visible="false">
+          <div class="hud-label caption">optimizer workbench</div>
+          <div id="rule-landscape" class="mono caption rule-landscape-line">&mdash;</div>
+          <div class="eta-control">
+            <div class="eta-row">
+              <span class="math">&eta;</span>
+              <input
+                id="rule-eta"
+                class="knob"
+                type="range"
+                min="0"
+                max="1000"
+                step="1"
+                value="347"
+                aria-label="custom rule learning rate"
+              />
+              <span id="rule-eta-value" class="mono">0.500</span>
+            </div>
+            <div class="eta-row">
+              <span class="math">&beta;</span>
+              <input
+                id="rule-beta"
+                class="knob"
+                type="range"
+                min="0"
+                max="990"
+                step="1"
+                value="900"
+                aria-label="custom rule momentum beta"
+              />
+              <span id="rule-beta-value" class="mono">0.90</span>
+            </div>
+            <div class="eta-row rule-clip-row">
+              <span class="math" title="max step ‖Δθ‖">clip</span>
+              <input
+                id="rule-clip"
+                class="knob"
+                type="range"
+                min="0"
+                max="1000"
+                step="1"
+                value="527"
+                aria-label="custom rule gradient clip"
+              />
+              <span id="rule-clip-value" class="mono">0.35</span>
+            </div>
+            <label class="toggle caption">
+              <input type="checkbox" id="rule-norm" checked />
+              <span>per-coordinate normalize <span class="math">u &#8804; 1</span></span>
+            </label>
+          </div>
+          <div id="rule-levels" class="tilt-levels">
+            <button type="button" class="btn" data-level="bowl" data-on="false">valley</button>
+            <button type="button" class="btn" data-level="rosen" data-on="true">Rosenbrock</button>
+            <button type="button" class="btn" data-level="ls" data-on="false">least squares</button>
+          </div>
+          <div class="hud-caption caption">
+            the benchmark re-runs live &mdash; purple is <em>your</em> rule;
+            <span class="gd-red">GD</span>, <span class="mom-blue">momentum</span>,
+            <span class="adam-y">Adam</span> race it from the same start
+          </div>
+        </aside>
+
+        <!-- §9 formula reveal: pinned above the gold normal-equation marker
+             (positioned per-frame like the fog reveal note). -->
+        <div id="epi-formula" class="hud" data-visible="false">
+          <div class="epi-formula-math math">
+            L(w,&thinsp;b) = &Sigma;<sub>&#7522;</sub>&thinsp;(w·x&#7522; + b &minus; y&#7522;)²
+          </div>
+          <div class="epi-formula-arg mono">
+            w* = 0.9094 &middot; b* = 1.3064 &middot; &#8467;<sub>min</sub> = 1.4246
+          </div>
+        </div>
+
+        <!-- §9 lattice caption: the dimension-honesty beat. -->
+        <div id="epi-lattice-note" class="hud" data-visible="false">
+          <p class="caption">
+            13&thinsp;824 faint points stand in for a real model&rsquo;s
+            <span class="mono">&asymp;10&#8310;</span> coordinates. The loss is
+            still a surface &mdash; but a surface in
+            <span class="mono">10&#8310;</span> dimensions, with no map, no
+            compass inset, and no outside vantage point.
+            <em>This page&rsquo;s picture exists only because this problem has
+            two parameters.</em>
+          </p>
+        </div>
+      </div>
+
+      <!-- Reader panel: one continuous scroll document — every step's text
+           is a full-panel page stacked in flow; wheeling scrolls it like a
+           document and the incoming step snaps into place (its animation
+           plays under the lock). Wheel over the landscape zooms the camera.
+           The progress rail floats on the right edge of the screen, outside
+           the panel. -->
+      <nav id="rail" aria-label="steps"></nav>
+      <div id="reader-chip">
+        <span class="reader-app">You Can&rsquo;t See the Loss</span>
+        <span id="reader-count" class="mono caption"></span>
+      </div>
+      <aside id="reader">
+        <div id="edge-progress" aria-hidden="true"><div id="edge-fill"></div></div>
+        <div id="reader-body">
+          <div class="rstep step--hero" data-scene="hero" data-active="true">
+          <div class="step__body">
+            <p class="kicker">Overview</p>
+            <h2>How this page works.</h2>
+            <p>
+              Two panes. <em>Left:</em> a 3D loss surface rendered live, with
+              the camera, the instruments and the game panels &mdash; and, for
+              now, a looping race between the three optimizers this page
+              contrasts: <span class="gd-red">GD</span>,
+              <span class="mom-blue">momentum</span>,
+              <span class="adam-y">Adam</span>. The title overlay states the
+              premise. <em>Here:</em> the reader &mdash; one step of text at a
+              time; the counter above it tracks your position.
+            </p>
+              <p>
+              Scroll <em>here</em> to advance (or press Space, or click);
+              <em>continue&nbsp;&darr;</em> appears when a step is ready and
+              <em>Skip animation</em> ends the current one early. The thin
+              bar on the reader&rsquo;s left edge fills while a step&rsquo;s
+              animation plays. Scroll over the landscape instead to zoom;
+              drag it to orbit; the <em>Isometric</em> / <em>Map view</em>
+              buttons restore the standard poses. The ticks on the right edge
+              jump to any step, and the footer&rsquo;s <em>Play</em> control
+              and speed switch replay the current scene&rsquo;s trajectory.
+              From the next step on, watch for dotted phrases &mdash; each
+              names something on stage: rest on one (or
+              <span class="mono">Tab</span> to it) and the scene shows you
+              what it names.
+              Scroll all the way back to the top and the reader slides away
+              &mdash; the landscape takes the whole screen again.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="task-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;1 &middot; The task</p>
+            <h2>Fit a line by hand.</h2>
+            <p>
+              Twelve noisy measurements, one straight line. Two parameters
+              decide the fit: the slope <span class="math">w</span> and the
+              intercept <span class="math">b</span>. <em>Drag the line</em> or
+              its ends in the <span class="look" tabindex="0" data-look="fit-inset">inset</span>
+              &mdash; each red segment is one
+              <span class="look" tabindex="0" data-look="fit-inset">residual</span>,
+              the miss at a single point.
+            </p>
+            <p class="formula math">L(w, b) = &Sigma;&#7522; (w·x&#7522; + b &minus; y&#7522;)²</p>
+            <p class="caption">
+              The <span class="look" tabindex="0" data-look="loss-readout">loss is one number for the whole fit: the sum of the squared residuals</span>.
+              The <span class="math">w</span> and
+              <span class="math">b</span> readouts under the inset report the
+              current parameters. Lower the loss by hand &mdash; drag until it
+              stops decreasing.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="task-b" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;1 &middot; The task, continued</p>
+            <h2>The loss is defined everywhere.</h2>
+            <p>
+              Evaluating the loss never requires drawing a line. For
+              <em>any</em> pair (<span class="math">w</span>,
+              <span class="math">b</span>) &mdash; even an absurd one &mdash;
+              the loss is one formula away, and the
+              <span class="look" tabindex="0" data-look="loss-readout">readout answers as soon as the parameters move</span>.
+            </p>
+            <p>
+              So picture the plane of all
+              (<span class="math">w</span>, <span class="math">b</span>) pairs,
+              every point carrying its loss. <span class="look" tabindex="0" data-look="compass">The inset in the corner is a
+              <em>compass</em></span> &mdash; a compass, not a map: it shows that
+              plane and, at the white dot, one arrow.
+              <span class="look" tabindex="0" data-look="needle">The purple needle points
+              along &minus;<span class="math">&nabla;L</span>, the direction
+              that decreases the loss fastest</span>. It carries no information about
+              the rest of the surface.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="task-c" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;1 &middot; The reveal</p>
+            <h2>Height is loss.</h2>
+            <p>
+              Tip that plane upright and let height mean loss. The best line
+              &mdash; the one you were searching for by hand &mdash; is the
+              lowest point of a surface that was defined the whole time.
+            </p>
+            <p>
+              <span class="look" tabindex="0" data-look="ball">Drag the white point</span>: it rides the surface, and the line, the
+              residuals and the loss follow. This is what optimizing means
+              &mdash; descending on a surface you can never see, with only
+              measurements at the current point.
+            </p>
+            <p class="caption">
+              &sect;2 &middot; following the needle automatically &mdash;
+              gradient descent &mdash; is where the story goes next.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="gd-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;2 &middot; Gradient descent</p>
+            <h2>One arrow, re-measured at every point.</h2>
+            <p>
+              Here is gradient descent&rsquo;s entire input: the loss at the
+              <span class="look" tabindex="0" data-look="ball">current point</span>, and one arrow &mdash; the negative gradient
+              &mdash; pointing in the steepest downhill direction.
+              <span class="look" tabindex="0" data-look="needle">The needle
+              on the compass inset is that arrow. As the point drifts along
+              the valley floor, the needle swings</span>: the gradient is re-measured,
+              fresh, at every point.
+            </p>
+            <p>
+              <span class="look" tabindex="0" data-look="needle">The needle is <em>local</em>.</span> It says nothing about the wall
+              behind the point or the valley ahead. Every decision gradient
+              descent makes follows from this single local measurement.
+            </p>
+            <p class="caption">
+              camera low over the bowl floor &middot; the compass shows the
+              whole parameter plane; the needle marks exactly one direction on
+              it
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="gd-b" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;2 &middot; Gradient descent</p>
+            <h2>Draw your arrow.</h2>
+            <p>
+              Before GD moves, commit to a step of your own:
+              <em>drag on the <span class="look" tabindex="0" data-look="compass">compass</span></em> to draw the arrow you would follow
+              from the white point. On release, your arrow stays and
+              <span class="look" tabindex="0" data-look="gd-step">GD&rsquo;s actual step plays out beside it in red</span>.
+            </p>
+            <p>
+              Most first arrows head <em>down the valley</em>, toward the low
+              ground. <span class="look" tabindex="0" data-look="gd-step">GD&rsquo;s step points straight <em>across</em> it, up
+              the wall</span>: the gradient is steepest across the valley, and
+              steepest is not the same as most progress here. Draw again; the
+              arrow is yours to redo.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="gd-c" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;2 &middot; Gradient descent</p>
+            <h2>One setting: the learning rate.</h2>
+            <p>
+              The step is <span class="math">η</span> &times; the arrow:
+              <span class="math">η</span> is the learning rate &mdash; the step
+              size. Slide <span class="math">η</span> across three orders of
+              magnitude; <span class="look" tabindex="0" data-look="ball">GD restarts from the same white point each time</span>.
+              <span class="look" tabindex="0" data-look="trail-gd">Too
+              small and it <em>crawls</em>; moderate and it <em>descends</em>;
+              past <span class="math">1/(2λ&#8321;)</span> &mdash; half of
+              <span class="math">1/λ&#8321;</span>, where <span class="math">λ&#8321;</span>
+              is the largest curvature of the landscape &mdash; each step
+              overshoots the walls and it <em>oscillates</em>; past
+              <span class="math">1/λ&#8321;</span> it <em>diverges</em></span>.
+            </p>
+            <div class="eta-control">
+              <div class="eta-row">
+                <span class="math">&eta;</span>
+                <input
+                  id="eta-slider"
+                  class="knob"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  value="500"
+                  aria-label="learning rate eta"
+                />
+                <span id="eta-value" class="mono">0.0632</span>
+              </div>
+              <div class="eta-regime-row">
+                <span>regime</span>
+                <span id="eta-regime" class="mono" data-regime="descending">descending</span>
+              </div>
+            </div>
+            <p class="caption">
+              same landscape, same start, same rule &mdash; only
+              <span class="math">η</span> changes. The <em>regime</em> readout
+              names the current behavior. <em>Play</em> (footer) rolls the ball
+              along the current trail.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="gd-d" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;2 &middot; Gradient descent</p>
+            <h2>Four settings, four trajectories.</h2>
+            <p>
+              Every <span class="math">η</span> draws a different route down
+              the same landscape &mdash;
+              <span class="look" tabindex="0" data-look="trail-gd">watch the trail on the surface</span>.
+              Crawling hugs the wall for hundreds of steps. Descending glides
+              down the valley floor. Oscillating bounces between the walls
+              while still moving forward. Diverging leaves the frame entirely.
+            </p>
+            <p>
+              Nothing about the landscape changed, and the gradient was
+              accurate at every point. The entire difference is
+              <span class="math">η</span> &mdash; how far each step scales the
+              local arrow. Momentum, next, is the standard fix for exactly
+              this failure mode.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="mom-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;3 &middot; Momentum</p>
+            <h2>GD zigzags. Momentum glides.</h2>
+            <p>
+              Same steep valley, same start, same
+              <span class="math">η</span> for both. <span class="look" tabindex="0" data-look="trail-gd">Vanilla GD
+              (<span class="gd-red">red</span>) zigzags</span>: each step crosses the
+              whole valley and the next one cancels it.
+              <span class="look" tabindex="0" data-look="trail-mom">Momentum
+              (<span class="mom-blue">blue</span>) replaces the raw gradient
+              with a running average of recent gradients</span> &mdash; and the
+              average of opposite walls&rsquo; gradients is near zero. What
+              survives is the component they agree on: down the valley.
+            </p>
+            <div class="eta-control">
+              <div class="eta-row">
+                <span class="math">&beta;</span>
+                <input
+                  id="beta-slider"
+                  class="knob beta-slider"
+                  type="range"
+                  min="0"
+                  max="990"
+                  step="1"
+                  value="450"
+                  aria-label="momentum beta"
+                />
+                <span id="beta-value" class="mono beta-value">0.45</span>
+              </div>
+              <div class="eta-regime-row">
+                <span>regime</span>
+                <span id="beta-regime" class="mono beta-regime" data-regime="glide">glide</span>
+              </div>
+            </div>
+            <p class="caption">
+              <span class="math">β</span>, the momentum coefficient, sets the
+              length of the averaging window: <span class="math">β</span> = 0
+              is exactly GD. The <em>regime</em> readout names the current
+              behavior. <em>Play</em> (footer) rolls the blue ball along the
+              current path.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="mom-b" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;3 &middot; Momentum</p>
+            <h2>Overshoot.</h2>
+            <p>
+              Raise <span class="math">β</span> and the accumulated velocity
+              carries the point past the valley floor and up the far wall
+              &mdash; <span class="look" tabindex="0" data-look="mom-apexes">the gold markers flag each
+              <em>overshoot-and-counter-swing</em></span> as it happens. With too
+              long a memory, the across-valley oscillation persists instead of
+              damping out.
+            </p>
+            <div class="eta-control">
+              <div class="eta-row">
+                <span class="math">&beta;</span>
+                <input
+                  id="beta-slider-b"
+                  class="knob beta-slider"
+                  type="range"
+                  min="0"
+                  max="990"
+                  step="1"
+                  value="970"
+                  aria-label="momentum beta"
+                />
+                <span id="beta-value-b" class="mono beta-value">0.97</span>
+              </div>
+              <div class="eta-regime-row">
+                <span>regime</span>
+                <span id="beta-regime-b" class="mono beta-regime" data-regime="overshoot">overshoot</span>
+              </div>
+            </div>
+            <p class="caption">
+              here <span class="math">β</span> = 0.97 &mdash; the
+              across-valley oscillation survives dozens of steps before
+              damping out
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="mom-c" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;3 &middot; Momentum</p>
+            <h2>Selective forgetting.</h2>
+            <p>
+              This is what averaging buys. Across the valley, the gradients
+              flip sign every step, so the average cancels them:
+              <em>forgotten</em>. Along the valley, they all point the same
+              way, so the average accumulates them: <em>kept</em>.
+            </p>
+            <p>
+              Momentum is not an extra force. It is <em>selective
+              forgetting</em> &mdash; and
+              <span class="look" tabindex="0" data-look="trail-mom">the direction it discards is exactly
+              the direction GD was wasting steps on</span>.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="adam-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;4 &middot; Adam</p>
+            <h2>Two arrows, one angle.</h2>
+            <p>
+              Adam keeps a running mean <span class="math"><span class="hat">m<span class="hat-mark">&#710;</span></span></span> of
+              the gradient and a running mean <span class="math"><span class="hat">v<span class="hat-mark">&#710;</span></span></span>
+              of its square, then steps by
+              <span class="math"><span class="hat">m<span class="hat-mark">&#710;</span></span>/&radic;<span class="hat">v<span class="hat-mark">&#710;</span></span></span> &mdash;
+              <em>per coordinate</em>. <span class="look" tabindex="0" data-look="adam-bars">In the panel, each bar is one
+              coordinate&rsquo;s
+              <span class="math"><span class="hat">m<span class="hat-mark">&#710;</span></span>&#7522;/&radic;<span class="hat">v<span class="hat-mark">&#710;</span></span>&#7522;</span></span>:
+              Adam measures each coordinate&rsquo;s gradient in its own units.
+            </p>
+            <p>
+              On the surface, <span class="look" tabindex="0" data-look="adam-arrows">the <span class="adam-y">yellow arrow</span> is
+              Adam&rsquo;s actual update; the white arrow is
+              &minus;<span class="math">&#8711;f</span> scaled by
+              <span class="math">η</span></span>. The angle between them &mdash;
+              computed in the parameter plane, never on screen &mdash; is the
+              point: Adam&rsquo;s update does not align with the negative
+              gradient.
+            </p>
+            <p class="caption">
+              the panel&rsquo;s <span class="look" tabindex="0" data-look="adam-bars">readouts report the angle and both step lengths</span>
+              (<span class="math">&eta;&#8711;f</span> vs
+              <span class="adam-y">&#916;adam</span>) &middot; <em>Play</em>
+              (footer) rolls red GD and yellow Adam side by side from the
+              inspected point
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="adam-b" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;4 &middot; Adam</p>
+            <h2>Scale invariance.</h2>
+            <p>
+              The steepness slider scales one curvature,
+              <span class="math">λ&#8321;</span>, up to
+              <span class="math">50&times;</span>, live.
+              <span class="look" tabindex="0" data-look="adam-arrows">GD&rsquo;s step length
+              grows with it &mdash; same <span class="math">η</span>, steeper
+              wall, longer step</span>. <span class="look" tabindex="0" data-look="adam-arrows">Adam&rsquo;s barely moves:
+              <span class="math">&radic;<span class="hat">v<span class="hat-mark">&#710;</span></span></span> absorbs exactly the
+              scale GD stepped into</span>. This is Adam&rsquo;s near-invariance to
+              per-coordinate gradient scale.
+            </p>
+            <div class="eta-control">
+              <div class="eta-row">
+                <span class="math">&lambda;&#8321;</span>
+                <input
+                  id="steep-slider"
+                  class="knob"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  value="0"
+                  aria-label="steepness lambda 1"
+                />
+                <span id="steep-value" class="mono">&times;1</span>
+              </div>
+              <div class="eta-regime-row">
+                <span>panel readouts track the two step lengths</span>
+                <span class="mono caption">same η = 0.3 for both</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="lab" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;5 &middot; The disagreement lab</p>
+            <h2>Reshape the landscape.</h2>
+            <p>
+              Two sliders rebuild the valley while the race re-runs.
+              <span class="math">λ₁/λ₂</span> sets the curvature ratio;
+              <em>rotation</em> reorients the bowl relative to the start
+              point. <span class="look" tabindex="0" data-look="trails-all">All three optimizers race from the same white point</span>,
+              each with its own fixed <span class="math">η</span> &mdash;
+              where the landscape suits them they agree; where it does not,
+              they split.
+            </p>
+            <div class="eta-control">
+              <div class="eta-row">
+                <span class="math">λ₁/λ₂</span>
+                <input
+                  id="elong-slider"
+                  class="knob"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  value="1000"
+                  aria-label="elongation"
+                />
+                <span id="elong-value" class="mono">&times;50</span>
+              </div>
+              <div class="eta-row">
+                <span class="math">θ</span>
+                <input
+                  id="rot-slider"
+                  class="knob"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  value="333"
+                  aria-label="rotation"
+                />
+                <span id="rot-value" class="mono">30&deg;</span>
+              </div>
+            </div>
+            <ul class="regime-checklist" id="lab-checklist">
+              <li id="check-gd" data-lit="false">
+                <span class="dot"></span>steep walls &rarr;
+                <span class="gd-red">GD zigzags</span>
+              </li>
+              <li id="check-mom" data-lit="false">
+                <span class="dot"></span>strong elongation &rarr;
+                <span class="mom-blue">momentum overshoots</span>
+              </li>
+              <li id="check-adam" data-lit="false">
+                <span class="dot"></span>always &rarr;
+                <span class="adam-y">Adam&rsquo;s step is near-invariant</span>
+              </li>
+            </ul>
+            <p class="caption">
+              the <span class="look" tabindex="0" data-look="curves-panel">loss curves (top left) record every run</span>; toggle log
+              <span class="math">ℒ</span> there. The checklist lights each
+              claim as the race confirms it. <em>Play</em> (footer) replays
+              the whole race, ball by ball.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="lab" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;5 &middot; The disagreement lab</p>
+            <h2>When do they disagree?</h2>
+            <p>
+              <span class="look" tabindex="0" data-look="trail-gd"><em>Steep walls</em> put GD past its oscillation threshold
+              &mdash; it zigzags</span>. <span class="look" tabindex="0" data-look="trail-mom"><em>Strong elongation</em> gives momentum a
+              wall worth overshooting</span> &mdash; its averaged velocity swings
+              across the valley while GD crawls. <span class="look" tabindex="0" data-look="trail-adam"><em>Adam never enters either
+              regime</em></span>: its per-coordinate normalization makes its step
+              almost invariant to everything the two sliders do.
+            </p>
+            <p>
+              That invariance is why Adam wins here by default. The general
+              lesson of this lab: whether an optimizer&rsquo;s advantages
+              apply is a property of the <em>landscape</em>, not of the
+              optimizer alone. <span class="look" tabindex="0" data-look="trails-all">Drag the sliders until all three trails
+              coincide</span>.
+            </p>
+            <p class="caption">
+              §6 &middot; the fog game &mdash; navigation with nothing but the
+              needle &mdash; is where the story goes next.
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="fog-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;6 &middot; The fog game</p>
+            <h2>The landscape is hidden.</h2>
+            <p>
+              This is the §1 landscape again &mdash; the exact least-squares
+              surface you fitted by hand &mdash; now invisible. Three things
+              remain: the fit inset, the compass needle, and whatever terrain
+              you have already measured. That is the optimizer&rsquo;s entire
+              information state; here you work under it too.
+            </p>
+            <p>
+              <em>Drag on the compass</em> to take a step. Each landing point
+              measures the loss and the gradient there, and the terrain you
+              crossed paints itself in. The budget is
+              <span class="mono">10</span> measurements; the bar in the panel
+              tracks what you have spent. Find as low a point as you can.
+            </p>
+            <p class="caption">
+              the dashed ring on the compass is the maximum stride per step
+              &middot; the needle is still &minus;<span class="math">&nabla;L</span>
+              &mdash; local, and the only guidance available
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="fog-b" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;6 &middot; The fog game</p>
+            <h2>Level 2: a new landscape.</h2>
+            <p>
+              Level 2 is <em>Rosenbrock</em> &mdash; a strongly curved valley
+              whose floor is nearly flat. Fresh budget, same rules, same
+              needle. The flat floor reads as a reasonable place to stop; the
+              needle gives no warning about what lies around the bend.
+            </p>
+            <p>
+              Spend the budget or press <em>Finish run</em> &mdash; either way
+              the fog lifts and the run is scored. <em>Where you stop is your
+              answer.</em>
+            </p>
+            <p class="caption">
+              the three optimizers are graded by the same criterion &mdash;
+              their final loss when their own runs stop
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="fog-c" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;6 &middot; The reveal</p>
+            <h2>You against the optimizers.</h2>
+            <p id="fog-run-lead">
+              Your run first replays as a <span class="fog-you">white
+              ghost</span>. Then three more launch from your <em>same
+              start</em>: <span class="gd-red">GD</span>,
+              <span class="mom-blue">momentum</span> and
+              <span class="adam-y">Adam</span> &mdash; sixty steps each, no
+              map, the same blindness you had.
+            </p>
+            <p id="fog-empty-lead" hidden>
+              You scrolled past the fog game without drawing a stride, so
+              there is no run of yours to replay &mdash; the stage runs the
+              three optimizers alone, blind from the shared start. Scroll back
+              to <em>Level&nbsp;2</em> and take at least one step; the reveal
+              will grade it against theirs.
+            </p>
+            <table class="scorecard">
+              <thead>
+                <tr><th>run</th><th>measurements</th><th>final loss <span class="math">ℒ</span></th></tr>
+              </thead>
+              <tbody id="fog-scorecard-body"></tbody>
+            </table>
+            <p id="fog-verdict" class="caption"></p>
+            <p id="fog-trap-note">
+              <span class="look" tabindex="0" data-look="gold-marker">The gold marker is the true global minimum</span>. If you stopped on
+              Rosenbrock&rsquo;s curved valley floor, you stopped somewhere
+              that felt final &mdash; flat underfoot, progress crawl-slow &mdash;
+              while the global minimum sat a short distance away, across an
+              unvisited ridge. A point can read as done and still not be a
+              minimum at all. Local optimality is not global optimality.
+            </p>
+            <p id="fog-empty-verdict-note" hidden>
+              <span class="look" tabindex="0" data-look="gold-marker">The gold marker is the true global minimum</span>
+              &mdash; where the terrain actually bottoms out. Without a run of
+              your own there is no verdict to read; the machines&rsquo; race is
+              the whole show.
+            </p>
+            <p class="caption">
+              <em>Replay</em> (footer) re-runs all four ghosts &middot; no run
+              ever sees the whole surface &mdash; not even after the reveal
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="tilt-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;7 &middot; The tilt game</p>
+            <h2>The update rule, as physics.</h2>
+            <p>
+              The board is the parameter plane and <em>you</em> tilt it:
+              <span class="mono">W A S D</span> or the arrow keys pitch and
+              roll the valley under the white ball. The physics is the
+              optimizer&rsquo;s own update in disguise &mdash;
+              <span class="math">v&ensp;+=&ensp;(&minus;&#8711;f·g&ensp;+&ensp;tilt&ensp;&minus;&ensp;c·v)·dt</span>
+              &mdash; so the ball carries <em>real</em> momentum: release the
+              keys and it coasts on.
+            </p>
+            <p>
+              The <span class="math">c</span> slider is the damping
+              coefficient &mdash; <span class="math">&beta;</span>&rsquo;s
+              role, made physical. Near zero, velocity persists for a long
+              time; raised, it decays within a few steps. The readout beside
+              the slider names the current regime &mdash; long memory, damped,
+              over-damped. The panel&rsquo;s other readouts report the current
+              tilt, the unique cells visited, the steps elapsed and the loss.
+              Every new cell the ball enters is one measurement &mdash; the
+              only information the physics ever receives.
+            </p>
+            <p class="caption">
+              level 1 &middot; the elongated valley: tilt <em>across</em> it
+              and the ball zigzags exactly the way vanilla GD does &mdash;
+              settle in a minimum, or press <em>Finish run</em>, to complete
+              the level
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="tilt-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;7 &middot; The tilt game, continued</p>
+            <h2>Two harder valleys.</h2>
+            <p>
+              Level&nbsp;<span class="mono">2</span> is
+              <em>Rosenbrock</em>: a strongly curved valley whose floor is
+              nearly flat, with the minimum around the bend. Level&nbsp;
+              <span class="mono">3</span> is <em>Rastrigin</em>: a regular
+              grid of local minima &mdash; there, <em>any</em> minimum you
+              settle in counts, and the scorecard reports which one.
+            </p>
+            <p>
+              Pick levels with the buttons in the panel. Your score is the
+              same pair of numbers an optimizer is graded by &mdash;
+              <em>measurements spent</em> (unique cells visited) and
+              <em>steps elapsed</em> &mdash; plus the final loss where you
+              stopped.
+            </p>
+            <p class="caption">
+              keys are screen-relative &middot; the physics always runs in the
+              parameter plane &middot; finishing a level posts the scorecard
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="tilt-b" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;7 &middot; The scorecard</p>
+            <h2>Replay your run; then the machines run theirs.</h2>
+            <p>
+              Your run is recorded &mdash; drag the <em>scrubber</em> to move
+              the white ghost through your own trajectory, step by step,
+              or press <em>ghost</em> to play it back.
+            </p>
+            <p>
+              Then three optimizers start from your <em>same start</em>:
+              <span class="gd-red">GD</span>,
+              <span class="mom-blue">momentum</span> and
+              <span class="adam-y">Adam</span>, each with a hand-tuned
+              learning rate. On Rosenbrock, GD crawls while momentum slides
+              along the floor; on Rastrigin, they typically settle in
+              different local minima than you did.
+            </p>
+            <p class="caption">
+              the scorecard (steps &middot; cells &middot; final
+              <span class="math">ℒ</span>) sits in the panel beside the
+              scrubber &middot; the ball&rsquo;s inertia <em>is</em>
+              momentum: the selective forgetting of &sect;3, under manual
+              control
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="swarm" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;7 &middot; The swarm finale</p>
+            <h2>Basins of attraction &mdash; and unequal outcomes.</h2>
+            <p>
+              This country has <em>six</em> basins, all different: a deep
+              canyon (the true global minimum), a narrow spike nearly as
+              low, a round cellar, a long shallow trough, one broad shallow
+              bowl, and a barely-there dimple beside the canyon&rsquo;s rim.
+              One hundred balls are scattered across it and released; each
+              runs the same physics you just played &mdash; no tilt,
+              mid-range damping &mdash; and settles into the first basin its
+              trajectory enters.
+            </p>
+            <p>
+              They do <em>not</em> agree &mdash; and they do <em>not</em>
+              end equal. The white streams split into clusters whose final
+              losses differ by whole units: the canyon&rsquo;s crowd bottoms
+              out far below the broad bowl&rsquo;s; the narrow spike catches
+              only the few balls that almost fall straight in. The
+              panel&rsquo;s scorecard keeps each cluster&rsquo;s count and
+              mean final loss &mdash; the same landscape, the same rule, and
+              a different answer from every starting point.
+            </p>
+            <div class="eta-control">
+              <label class="toggle">
+                <input type="checkbox" id="swarm-blind" />
+                <span><strong>run blind</strong> &mdash; hide the landscape;
+                each ball paints every cell it crosses</span>
+              </label>
+            </div>
+            <p class="caption">
+              ensembles and mini-batches cover ground faster &mdash; one
+              hundred balls paint the map about
+              <span class="mono">100&times;</span> faster than the single
+              ball of &sect;6 &mdash; but no ball ever sees the whole map:
+              the ensemble&rsquo;s information exceeds any member&rsquo;s
+              &mdash; and where a ball lands is a property of its
+              <em>basin</em>, not of how hard it tried
+            </p>
+            <p class="caption">
+              &sect;8 &middot; the lab &mdash; assemble an optimizer from
+              parts and benchmark it against the three machines &mdash; is
+              where the story goes next
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="labrule" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;8 &middot; Build your own optimizer</p>
+            <h2>Assemble an update rule.</h2>
+            <p>
+              Every optimizer you have met is a bet about landscape structure:
+              GD and momentum are exact combinations of the four parts below,
+              and per-coordinate normalize gets you very close to Adam.
+              The workbench
+              (left) exposes all four: the learning rate
+              <span class="math">&eta;</span> &mdash; the base step size; the
+              momentum coefficient <span class="math">&beta;</span> &mdash;
+              the length of the gradient-averaging window;
+              <em>per-coordinate normalize</em> &mdash; Adam&rsquo;s trick,
+              scaling each coordinate by its own gradient magnitude; and
+              <em>clip</em> &mdash; a hard cap on a single step&rsquo;s
+              length. The pills beneath the dials select the benchmark
+              landscape.
+            </p>
+            <p>
+              With the defaults assembled, your rule runs
+              <span class="rule-purple">purple</span> &mdash; and it is
+              currently <em>beating Adam</em>: the scoreboard below is live,
+              re-run on every part you move. Converged means the loss fell
+              below the landscape&rsquo;s threshold; the count is the steps
+              needed to get there.
+            </p>
+            <table class="scorecard">
+              <thead>
+                <tr><th>run</th><th>steps to converge</th><th>final <span class="math">ℒ</span></th></tr>
+              </thead>
+              <tbody id="rule-score-body-a"></tbody>
+            </table>
+            <p id="rule-verdict-a" class="caption"></p>
+            <p class="caption">
+              turn every part off (<span class="math">&beta;</span> = 0, no
+              normalize, clip off) and your rule <em>is</em> plain GD &mdash;
+              at whatever <span class="math">&eta;</span> you have dialed. The
+              machines run their own hand-tuned <span class="math">&eta;</span>
+              per landscape, so their rows won&rsquo;t match a dials-off run
+              step-for-step
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="labrule" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;8 &middot; Build your own optimizer</p>
+            <h2>Change the landscape; the ranking flips.</h2>
+            <p>
+              Change nothing. Pick another landscape in the workbench and
+              the same rule&rsquo;s verdict flips: on Rosenbrock, your
+              normalized rule converged about
+              <span class="mono">8&times;</span> faster than momentum &mdash;
+              which did converge, while GD never landed; on the
+              elongated valley, momentum converges faster than your rule; on
+              least squares you finish <em>last</em>.
+            </p>
+            <p>
+              This is the no-free-lunch theorem, experienced rather than
+              quoted: <em>an update rule is a bet about landscape
+              structure</em>, and no bet wins everywhere. When a paper
+              claims its optimizer beats Adam, this scoreboard is what it
+              is claiming &mdash; for one landscape, tuned until it did.
+            </p>
+            <table class="scorecard">
+              <thead>
+                <tr><th>run</th><th>steps to converge</th><th>final <span class="math">ℒ</span></th></tr>
+              </thead>
+              <tbody id="rule-score-body-b"></tbody>
+            </table>
+            <p id="rule-verdict-b" class="caption"></p>
+            <p class="caption">
+              &sect;9 &middot; the epilogue &mdash; the exact map you played
+              on, and the honest size of the maps you&rsquo;ll never see
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="epi-a" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;9 &middot; Epilogue</p>
+            <h2>The exact landscape.</h2>
+            <p>
+              One debt to settle: §1 never named the landscape you were
+              optimizing. It was this surface &mdash; literally, no metaphor
+              left:
+            </p>
+            <p class="formula formula-gold math">
+              L(w,&thinsp;b) = &Sigma;<sub>&#7522;</sub>&thinsp;(w·x&#7522; + b &minus; y&#7522;)²
+            </p>
+            <p>
+              <span class="look" tabindex="0" data-look="epi-marker">The gold point on the surface is the normal equations&rsquo;
+              exact answer</span>, <span class="mono">w* = 0.9094, b* = 1.3064</span>
+              &mdash; the minimum you were approaching by hand when you
+              dragged the line, computed in one line of linear algebra. The
+              overlay reports it, with the loss at that minimum,
+              <span class="mono">&#8467;<sub>min</sub> = 1.4246</span>. For
+              two parameters, the map was <em>literal truth</em>: height
+              really was loss, and the whole surface really was there.
+            </p>
+            <p class="caption">
+              the compass still reads that surface, one needle at a time
+              &mdash; every optimizer in this page saw exactly that, and
+              nothing more
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="epi-b" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;9 &middot; Epilogue</p>
+            <h2>No picture in 10&#8310; dimensions.</h2>
+            <p>
+              Watch the surface dissolve into the lattice on the left. A
+              small real network has
+              <span class="mono">&asymp;10&#8310;</span> parameters, not
+              two &mdash; its loss is a surface in
+              <span class="mono">10&#8310;</span> dimensions. There is no
+              picture of it. Not a hard one: a <em>mathematically
+              impossible</em> one &mdash; a three-dimensional landscape
+              offers exactly one outside view at a time, and a
+              million-dimensional one offers none.
+            </p>
+            <p>
+              Every optimizer you have met still works in there, because
+              none of them ever used the picture. The needle, the momentum
+              memory, the per-coordinate scaling, the cap on step length
+              &mdash; your four parts, your three machines: all of it was
+              always just <em>local</em> measurements, one point at a time.
+              The landscape was never visible. That is the through-line of
+              this page.
+            </p>
+            <p class="caption">
+              the dots are a lattice of parameters &mdash; 13&thinsp;824 of
+              them, about a seventieth of the real thing
+            </p>
+          </div>
+        </div>
+
+          <div class="rstep" data-scene="epi-c" data-active="false">
+          <div class="step__body">
+            <p class="kicker">&sect;9 &middot; Epilogue</p>
+            <h2>Limitations.</h2>
+            <ol class="limits-list">
+              <li>
+                <strong>Two dimensions taught you a 10&#8310;-dimensional
+                habit.</strong> Real loss surfaces are dominated by saddles,
+                not valleys; the elongated-bowl intuitions transfer only
+                partly.
+              </li>
+              <li>
+                <strong>Our rankings are curated.</strong> On real tasks
+                momentum-SGD sometimes generalizes where Adam does not;
+                &ldquo;fastest to converge&rdquo; (this scoreboard&rsquo;s
+                whole framing) ignores generalization and per-step compute.
+              </li>
+              <li>
+                <strong>The fog lifted after play.</strong> In practice it
+                never does &mdash; and there is no low-dimensional map under
+                the fog to reveal.
+              </li>
+              <li>
+                <strong>Everything here is deterministic full-batch.</strong>
+                Real training is mini-batch noise on a shifting distribution
+                &mdash; messier than any trail on this page.
+              </li>
+            </ol>
+            <div class="credits">
+              <p class="caption credits-head">prior art</p>
+              <ul class="credits-list caption">
+                <li><a href="https://distill.pub/2017/momentum/" target="_blank" rel="noreferrer">Why Momentum Really Works</a> &mdash; Gabriel Goh, Distill</li>
+                <li><a href="https://playground.tensorflow.org" target="_blank" rel="noreferrer">TensorFlow Playground</a> &mdash; Smilkov, Carter et al.</li>
+                <li><a href="https://emiliendupont.github.io/2018/optimization-vis/" target="_blank" rel="noreferrer">Interactive Visualization of Optimizers</a> &mdash; Emilien Dupont</li>
+                <li><a href="https://www.kudosai.com/Play-and-Learn/Gradient-Golf" target="_blank" rel="noreferrer">Gradient Golf</a> &mdash; play-your-way-downhill (its fully-visible flat map is the misconception this page fixes)</li>
+                <li><a href="https://openreview.net/forum?id=dojxn0hE8m" target="_blank" rel="noreferrer">Rolling Ball Optimizer</a> &mdash; Belgoumri et al., OpenReview 2025</li>
+              </ul>
+            </div>
+            <p class="caption">
+              CS375 &middot; built as an interactive explorable &mdash; every
+              trajectory on this page is computed live, in your browser, from
+              ~200 lines of hand-written optimizer math
+            </p>
+          </div>
+        </div>
+
+        </div>
+
+        <footer id="reader-foot">
+          <div id="transport">
+            <button id="play-btn" type="button" class="btn" hidden>&#9654; Play</button>
+            <button id="replay-btn" type="button" class="btn" hidden>&#8635; Replay</button>
+            <input
+              id="replay-scrub"
+              class="knob scrub"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="0"
+              aria-label="replay progress"
+              hidden
+            />
+            <div id="speed-wrap" hidden>
+              <button type="button" data-speed="0.5">0.5&times;</button>
+              <button type="button" data-speed="1" data-on="true">1&times;</button>
+              <button type="button" data-speed="2">2&times;</button>
+            </div>
+          </div>
+          <button id="skip-btn" type="button" class="btn" hidden>Skip animation</button>
+          <button type="button" id="continue-hint" hidden>continue <span class="down-glyph">&darr;</span></button>
+        </footer>
+      </aside>
+    </div>
+  </body>
+</html>

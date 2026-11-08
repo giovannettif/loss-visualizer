@@ -1,0 +1,1627 @@
+/*
+ * Page chrome for the whole project (visual bar):
+ * near-black #0b0d10, no white surfaces; flat panels with 1px hairline
+ * borders, 8px radius, generous padding; STIX Two Text (Georgia fallback)
+ * display headings, italic-serif math, system-ui UI text, monospace numbers.
+ * Motion: everything eased (cubic in-out, ~700ms).
+ *
+ * Interaction model v4: the page IS an app — a fixed full-viewport canvas
+ * pane (left) and a single continuous reader panel (right) whose steps stack
+ * into one scrollable document. There is no document scrolling on <body>;
+ * wheeling the reader scrolls the document (steps snap into place), wheeling
+ * the canvas zooms the camera.
+ */
+
+:root {
+  --bg: #0b0d10;
+  --panel: rgba(13, 16, 20, 0.88);
+  --hairline: rgba(255, 255, 255, 0.08);
+  --text: #dfe5ec;
+  --text-dim: #9aa4b2;
+  --accent: #58c4dd;
+  --serif: "STIX Two Text", Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", monospace;
+  /* Reader panel width; the 3D frame is offset by half of this. */
+  --reader-w: min(36rem, 44vw);
+  --ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur: 0.7s;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* the page IS the app — no document scrollbar */
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.math { font-family: var(--serif); font-style: italic; }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.caption { color: var(--text-dim); }
+
+/* m̂/v̂: the combining circumflex (U+0302) renders as a detached caret
+   floating up-and-right in STIX Two Text italic, so hats are composed
+   manually — the letter plus a spacing caret (U+02C6) centered above it. */
+.hat {
+  position: relative;
+  display: inline-block;
+}
+
+.hat .hat-mark {
+  position: absolute;
+  left: 50%;
+  /* Sat just above the ASCENDER line, 12px of air above x-height letters
+     like m/v — the hats read as detached (QA V1, corrected diagnosis: the
+     offset is vertical). Lowered to sit 1-2px above x-height. */
+  top: -0.06em;
+  /* Georgia's U+02C6 stroke sits right-of-center in its advance box;
+     compensate on the fallback font. */
+  transform: translateX(-62%);
+  font-style: normal;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+button.btn {
+  font: 500 13px/1 var(--sans);
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  padding: 8px 13px;
+  cursor: pointer;
+  transition:
+    color 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+button.btn:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.18); }
+
+button.btn[data-active="true"] {
+  color: var(--accent);
+  border-color: rgba(88, 196, 221, 0.55);
+}
+
+/* ---------------- affordances (QA craft pass) ---------------- */
+
+/* Keyboard users get a visible ring on every control; range inputs (whose
+   native outline is invisible under appearance:none) get a glow instead. */
+button:focus-visible,
+input[type="checkbox"]:focus-visible,
+#rail button:focus-visible {
+  outline: 2px solid rgba(88, 196, 221, 0.75);
+  outline-offset: 2px;
+}
+
+input[type="range"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(88, 196, 221, 0.45);
+  border-radius: 2px;
+}
+
+/* Sliders answer hover with a brighter, larger-feeling thumb. */
+input[type="range"].knob:hover::-webkit-slider-thumb,
+#eta-slider:hover::-webkit-slider-thumb {
+  border-color: #8fdcef;
+  box-shadow: 0 0 12px rgba(88, 196, 221, 0.85);
+}
+
+input[type="range"].knob:hover::-moz-range-thumb,
+#eta-slider:hover::-moz-range-thumb {
+  border-color: #8fdcef;
+  box-shadow: 0 0 12px rgba(88, 196, 221, 0.85);
+}
+
+/* ---------------- app shell ---------------- */
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* LEFT pane: full-viewport landscape canvas + HUD. */
+#stage-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+#app #stage {
+  position: absolute;
+  inset: 0;
+}
+
+/* The camera preset buttons belong top-LEFT; the reader owns the right. */
+#stage .lv-controls {
+  top: 14px;
+  right: auto;
+  left: 14px;
+}
+
+/* HUD show/hide: eased, slightly rising (visual bar motion). */
+.hud {
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+
+.hud[data-visible="false"] {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.hud[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Hero title card, centered over the CANVAS region (left of the reader);
+   pointer-events pass through so the landscape stays draggable. */
+#hero-overlay {
+  position: absolute;
+  inset: 0;
+  right: var(--reader-w);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+  pointer-events: none;
+}
+
+#hero-overlay .kicker {
+  margin: 0 0 18px;
+  /* Raised from the caption grey: the eyebrow must read over bright terrain. */
+  color: #dfe5ec;
+  text-shadow: 0 1px 14px rgba(11, 13, 16, 0.95);
+}
+
+#hero-overlay h1 {
+  margin: 0 0 18px;
+  font-size: clamp(40px, 4.4vw, 68px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  text-shadow: 0 2px 28px rgba(11, 13, 16, 0.95);
+}
+
+#hero-overlay .subtitle {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #c7cfd8;
+  text-shadow: 0 1px 14px rgba(11, 13, 16, 0.95);
+}
+
+/* Left HUD stack: fit-preview inset above the loss readout. */
+#hud-left {
+  position: absolute;
+  top: 62px;
+  left: 14px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+
+#fit-canvas {
+  display: block;
+  width: 308px;
+  height: 236px;
+}
+
+.hud-label { font-size: 11px; }
+.hud-caption { font-size: 12px; margin-top: 9px; }
+
+.hud-readout {
+  margin-top: 9px;
+  display: flex;
+  gap: 16px;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+#loss-value {
+  margin-top: 3px;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+/* Compass minimap: bottom-left of the canvas pane (§1 onward). */
+#minimap-panel {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 6;
+}
+
+/* §7: the tilt panel owns the top-left slot, so during tilt play the
+   compass docks to the canvas pane's bottom-right instead. */
+#minimap-panel[data-dock="right"] {
+  left: auto;
+  right: calc(var(--reader-w) + 14px);
+}
+
+/* QA P4-EDGE-2: below ~820px of viewport height the fog HUD (stacked under
+   the §1 fit inset on fog-a) covers most of the bottom-left compass — the
+   arrow-drawing surface the whole game depends on. While the fog panel is
+   up, dock the compass to the canvas pane's right (the §7 pattern) so it
+   stays clearly visible and grabbable at common laptop sizes. */
+@media (max-height: 820px) {
+  #stage-wrap:has(#fog-panel[data-visible="true"]) #minimap-panel {
+    bottom: auto;
+    top: 62px;
+    left: auto;
+    right: calc(var(--reader-w) + 14px);
+  }
+}
+
+#minimap-canvas {
+  display: block;
+  width: 140px;
+  /* 220 = 200 + 20px extended below the plane frame so the w-axis tick
+     labels and the "w" letter (27px reserve in CompassMinimap) render
+     unclipped (visual verdict n-6). */
+  height: 220px;
+}
+
+/* ---------------- RIGHT pane: the reader ---------------- */
+
+#reader {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--reader-w);
+  z-index: 10;
+  background: #0b0c0f;
+  border-left: 1px solid var(--hairline);
+}
+
+/* Minimal corner chip: app title + step count (the old header, shrunk). */
+#reader-chip {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 12;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 12px;
+  background: rgba(11, 13, 16, 0.55);
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+}
+
+.reader-app {
+  font-family: var(--serif);
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  color: var(--text);
+}
+
+#reader-count { font-size: 11px; }
+
+/* Step progress rail: a slim tick strip floating on the RIGHT EDGE of the
+   screen, over everything (outside the panel). Hover reveals the step
+   name; click jumps (the app respects the step lock). */
+#rail {
+  position: fixed;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 7px;
+  background: rgba(11, 13, 16, 0.35);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+}
+
+#rail button {
+  appearance: none;
+  position: relative;
+  border: none;
+  background: rgba(255, 255, 255, 0.22);
+  height: 3px;
+  width: 18px;
+  border-radius: 2px;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    background var(--dur) var(--ease),
+    width var(--dur) var(--ease);
+}
+
+#rail button:hover { background: rgba(255, 255, 255, 0.55); }
+
+#rail button[data-visited="true"] { background: rgba(255, 255, 255, 0.4); }
+
+#rail button[data-current="true"] {
+  background: var(--accent);
+  width: 30px;
+  box-shadow: 0 0 8px rgba(88, 196, 221, 0.55);
+}
+
+/* Hover step name, revealed to the left of the strip. */
+#rail button .tick-name {
+  position: absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  white-space: nowrap;
+  font: 500 11px/1.3 var(--sans);
+  color: var(--text);
+  background: rgba(11, 13, 16, 0.92);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  padding: 4px 9px;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+
+#rail button:hover .tick-name {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* The step text area: ONE CONTINUOUS SCROLL DOCUMENT (v4). Every .rstep is a
+   full-panel page stacked in normal flow; the next step's text sits directly
+   below and slides in from below as part of the scroll. The body NEVER
+   scrolls natively (overflow hidden) — main.ts drives scrollTop from a
+   virtual scroll target, snapping the incoming step onto its park offset
+   (its offsetTop) when the scroll reaches it. Content is vertically centered
+   via auto margins, which collapse gracefully to top-alignment when a step
+   runs taller than the panel (the document simply continues past it). */
+#reader-body {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.rstep {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 30px 56px 84px 30px; /* right clears the floating rail; bottom clears the footer overlay */
+  pointer-events: none;
+}
+
+.rstep[data-active="true"] {
+  pointer-events: auto;
+}
+
+/* Faint page-break hairline where one step's page ends and the next begins. */
+.rstep + .rstep {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.step__body {
+  margin: auto 0; /* vertical centering that degrades to top when overflowing */
+  padding: 0 4px;
+}
+
+.kicker {
+  margin: 0 0 12px;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rstep h2 {
+  margin: 0 0 12px;
+  font-size: 25px;
+  line-height: 1.15;
+}
+
+.rstep p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #c7cfd8;
+}
+
+.rstep p.caption {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.formula {
+  display: block;
+  margin: 6px 0 12px;
+  padding: 10px 14px;
+  font-size: 19px;
+  color: var(--text);
+  border-left: 2px solid rgba(88, 196, 221, 0.5);
+  background: rgba(88, 196, 221, 0.05);
+  border-radius: 0 8px 8px 0;
+}
+
+/* Footer: edge progress hint + skip + continue + play transport.
+   Overlays the panel bottom so the step text owns the full height. */
+#reader-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px;
+  padding: 8px 20px;
+  background: #0b0c0f;
+  border-top: 1px solid var(--hairline);
+}
+
+/* Thin progress hint on the panel edge while a step animation plays. */
+#edge-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+#edge-fill {
+  width: 100%;
+  height: 0%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(88, 196, 221, 0.6);
+}
+
+#skip-btn[hidden],
+#continue-hint[hidden] { display: none; }
+
+#continue-hint {
+  /* A real button (click-to-advance, Interaction model v2) stripped back to
+     the hint's look, with the pointer affordance. */
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+#continue-hint:hover { color: var(--text); }
+
+#continue-hint .down-glyph {
+  display: inline-block;
+  color: var(--accent);
+  animation: continue-bob 2.2s var(--ease) infinite;
+}
+
+@keyframes continue-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(4px); }
+}
+
+/* ---------------- universal play transport (§2–§5) ---------------- */
+
+#transport {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#play-btn { min-width: 96px; text-align: left; }
+
+#speed-wrap {
+  display: flex;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* The author display rule above beats the UA [hidden] style — scenes with
+   no transport (hero, §1, §6 fog-a/b) must actually hide it. */
+#speed-wrap[hidden] { display: none; }
+
+#speed-wrap button {
+  appearance: none;
+  border: none;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  font: 500 11px/1 var(--mono);
+  padding: 8px 9px;
+  cursor: pointer;
+  transition:
+    color 0.35s var(--ease),
+    background 0.35s var(--ease);
+}
+
+#speed-wrap button + button {
+  border-left: 1px solid var(--hairline);
+}
+
+#speed-wrap button[data-on="true"] {
+  color: var(--accent);
+  background: rgba(88, 196, 221, 0.12);
+}
+
+/* ---------------- §2 eta slider ---------------- */
+
+.eta-control {
+  margin: 6px 0 4px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+}
+
+.eta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.eta-row .math { font-size: 19px; color: var(--text); }
+
+#eta-value,
+.beta-value {
+  min-width: 7ch;
+  text-align: right;
+  font-size: 14px;
+  color: var(--text);
+}
+
+#eta-slider {
+  flex: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+
+#eta-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 8px rgba(88, 196, 221, 0.5);
+  cursor: pointer;
+}
+
+#eta-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 8px rgba(88, 196, 221, 0.5);
+  cursor: pointer;
+}
+
+#eta-slider::-moz-range-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 1px;
+}
+
+.eta-regime-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+#eta-regime,
+.beta-regime {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  transition: color var(--dur) var(--ease);
+}
+
+/* Every regime state gets its designated, legible-on-near-black palette
+   color — consistently across §2's η regimes and §3's β regimes. */
+[data-regime="crawling"] { color: #9aa4b2; }
+[data-regime="descending"] { color: #83c167; }
+[data-regime="oscillating"] { color: #f4d345; }
+[data-regime="diverging"] { color: #fc6255; }
+[data-regime="zigzag"] { color: #fc6255; }
+[data-regime="glide"] { color: #58c4dd; }
+[data-regime="overshoot"] { color: #f0ac5f; }
+/* §7's damping regimes (the β analogy made physical) join the same system. */
+[data-regime="long memory"] { color: #58c4dd; }
+[data-regime="damped"] { color: #5cd0b3; }
+[data-regime="over-damped"] { color: #f0ac5f; }
+
+/* §2 gd-b: the minimap becomes a drawing surface. The whole panel is the
+   grab surface (CompassMinimap binds its pointer handlers to the panel), so
+   the crosshair covers the padding and caption too. */
+#minimap-panel[data-drawing="true"],
+#minimap-panel[data-drawing="true"] canvas {
+  cursor: crosshair;
+}
+
+/* Live length/angle readout while an arrow drag is held (§2/§6): floats over
+   the panel's top edge so it never shifts the canvas layout. */
+#minimap-panel .mm-readout {
+  position: absolute;
+  left: 0;
+  top: -22px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(13, 16, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font: 12px/1.2 var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+#minimap-panel .mm-readout[data-visible="true"] { opacity: 1; }
+
+/* ---------------- §4 adam inspector + shared slider chrome ---------------- */
+
+/* Shared knob/track chrome for every slider (eta, beta, steepness). */
+input[type="range"].knob {
+  flex: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"].knob::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 8px rgba(88, 196, 221, 0.5);
+  cursor: pointer;
+}
+
+input[type="range"].knob::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 8px rgba(88, 196, 221, 0.5);
+  cursor: pointer;
+}
+
+input[type="range"].knob::-moz-range-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 1px;
+}
+
+/* The Adam inspector panel occupies the canvas-pane top-left slot. */
+#adam-panel {
+  position: absolute;
+  top: 62px;
+  left: 14px;
+  z-index: 6;
+  width: 300px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 14px 1fr 52px;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.bar-name {
+  font-size: 14px;
+  color: var(--text);
+  text-align: center;
+}
+
+.bar-track {
+  position: relative;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* Zero line at the middle: bars grow left or right from it. */
+.bar-track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.bar-fill {
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  background: #f4d345;
+  border-radius: 2px;
+  transition: width 0.35s var(--ease);
+}
+
+.bar-fill[data-sign="pos"] { left: 50%; }
+.bar-fill[data-sign="neg"] { right: 50%; }
+
+.bar-row .mono {
+  font-size: 12px;
+  color: var(--text);
+  text-align: right;
+}
+
+.inspector-readout {
+  margin-top: 10px;
+  display: grid;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+
+.adam-y { color: #f4d345; }
+.gd-red { color: #fc6255; }
+.mom-blue { color: #58c4dd; }
+
+/* ---------------- §6 fog game ---------------- */
+
+/* Fog panel: same canvas-pane top-left slot as the §4/§5 instruments. On
+   fog-a it stacks BELOW the §1 fit inset (which stays visible there). */
+#fog-panel {
+  position: absolute;
+  top: 62px;
+  left: 14px;
+  z-index: 6;
+  width: 300px;
+}
+
+#fog-panel[data-below="true"] { top: 402px; }
+
+.fog-readouts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.fog-readout {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13.5px;
+}
+
+.fog-readout .mono { color: var(--text); font-size: 14.5px; }
+
+/* Budget bar: thin track, teal fill (the fog-game's identity color). */
+.fog-budget {
+  margin-top: 10px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#fog-budget-fill {
+  height: 100%;
+  width: 0%;
+  background: #5cd0b3;
+  box-shadow: 0 0 6px rgba(92, 208, 179, 0.5);
+  transition: width 0.5s var(--ease);
+}
+
+#fog-budget-fill[data-full="true"] {
+  background: #f0ac5f;
+  box-shadow: 0 0 6px rgba(240, 172, 95, 0.6);
+}
+
+#fog-finish { margin-top: 12px; width: 100%; }
+
+/* The reveal annotation — gold serif, pinned above the global-min marker. */
+#fog-reveal-note {
+  position: absolute;
+  z-index: 7;
+  transform: translate(-50%, calc(-100% - 30px));
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  letter-spacing: 0.01em;
+  color: #f0ac5f;
+  text-shadow: 0 1px 14px rgba(11, 13, 16, 0.95), 0 0 18px rgba(240, 172, 95, 0.35);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.fog-you { color: #ffffff; }
+
+/* Reveal scorecard: hairline table, monospace numbers, best-per-column lit. */
+.scorecard {
+  width: 100%;
+  margin: 6px 0 4px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.scorecard th {
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.scorecard td {
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #c7cfd8;
+}
+
+.scorecard tr:last-child td { border-bottom: none; }
+
+.scorecard td.mono { text-align: right; color: var(--text); }
+
+.scorecard td.mono[data-best="true"] {
+  color: #83c167;
+}
+
+.scorecard td.mono[data-best="true"]::after {
+  content: " ▸";
+  font-size: 11px;
+}
+
+/* QA: the §7 reveal scorecard must read one strictly aligned line per row.
+   Four columns in a 300px panel wrapped under auto layout — the steps cell's
+   ▸ marker dropped to a second line and vertical-align: middle floated it
+   above the neighboring cells. Fixed columns + nowrap + uniform line-height. */
+#tilt-score .scorecard { table-layout: fixed; }
+#tilt-score .scorecard th,
+#tilt-score .scorecard td {
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.2;
+  padding: 5px 5px;
+}
+#tilt-score .scorecard th:nth-child(1),
+#tilt-score .scorecard td:nth-child(1) { width: 34%; }
+#tilt-score .scorecard th:nth-child(2),
+#tilt-score .scorecard td:nth-child(2) { width: 22%; }
+#tilt-score .scorecard th:nth-child(3),
+#tilt-score .scorecard td:nth-child(3) { width: 14%; }
+#tilt-score .scorecard th:nth-child(4),
+#tilt-score .scorecard td:nth-child(4) { width: 30%; }
+
+/* QA V2: the §8 scoreboard's last row slid under the transport footer
+   (~26px overflow at 1600×900) — trim the labrule step's vertical chrome
+   by just over that so the 4-row table clears the fold. */
+.rstep[data-scene="labrule"] { padding-top: 16px; }
+.rstep[data-scene="labrule"] { padding-bottom: 12px; }
+.rstep[data-scene="labrule"] .kicker { margin-bottom: 8px; }
+.rstep[data-scene="labrule"] h2 { margin-bottom: 8px; }
+.rstep[data-scene="labrule"] .scorecard td { padding: 5px 8px; }
+.rstep[data-scene="labrule"] .scorecard { margin: 4px 0 2px; }
+.rstep[data-scene="labrule"] p.caption { margin-bottom: 8px; }
+
+/* ---------------- §5 disagreement lab ---------------- */
+
+/* Loss-curve panel: same canvas-pane top-left slot as the §4 inspector. */
+#curves-panel {
+  position: absolute;
+  top: 62px;
+  left: 14px;
+  z-index: 6;
+  width: 300px;
+}
+
+#curves-canvas {
+  display: block;
+  width: 268px;
+  height: 168px;
+  margin-top: 8px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.toggle input {
+  accent-color: var(--accent);
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+}
+
+/* The "when do they disagree" checklist. */
+.regime-checklist {
+  list-style: none;
+  margin: 6px 0 4px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+}
+
+.regime-checklist li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-dim);
+  transition: color var(--dur) var(--ease);
+}
+
+.regime-checklist .dot {
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition:
+    background var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.regime-checklist li[data-lit="true"] { color: var(--text); }
+.regime-checklist li[data-lit="true"] .dot {
+  background: currentColor;
+  border-color: transparent;
+  box-shadow: 0 0 8px currentColor;
+}
+
+#check-gd[data-lit="true"] { color: #fc6255; }
+#check-mom[data-lit="true"] { color: #58c4dd; }
+#check-adam[data-lit="true"] { color: #f4d345; }
+
+/* ---------------- §7 tilt game ---------------- */
+
+/* Tilt panel: same canvas-pane top-left slot as the §6 fog instrument. */
+#tilt-panel {
+  position: absolute;
+  top: 62px;
+  left: 14px;
+  z-index: 6;
+  width: 300px;
+}
+
+/* Level picker: three flat pills; the live level is teal-lit. */
+.tilt-levels {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.tilt-levels .btn {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 11.5px;
+  text-align: center;
+}
+
+.tilt-levels .btn[data-on="true"] {
+  color: #5cd0b3;
+  border-color: rgba(92, 208, 179, 0.55);
+}
+
+/* Scorecard + scrubber blocks appear once the run is done. */
+#tilt-score { margin-top: 12px; }
+#tilt-score[hidden] { display: none; }
+
+#tilt-verdict { margin: 8px 0 0; font-size: 12.5px; line-height: 1.5; }
+
+#tilt-replay {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#tilt-replay[hidden] { display: none; }
+
+#tilt-replay-play { min-width: 84px; }
+
+#tilt-replay .knob { flex: 1; }
+
+/* Swarm finale counter (swarm scene reuses the tilt panel). */
+#tilt-swarm-line {
+  margin-top: 12px;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+#tilt-swarm-line[hidden] { display: none; }
+
+/* Per-cluster scorecard: one hairline row per occupied well — crowd size
+   and mean final loss — with the global basin's row gold. */
+.tilt-clusters {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tilt-clusters[hidden] { display: none; }
+
+.tilt-clusters li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  color: #c7cfd8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.tilt-clusters li:last-child { border-bottom: none; }
+
+.tilt-clusters li[data-global="true"] {
+  background: rgba(240, 172, 95, 0.07);
+  color: var(--text);
+}
+
+.tilt-clusters li[data-global="true"] .tc-name { color: #f0ac5f; }
+
+.tilt-clusters .tc-name {
+  flex: 1;
+  font-family: var(--serif);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tilt-clusters .tc-count { color: var(--text-dim); }
+
+.tilt-clusters .tc-loss { color: var(--text); }
+
+/* Swarm mode: the play controls (damping, level picker) would be dead. */
+#tilt-panel[data-mode="swarm"] .eta-control,
+#tilt-panel[data-mode="swarm"] #tilt-levels {
+  display: none;
+}
+
+#tilt-finish { margin-top: 12px; width: 100%; }
+#tilt-finish[hidden] { display: none; }
+
+/* QA GP-1: the ball is near-still but the run hasn't ended — pulse the
+ * guaranteed escape (Finish) so "still rolling" never reads as a hang.
+ * Gold glow, breathing border; honors reduced motion. */
+#tilt-finish[data-cue="pulse"] {
+  color: var(--text);
+  border-color: rgba(240, 172, 95, 0.75);
+  animation: finish-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes finish-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(240, 172, 95, 0.0); }
+  50% { box-shadow: 0 0 12px 1px rgba(240, 172, 95, 0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #tilt-finish[data-cue="pulse"] { animation: none; }
+}
+
+/* ---------------- §8 optimizer workbench ---------------- */
+
+/* Workbench panel: the same canvas-pane top-left slot as §4–§7. The two
+   clip rows share the standard slider chrome; the level pills reuse the
+   §7 tilt-level styles via the shared .tilt-levels class. */
+#rule-panel {
+  position: absolute;
+  top: 62px;
+  left: 14px;
+  z-index: 6;
+  /* Never crosses into the reader pane, at any viewport (user report: the
+     workbench floated over the top of the layout on narrow windows). */
+  width: min(300px, calc(100vw - var(--reader-w) - 28px));
+}
+
+#rule-panel .eta-row { margin-bottom: 10px; }
+#rule-panel .eta-row:last-child { margin-bottom: 0; }
+
+/* The landscape line sits on its own row so long names never wrap into the
+   first slider row (visual verdict on the first labrule shot). */
+.rule-landscape-line {
+  margin: 3px 0 10px;
+  font-size: 11.5px;
+}
+
+/* The clip row's label is a word, not a symbol — sized to match. */
+.rule-clip-row .math {
+  font-size: 14px;
+  font-style: normal;
+  font-family: var(--sans);
+  color: var(--text);
+}
+
+.rule-purple { color: #9a72ac; }
+
+/* ---------------- §9 epilogue ---------------- */
+
+/* The pinned formula note: gold serif, anchored above the marker, the same
+   positioning convention as the fog reveal note. */
+#epi-formula {
+  position: absolute;
+  z-index: 7;
+  transform: translate(-50%, calc(-100% - 34px));
+  text-align: center;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.epi-formula-math {
+  font-size: 24px;
+  letter-spacing: 0.01em;
+  color: #f0ac5f;
+  text-shadow:
+    0 1px 14px rgba(11, 13, 16, 0.95),
+    0 0 22px rgba(240, 172, 95, 0.35);
+}
+
+.epi-formula-math sub { font-size: 0.62em; }
+
+.epi-formula-arg {
+  margin-top: 7px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: #c7cfd8;
+  text-shadow: 0 1px 14px rgba(11, 13, 16, 0.95);
+}
+
+/* The dimension-lattice caption: a quiet boxed note, bottom-center of the
+   canvas pane (the reader carries the argument; this carries the numbers). */
+#epi-lattice-note {
+  position: absolute;
+  left: 14px;
+  right: calc(var(--reader-w) + 14px);
+  bottom: 18px;
+  z-index: 6;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#epi-lattice-note .caption {
+  max-width: 34rem;
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  background: rgba(13, 16, 20, 0.82);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  text-align: center;
+}
+
+/* The gold formula block in the reader (§9's reveal beat). */
+.formula-gold {
+  color: #f0ac5f;
+  border-left-color: rgba(240, 172, 95, 0.55);
+  background: rgba(240, 172, 95, 0.05);
+}
+
+/* The four stated limitations: a tight numbered list, serif numerals. */
+.limits-list {
+  margin: 6px 0 14px;
+  padding-left: 22px;
+  display: grid;
+  gap: 10px;
+}
+
+.limits-list li {
+  font-size: 14px;
+  line-height: 1.55;
+  color: #c7cfd8;
+}
+
+.limits-list li::marker {
+  color: var(--text-dim);
+  font-family: var(--serif);
+}
+
+.limits-list strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Credits block: hairline-topped, quiet links that light on hover. */
+.credits {
+  margin: 14px 0 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.credits-head {
+  margin: 0 0 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 10.5px;
+}
+
+.credits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.credits-list li { font-size: 12.5px; line-height: 1.5; }
+
+.credits-list a {
+  color: #c7cfd8;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(88, 196, 221, 0.35);
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.credits-list a:hover {
+  color: var(--accent);
+  border-color: rgba(88, 196, 221, 0.8);
+}
+
+/* QA V7: the §9 credits' last two prior-art entries sat below the fold —
+   tighten the closing step's vertical rhythm by ~60px so all five clear it. */
+.rstep[data-scene="epi-c"] { padding-top: 18px; }
+.rstep[data-scene="epi-c"] .limits-list { margin: 4px 0 8px; gap: 5px; }
+.rstep[data-scene="epi-c"] .limits-list li { line-height: 1.45; }
+.rstep[data-scene="epi-c"] .credits { margin: 8px 0 2px; padding-top: 8px; }
+.rstep[data-scene="epi-c"] .credits-list { gap: 3px; }
+.rstep[data-scene="epi-c"] .credits-list li { line-height: 1.4; }
+.rstep[data-scene="epi-c"] p.caption { margin-bottom: 8px; }
+
+/* Screenshot mode: snap every state — no transitions, no animations. */
+html.shot .hud,
+html.shot .rstep,
+html.shot .bar-fill,
+html.shot * {
+  transition: none !important;
+  animation: none !important;
+}
+
+@media (max-width: 1100px) {
+  :root { --reader-w: min(34rem, 52vw); }
+  /* QA layout-foot-hint-clipped: at 900–1100px the transport's minimum
+     contents plus the continue hint exceed the reader's width, pushing the
+     hint (the primary ready affordance) past the right edge. Let the foot
+     wrap so the hint drops to its own row instead of clipping. */
+  #reader-foot { flex-wrap: wrap; row-gap: 4px; }
+  /* QA layout-panel-overlaps-narrow: the canvas pane here is ~430–550px
+     wide while the fog/fit/tilt panels (300–340px) and the right-docked
+     compass (~185px) cannot share it — panels physically overlapped the
+     compass and its canvas swallowed the fit inset's drag handle. Narrow
+     the left column and the compass together (the canvas resize keeps the
+     plane fit + angle truthfulness; CompassMinimap re-measures on window
+     resize) so the column and the docked instrument sit side by side. */
+  #fit-canvas { width: min(208px, 24vw); height: auto; aspect-ratio: 308 / 236; }
+  #fog-panel,
+  #tilt-panel { width: 240px; }
+  /* The fit inset lost ~77px of height (308→208 canvas); keep the same
+     ~18px gap above the stacked fog panel. */
+  #fog-panel[data-below="true"] { top: 325px; }
+  #minimap-canvas { width: 112px; height: 176px; }
+  /* Cap the compass PANEL too: its caption's max-content (≈151px) would
+     keep the panel ~185px wide even with the narrower canvas, and the
+     docked panel would still overlap the 240px fog/fit column. */
+  #minimap-panel {
+    width: 146px;
+  }
+  #minimap-panel .hud-caption { font-size: 10.5px; line-height: 1.35; }
+  /* The level pills and scorecard were built for a 300px panel. */
+  .tilt-levels .btn { font-size: 10.5px; letter-spacing: 0; }
+  #tilt-score .scorecard { font-size: 12px; }
+  #tilt-score .scorecard th { font-size: 10px; letter-spacing: 0.04em; padding: 6px 3px; }
+  #tilt-score .scorecard td { padding: 7px 3px; }
+  /* QA RL-1: below ~1100px the corner title chip (top 12–42px) lands on the
+     first line of top-anchored step content (labrule's kicker collided at
+     900×700) — give every step a top inset that clears the chip. The
+     [data-scene] form out-specifies (and here, out-orders) the per-scene
+     padding-top rules. */
+  .rstep,
+  .rstep[data-scene] { padding-top: 52px; }
+}
+
+/* QA cycle B (critic-labrule-scorecard-footer-clip): at short viewport
+   heights the §8 scoreboard's lower rows slid UNDER the transport footer —
+   #reader-body is overflow:hidden, so nothing could scroll them back
+   (1280×720: 22px over; 1100×700: ~67px over, with the ≤1100px width trim
+   stacking padding-top 52px on top). Trim the labrule step's vertical
+   chrome harder at short heights so the 4-row table + verdict clear the
+   fold; the 1600×900 pattern above stays untouched. */
+@media (max-height: 820px) {
+  .rstep[data-scene="labrule"] { padding-top: 12px; padding-bottom: 6px; }
+  .rstep[data-scene="labrule"] .kicker { margin-bottom: 3px; }
+  .rstep[data-scene="labrule"] h2 { font-size: 17px; margin-bottom: 4px; }
+  .rstep[data-scene="labrule"] .step__body p {
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 5px;
+  }
+  .rstep[data-scene="labrule"] .scorecard { margin: 2px 0 2px; }
+  .rstep[data-scene="labrule"] .scorecard th { padding: 3px 6px; }
+  .rstep[data-scene="labrule"] .scorecard td { padding: 2px 6px; }
+  .rstep[data-scene="labrule"] p.caption { font-size: 11px; margin-bottom: 4px; }
+  /* The "next section" trailer is the expendable line at short heights. */
+  .rstep[data-scene="labrule"] p.caption:last-of-type { display: none; }
+}
+
+/* Narrow AND short (1100×700): the reader loses another 30px of width to
+   the 52vw pane, wrapping the prose tighter — shave the intersection too. */
+@media (max-width: 1100px) and (max-height: 820px) {
+  .rstep[data-scene="labrule"] { padding-top: 8px; }
+  .rstep[data-scene="labrule"] .step__body p { font-size: 11.5px; line-height: 1.38; margin-bottom: 4px; }
+  .rstep[data-scene="labrule"] .scorecard th { padding: 3px 4px; }
+  .rstep[data-scene="labrule"] .scorecard td { padding: 2px 4px; }
+  .rstep[data-scene="labrule"] p.caption { margin-bottom: 2px; }
+}
+
+/* ---------------- debug page layout ---------------- */
+
+/* debug.html's #stage is a direct body child and fills the viewport. */
+body > #stage {
+  position: fixed;
+  inset: 0;
+}
+
+#hud {
+  position: fixed;
+  /* Below the Isometric / Map view pills (they own the top ~46px, same
+     convention as #hud-left on the main page) so the two never intersect. */
+  top: 62px;
+  left: 16px;
+  width: 264px;
+  z-index: 20;
+  /* Opaque fill: the pills' borders/labels must not ghost through the panel. */
+  background: #0b0c0f;
+}
+
+#hud h1 {
+  margin: 0;
+  font-size: 19px;
+  color: var(--text);
+}
+
+#hud .caption {
+  margin: 6px 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+#fn-buttons { display: flex; gap: 8px; }
+
+.readout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  margin: 14px 0 0;
+}
+
+.readout dt {
+  color: var(--text-dim);
+  font-size: 12px;
+  font-family: var(--serif);
+  font-style: italic;
+}
+
+.readout dd {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text);
+  text-align: right;
+}
+
+/* ================= hover-to-look (flagship) =================
+   Reader spans carry .look + data-look; hovering or keyboard-focusing one
+   spotlights WHERE to look on the scene. The span is a quiet affordance:
+   dotted accent underline, no click. The scene side dims un-spotlighted HUD
+   panels and glows the target via [data-spot]. */
+
+.look {
+  cursor: default;
+  color: inherit;
+  border-bottom: 1px dotted rgba(88, 196, 221, 0.45);
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    text-shadow var(--dur) var(--ease);
+}
+
+.look:hover,
+.look:focus-visible {
+  color: #eef4f8;
+  border-bottom-color: rgba(88, 196, 221, 0.9);
+  text-shadow: 0 0 12px rgba(88, 196, 221, 0.45);
+  outline: none;
+}
+
+/* Un-targeted HUD panels recede while a spotlight is live; the targeted one
+   stays full and picks up an accent edge + soft glow (a 3B1B-style "here"). */
+#stage-wrap .hud.panel {
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+#stage-wrap[data-scene-focus="true"] .hud.panel[data-visible="true"]:not([data-spot="true"]) {
+  opacity: 0.18;
+}
+
+#stage-wrap .hud.panel[data-spot="true"] {
+  border-color: rgba(88, 196, 221, 0.55);
+  box-shadow:
+    0 0 18px rgba(88, 196, 221, 0.28),
+    0 0 3px rgba(88, 196, 221, 0.55);
+}
+
+/* Screenshot mode is hover-free: the dim must never leak into ?shot= PNGs. */
+html.shot #stage-wrap[data-scene-focus] .hud.panel:not([data-spot="true"]) {
+  opacity: 1;
+}
+
+/* ================= universal play transport (v2) =================
+   ▶/❚❚ toggle + ↻ Replay + scrub bar + 0.5×/1×/2×. Playback progress is
+   visible on the controls themselves: --replay-progress fills the scrub bar
+   AND a thin underline on the ▶/❚❚ button. */
+
+#transport button.btn[hidden],
+#replay-scrub[hidden] { display: none; }
+
+/* Playback progress underline ON the play/pause control itself. */
+#play-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+#play-btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: calc(var(--replay-progress, 0) * 100%);
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(88, 196, 221, 0.6);
+  transition: width 0.12s linear;
+}
+
+#replay-scrub {
+  flex: 1;
+  min-width: 90px;
+}
+
+/* Scrub bars show their fill: accent up to the playhead, hairline after. */
+input[type="range"].scrub {
+  background: linear-gradient(
+    90deg,
+    rgba(88, 196, 221, 0.55) calc(var(--scrub-progress, 0) * 100%),
+    rgba(255, 255, 255, 0.18) calc(var(--scrub-progress, 0) * 100%)
+  );
+}
+
+/* ================= intro choreography =================
+   The intro park (virtual scroll below step 0) is FULL-BLEED: the reader
+   panel is slid off-screen, the title overlay centers on the whole viewport,
+   and the wheel belongs to the document. Crossing the intro boundary slides
+   the reader in (cubic in-out, ~700ms — the motion bar) and the camera
+   re-centers the scene left of the panel on the same clock: the two-pane
+   app. Scrolling back to the very top re-expands to full-bleed. */
+
+#reader {
+  transition: transform var(--dur) var(--ease);
+  will-change: transform;
+}
+
+#app[data-intro="true"] #reader {
+  transform: translateX(calc(100% + 2px));
+}
+
+#reader-chip {
+  transition: opacity var(--dur) var(--ease);
+}
+
+#app[data-intro="true"] #reader-chip { opacity: 0; }
+
+/* The title card centers on the FULL viewport while full-bleed and on the
+   canvas region once the reader docks. (The full transition list keeps the
+   .hud opacity/transform easing — an id rule here would otherwise override
+   the shorthand.) */
+#hero-overlay {
+  transition:
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    right var(--dur) var(--ease);
+}
+
+#app[data-intro="true"] #hero-overlay { right: 0; }
+
+/* "scroll to descend" — the intro's only affordance (wheel / Space / a plain
+   click all dock the reader). Hidden once docked: at step 0 the title stays,
+   but the invitation has been accepted. */
+#hero-overlay .intro-hint {
+  margin: 30px 0 0;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  text-shadow: 0 1px 14px rgba(11, 13, 16, 0.95);
+  transition: opacity var(--dur) var(--ease);
+}
+
+#hero-overlay .intro-hint .down-glyph {
+  display: inline-block;
+  color: var(--accent);
+  animation: continue-bob 2.2s var(--ease) infinite;
+}
+
+#app[data-intro="false"] #hero-overlay .intro-hint { opacity: 0; }

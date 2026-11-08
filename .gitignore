@@ -1,0 +1,9 @@
+node_modules/
+dist/
+tools/node.zip
+*.local
+qa/
+shots/
+.shots/
+.zcode/
+nul
