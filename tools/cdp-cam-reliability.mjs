@@ -2,8 +2,9 @@
  * cdp-cam-reliability.mjs — camera-orbit RELIABILITY probe over CDP.
  *
  * Reproduces the "orbit drag intermittently does nothing" defect class and
- * guards the fix. Every scenario performs a real orbit drag through trusted
- * CDP Input and asserts the azimuth actually changed:
+ * guards the fix. Binding (user scheme 2026-11-09): RIGHT-drag ORBITS,
+ * LEFT-drag PANS. Every scenario performs a real RIGHT-button orbit drag
+ * through trusted CDP Input and asserts the azimuth actually changed:
  *
  *   1. baseline orbit on the live app (?step=1, task-a);
  *   2. orbit after Skip (a step-change camera flight is mid-flight, Skip
@@ -18,6 +19,13 @@
  *      leaves behind);
  *   9. orbit after a STUCK puppet drag (§1 ball grab whose up is lost);
  *  10. full recovery: a later real pointerup clears everything.
+ *  11. LEFT-drag PANS on the live app (attitude untouched, terrain follows);
+ *  12. the pan clamp holds in the DOCKED pane (reader strip excluded) at
+ *      the fit zoom and zoomed in — and in MAP VIEW;
+ *  13. a step change re-centres the pan;
+ *  14. LEFT-drag on the §1 ball still moves the ball (the puppet claim wins
+ *      over the pan) and never pans;
+ *  15. right-drag orbit right after a pan still works.
  *
  * Usage: node tools/cdp-cam-reliability.mjs <baseUrl>   (e.g. http://localhost:4173)
  */
@@ -140,7 +148,7 @@ async function orbitDelta(dx = 120, dy = 30) {
   const mouse = (type, x, y) =>
     send("Input.dispatchMouseEvent", {
       type, x: Math.round(x), y: Math.round(y),
-      button: "left", buttons: type === "mouseReleased" ? 0 : 1,
+      button: "right", buttons: type === "mouseReleased" ? 0 : 2,
       clickCount: 1, pointerType: "mouse",
     });
   await mouse("mousePressed", cx, cy);
@@ -155,7 +163,7 @@ async function orbitDelta(dx = 120, dy = 30) {
   return { before, during, delta: during.azimuthDeg - before.azimuthDeg };
 }
 
-/** Full orbit attempt: read AFTER release too (inertia must not reverse it). */
+/** Full RIGHT-drag orbit attempt: read AFTER release too (inertia must not reverse it). */
 async function orbitWorks(label, minDelta = 3) {
   const r = await canvasRect();
   const cx = r.left + r.width / 2;
@@ -164,7 +172,7 @@ async function orbitWorks(label, minDelta = 3) {
   const mouse = (type, x, y) =>
     send("Input.dispatchMouseEvent", {
       type, x: Math.round(x), y: Math.round(y),
-      button: "left", buttons: type === "mouseReleased" ? 0 : 1,
+      button: "right", buttons: type === "mouseReleased" ? 0 : 2,
       clickCount: 1, pointerType: "mouse",
     });
   await mouse("mousePressed", cx, cy);
@@ -336,6 +344,149 @@ await evalJson(`(function(){
 })()`);
 await sleep(150);
 await orbitWorks("10. orbit after the ghost ups are finally delivered");
+
+/* ---- 11-15. LEFT-drag PAN on the live app --------------------------------- */
+const panInfo = async () => JSON.parse(await evalJson(`JSON.stringify(__wp1.debug().viewPan)`));
+/** Per-axis clamp contract (see LandscapeView.clampPan). */
+const clampOk = (p, tol = 2) => {
+  const bw = p.box.maxX - p.box.minX, bh = p.box.maxY - p.box.minY;
+  const pw = p.pane.right - p.pane.left, ph = p.pane.bottom - p.pane.top;
+  const okX = bw <= pw + tol
+    ? p.box.minX >= p.pane.left - tol && p.box.maxX <= p.pane.right + tol
+    : p.box.minX <= p.pane.left + tol && p.box.maxX >= p.pane.right - tol;
+  const okY = bh <= ph + tol
+    ? p.box.minY >= p.pane.top - tol && p.box.maxY <= p.pane.bottom + tol
+    : p.box.minY <= p.pane.top + tol && p.box.maxY >= p.pane.bottom - tol;
+  // Larger than the pane on an axis: the terrain itself (not just its
+  // bounding box) must still be on screen — a real share of the footprint.
+  return okX && okY && ((bw <= pw + tol && bh <= ph + tol) || p.footprintVisible >= 0.2);
+};
+async function leftDrag(x0, y0, dx, dy, steps = 12) {
+  const mouse = (type, x, y) =>
+    send("Input.dispatchMouseEvent", {
+      type, x: Math.round(x), y: Math.round(y),
+      button: "left", buttons: type === "mouseReleased" ? 0 : 1,
+      clickCount: 1, pointerType: "mouse",
+    });
+  await mouse("mousePressed", x0, y0);
+  for (let i = 1; i <= steps; i++) {
+    await mouse("mouseMoved", x0 + (dx * i) / steps, y0 + (dy * i) / steps);
+    await sleep(16);
+  }
+  await sleep(120);
+  await mouse("mouseReleased", x0 + dx, y0 + dy);
+  await sleep(120);
+}
+/** Pane centre (left of the docked reader) in CSS px. */
+async function paneCenter() {
+  const r = await canvasRect();
+  const p = await panInfo();
+  return { x: r.left + (p.pane.left + p.pane.right) / 2, y: r.top + r.height / 2 };
+}
+
+// gd-a: a scene without a grabbable point (pure pan target).
+await railClick(4);
+await waitIdle("rail jump to gd-a");
+await sleep(400);
+{
+  const c = await paneCenter();
+  const a0 = await attitude();
+  const p0 = await panInfo();
+  await leftDrag(c.x, c.y, -90, 50);
+  const a1 = await attitude();
+  const p1 = await panInfo();
+  check(
+    "11. live app: LEFT-drag pans (attitude untouched, terrain follows the cursor)",
+    Math.abs(a1.azimuthDeg - a0.azimuthDeg) < 0.05 && Math.abs(a1.elevationDeg - a0.elevationDeg) < 0.05 &&
+      Math.abs((p1.box.minX - p0.box.minX) - -90) <= 3 && Math.abs((p1.box.minY - p0.box.minY) - 50) <= 3,
+    `attitude ${a0.azimuthDeg.toFixed(2)}/${a0.elevationDeg.toFixed(2)} -> ${a1.azimuthDeg.toFixed(2)}/${a1.elevationDeg.toFixed(2)}; box Δ(${(p1.box.minX - p0.box.minX).toFixed(1)}, ${(p1.box.minY - p0.box.minY).toFixed(1)})`,
+  );
+  const fitRes = [];
+  for (const [dx, dy] of [[2500, 0], [-2500, 0], [0, 2500], [0, -2500]]) {
+    await leftDrag(c.x, c.y, dx, dy, 20);
+    fitRes.push({ d: [dx, dy], ok: clampOk(await panInfo()) });
+  }
+  const lastFit = await panInfo();
+  check(
+    "12a. pan clamp in the docked pane at the step zoom (reader strip excluded)",
+    fitRes.every((r) => r.ok),
+    JSON.stringify(fitRes) + ` last box=${JSON.stringify(lastFit.box)} pane=${JSON.stringify(lastFit.pane)}`,
+  );
+  // Zoom in (wheel over the canvas pane) and push hard again.
+  for (let i = 0; i < 8; i++) {
+    await send("Input.dispatchMouseEvent", { type: "mouseWheel", x: Math.round(c.x), y: Math.round(c.y), deltaX: 0, deltaY: -300, pointerType: "mouse" });
+    await sleep(100);
+  }
+  await sleep(900);
+  const zinRes = [];
+  for (const [dx, dy] of [[3000, 0], [-3000, 0], [0, 3000], [0, -3000]]) {
+    await leftDrag(c.x, c.y, dx, dy, 20);
+    const p = await panInfo();
+    zinRes.push({ d: [dx, dy], ok: clampOk(p), over: p.centerOverFootprint, vis: +p.footprintVisible.toFixed(3) });
+  }
+  check(
+    "12b. pan clamp zoomed in: the terrain never leaves the pane",
+    zinRes.every((r) => r.ok),
+    JSON.stringify(zinRes),
+  );
+  // Map view: pan works and is clamped.
+  await btnClick('.lv-btn[data-preset="map"]');
+  await sleep(600);
+  const m0 = await panInfo();
+  await leftDrag(c.x, c.y, 70, -40);
+  const m1 = await panInfo();
+  const am = await attitude();
+  const mapRes = [];
+  for (const [dx, dy] of [[3000, 0], [-3000, 0], [0, 3000], [0, -3000]]) {
+    await leftDrag(c.x, c.y, dx, dy, 20);
+    mapRes.push({ d: [dx, dy], ok: clampOk(await panInfo()) });
+  }
+  check(
+    "12c. Map view on the live app: LEFT-drag pans (still top-down) and stays clamped",
+    Math.abs(am.elevationDeg - 90) < 0.2 && Math.hypot(m1.px.x - m0.px.x, m1.px.y - m0.px.y) > 20 &&
+      mapRes.every((r) => r.ok),
+    `elev ${am.elevationDeg} panΔ ${JSON.stringify({ x: m1.px.x - m0.px.x, y: m1.px.y - m0.px.y })} ${JSON.stringify(mapRes)}`,
+  );
+}
+// 13. a step change re-centres (the refit owns the framing again).
+await railClick(5);
+await waitIdle("step change to gd-b");
+{
+  const p = await panInfo();
+  check(
+    "13. a step change re-centres the pan",
+    Math.abs(p.px.x) < 0.5 && Math.abs(p.px.y) < 0.5,
+    JSON.stringify(p.px),
+  );
+}
+// 14. §1 ball grab beats the pan.
+await railClick(1);
+await waitIdle("rail jump back to task-a");
+await sleep(500);
+{
+  const ball = JSON.parse(await evalJson(`JSON.stringify(__wp1.ballScreen())`));
+  const f0 = JSON.parse(await evalJson(`JSON.stringify(__wp1.fit())`));
+  const p0 = await panInfo();
+  await leftDrag(ball.x, ball.y, 40, -30);
+  const f1 = JSON.parse(await evalJson(`JSON.stringify(__wp1.fit())`));
+  const p1 = await panInfo();
+  check(
+    "14. LEFT-drag on the §1 ball moves the ball, not the camera",
+    (Math.abs(f1.w - f0.w) > 1e-3 || Math.abs(f1.b - f0.b) > 1e-3) &&
+      Math.abs(p1.px.x - p0.px.x) < 0.5 && Math.abs(p1.px.y - p0.px.y) < 0.5,
+    `fit ${JSON.stringify(f0)} -> ${JSON.stringify(f1)}; pan ${JSON.stringify(p0.px)} -> ${JSON.stringify(p1.px)}`,
+  );
+  // A left-drag away from the ball pans.
+  const c = await paneCenter();
+  await leftDrag(c.x - 250, c.y + 150, 60, 0);
+  const p2 = await panInfo();
+  check(
+    "14b. LEFT-drag off the ball pans on the task scene",
+    Math.abs(p2.px.x - p1.px.x) > 20,
+    JSON.stringify(p2.px),
+  );
+}
+await orbitWorks("15. right-drag orbit right after a pan");
 
 /* ---- done ---------------------------------------------------------------- */
 console.log(`\n${ran - failures}/${ran} checks passed`);

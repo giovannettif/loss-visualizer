@@ -33,6 +33,16 @@ const liveTrails = new Set<AnimatedTrail>();
 /** Materials the generic overlay dimmer must skip (self-managed here). */
 export const TRAIL_MATERIALS = new WeakSet<THREE.Material>();
 let trailDim = 1;
+/** Software-GL motion tier (QA SCRUB-HITCH round 2): hides every trail's
+ *  ADDITIVE glow pass (~1.5-3.4ms per instanced Line2 draw that doesn't
+ *  shrink with resolution) while a scrub drag is live. */
+let glowSuppressed = false;
+
+/** Toggles the glow passes of every live trail (and any created later). */
+export function setTrailGlowSuppressed(on: boolean): void {
+  glowSuppressed = on;
+  for (const t of liveTrails) t.applyGlowSuppression();
+}
 
 /** Hover-to-look: dim all live trails to `dim`, except the `kept` set. */
 export function setTrailFocus(
@@ -130,7 +140,10 @@ export class AnimatedTrail {
     // The glow pass's width and brightness both scale with `glow`. Trimmed
     // against the two-light terrain grade: the wide additive pass sits lower
     // so stacked trail segments glow without washing out to white.
-    mkLine(mkColors(0.04, 0.44), 5.2 * this.glow, true);
+    // A trail CREATED while the motion tier is on starts with its glow pass
+    // hidden (replay lanes can be built mid-drag — QA SCRUB-HITCH round 2).
+    const glowLine = mkLine(mkColors(0.04, 0.44), 5.2 * this.glow, true);
+    glowLine.visible = !glowSuppressed;
     mkLine(mkColors(0.3, 1.0), 2.2, false);
     liveTrails.add(this);
     this.applyAlpha();
@@ -150,10 +163,38 @@ export class AnimatedTrail {
     }
   }
 
+  /** Step-clock reveal (QA SEC5-S2-REPLAY-TRAIL-LEAD): draws the trail
+   *  through the last COMPLETED step floor(s), so it never leads a ball that
+   *  is rolling along step floor(s)+1 (samplePathAtStep). */
+  setStep(s: number): void {
+    if (this.disposed) return;
+    const k = Math.min(this.segments, Math.max(0, Math.floor(s)));
+    for (const line of this.lines) {
+      (line.geometry as LineGeometry).instanceCount = k;
+    }
+  }
+
+  /**
+   * Shows/hides both passes without disposing (QA LP-1: a replay draws the
+   * same polyline progressively — a fully-revealed static trail underneath
+   * is pure duplicate raster work and is hidden while the replay runs).
+   */
+  setVisible(v: boolean): void {
+    if (this.disposed) return;
+    for (const line of this.lines) line.visible = v;
+  }
+
   setAlpha(a: number): void {
     if (this.disposed) return;
     this.baseAlpha = Math.min(1, Math.max(0, a));
     this.applyAlpha();
+  }
+
+  dispose(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    liveTrails.delete(this);
+    for (const line of this.lines) this.view.removeOverlayObject(line);
   }
 
   /** opacity = baseAlpha × (kept ? 1 : focus dim), per pass. */
@@ -164,10 +205,9 @@ export class AnimatedTrail {
     this.mats[1].opacity = k;
   }
 
-  dispose(): void {
-    if (this.disposed) return;
-    this.disposed = true;
-    liveTrails.delete(this);
-    for (const line of this.lines) this.view.removeOverlayObject(line);
+  /** Motion-tier hook: hide/show this trail's additive glow pass. */
+  applyGlowSuppression(): void {
+    if (this.disposed || this.lines.length < 2) return;
+    this.lines[0].visible = !glowSuppressed;
   }
 }

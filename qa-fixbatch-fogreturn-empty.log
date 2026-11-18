@@ -1,0 +1,12 @@
+serving dist on :4186
+  [wheel→fog-c (no strides drawn)] step=17 scene=fog-c
+PASS  genuine skip: empty run graded honestly (used=0) — used=0
+PASS  genuine skip: machine ghosts only (ghosts=3) — ghosts=3
+PASS  genuine skip: scorecard row 1 is "you (no run) 0 4.84" — row0="you (no run) 0 4.84"
+PASS  genuine skip: empty-run paragraphs shown — runLead=false emptyLead=true trapNote=false emptyVerdict=true
+PASS  genuine skip: no verdict on the empty run (hidden — never the scolding line) — verdictHidden=true verdict=""
+  [wheel→tilt-a] step=18 scene=tilt-a
+  [wheel→fog-c back (still empty)] step=17 scene=fog-c
+PASS  genuine skip survives return: still used=0, "you (no run)" — used=0 row0="you (no run) 0 4.84"
+
+ALL CHECKS PASSED

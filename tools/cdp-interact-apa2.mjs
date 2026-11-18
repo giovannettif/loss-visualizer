@@ -180,6 +180,10 @@ check(
 await send("Page.navigate", { url: `${base}/?step=12` });
 await sleep(5000);
 await clickPlay();
+// The replay is STEP-paced (QA SEC5-S2-REPLAY-TRAIL-LEAD): at ×50 GD's one
+// giant step to the rim happens in the first 1/60 of the timeline, so the
+// shared measuring window opens at the start of the roll for BOTH lanes.
+const rollStart = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.replayInfo())`));
 await sleep(700);
 const adamRoll = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.replayInfo())`));
 check(
@@ -188,9 +192,8 @@ check(
   JSON.stringify({ lanes: adamRoll.lanes, positions: adamRoll.positions }),
 );
 // §4 punchline: over the same window GD travels farther than Adam.
-await sleep(120);
-const early = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.replayInfo())`));
-await sleep(700);
+const early = rollStart;
+await sleep(820);
 const later = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.replayInfo())`));
 const gdTravel = Math.hypot(later.positions[0].x - early.positions[0].x, later.positions[0].y - early.positions[0].y);
 const adamTravel = Math.hypot(later.positions[1].x - early.positions[1].x, later.positions[1].y - early.positions[1].y);

@@ -1,0 +1,16 @@
+serving dist on :4188
+PASS  U1: tour parked on the η gate step — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":3,"count":5,"gate":true,"gateKind":"etaMoved","gateLabel":"slide the learning rate η","sentenceActive":true,"overlayOn":true,"lookKey":"eta-slider","auto":false,"minimized":false,"page":6,"sentenceText":"Slide η across three orders of\n              magnitude; GD restarts from the same white point each time."}
+PASS  U1: lookKey is eta-slider (was ball) — lookKey=eta-slider
+PASS  U1: leader dot INSIDE the #eta-slider rect (was ~856px away at the ball) — dot={"x":1275.578125,"y":488.734375} rect={"left":1101.578125,"top":487.734375,"right":1449.578125,"bottom":489.734375}
+PASS  U1: overlay live — overlay=true
+PASS  U1: slider glows via data-spot — data-spot=true
+PASS  U1: look active with NO scene dim/ring (reader DOM target, not a scene object) — {"id":"eta-slider","label":"the learning-rate η slider","active":true,"sceneDim":false,"ring":false,"spotPanels":["eta-slider"],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  U1: η move still releases the gate — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":4,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"trail-gd","auto":false,"minimized":false,"page":7,"sentenceText":"Every η draws a different route down\n              the same landscape —\n              watch the trail on the surface."}
+PASS  U1: the η sentence carries data-slook=eta-slider for free-play hover — count=1
+PASS  U5: lookKey is tilt-levels (was tilt-panel) — lookKey=tilt-levels
+PASS  U5: leader dot INSIDE the #tilt-levels pills row (was the damping row ~56px above) — dot={"x":164,"y":313.5} rect={"left":31,"top":294,"right":297,"bottom":333}
+PASS  U5: dot lands inside a level PILL (the sentence names Rosenbrock)
+PASS  U5: pills row glows via data-spot + tilt panel spotlit — data-spot=true spotPanels=["tilt-panel","tilt-levels"]
+PASS  U5: scene dim live (panel-family spotlight unchanged) — {"id":"tilt-levels","label":"the tilt level pills","active":true,"sceneDim":true,"ring":false,"spotPanels":["tilt-panel","tilt-levels"],"minimapSpot":false,"keptTrails":0,"ballOpacity":0.4}
+
+U1+U5 POSTFIX: ALL CHECKS PASSED

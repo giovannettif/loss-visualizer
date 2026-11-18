@@ -1,0 +1,45 @@
+serving dist on :4233
+boot: scene=tilt-a
+step1 gate: {"stepIndex":0,"count":7,"gateKind":"tiltSteered"}
+after steer: {"stepIndex":1,"gate":false}
+gate2: {"stepIndex":3,"gateKind":"ghostReplay"}
+after replay: {"stepIndex":4,"gate":false}
+final step: {"stepIndex":6,"count":7,"gateKind":"blindToggled","gateLabel":"tick run blind / show map on the dock (bottom-left)","lookKey":"swarm-dock"}
+GEOMETRY (s7 step 7/7, blindToggled gate):
+{
+  "anchor": {
+    "x": 140,
+    "y": 814.5
+  },
+  "overlayOn": "true",
+  "gateLabel": "try it: tick run blind / show map on the dock (bottom-left)",
+  "gateOn": "true",
+  "panel": {
+    "x": 14,
+    "y": 62,
+    "w": 300,
+    "h": 104
+  },
+  "dock": {
+    "x": 14,
+    "y": 743,
+    "w": 300,
+    "h": 143
+  },
+  "blind": {
+    "x": 33,
+    "y": 816,
+    "w": 13,
+    "h": 13
+  },
+  "anchorInPanel": false,
+  "anchorInDock": true,
+  "anchorInBlind": false,
+  "dPanelCenter": 701,
+  "dDockCenter": 24,
+  "dBlindCenter": 101,
+  "dockVisible": "true",
+  "scene": "swarm",
+  "sentence": "ensembles (many restarts) cover ground faster — together the hundred balls paint roughly 2"
+}
+DONE

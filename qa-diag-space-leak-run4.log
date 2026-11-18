@@ -1,0 +1,43 @@
+
+=== VARIANT A: §7 tiltSteered gate, damping slider, Space ===
+PASS  A: booted on tilt-a (step 18)
+PASS  A: tour started on idx 0 — idx=0/7
+PASS  A: tiltSteered gate open — gate=true
+A0 gate-open: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=BUTTON
+A1 space-no-slider: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=BUTTON
+PASS  A-CONTROL: Space (focus on chip) is swallowed — reader stays 18, gate stays open — reader=18 gate=true idx=0
+A2 slider-clicked: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=tilt-friction
+PASS  A: gate still open after slider click (plain clicks advance nothing) — gate=true reader=18
+PASS  A: focus is on #tilt-friction — focus=tilt-friction
+A3 after-space: reader=19 tour=s7 idx=2(7) phase=travel gate=false(null) chip=false tiltSteps=0 tiltCells=1 focus=BODY
+PASS  A-LEAK: Space advanced the READER (18→19) mid-gate — reader 18→19
+PASS  A-LEAK: playlist JUMPED past the unvisited sentence (idx 0→2, 1/7→3/7) — idx 0→2 id=s7
+PASS  A-LEAK: gate DROPPED without the action — gate=false chip=false
+PASS  A-LEAK: demanded action never performed (run unsteered, 0 steps) — tiltSteps=0
+
+=== VARIANT B: §8 ruleLevelMoved gate, η dial, Space ===
+PASS  B: booted on labrule (step 22)
+PASS  B: tour started on idx 0 — idx=0/5
+B1 at-idx2-gate: reader=22 tour=s8 idx=2(5) phase=active gate=true(ruleMoved) chip=true tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: parked on the ruleMoved gate (idx 2) — idx=2 gate=true(ruleMoved)
+B2 gate-released: reader=23 tour=s8 idx=3(5) phase=travel gate=false(null) chip=false tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: gate released → advanced to idx 3 (page 23) — idx=3 gate=false
+B3 final-gate: reader=23 tour=s8 idx=4(5) phase=active gate=true(ruleLevelMoved) chip=true tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: parked on the FINAL ruleLevelMoved gate (idx 4) — idx=4 gate=true(ruleLevelMoved)
+B4 eta-clicked: reader=23 tour=s8 idx=4(5) phase=active gate=true(ruleLevelMoved) chip=true tiltSteps=0 tiltCells=0 focus=rule-eta
+PASS  B: gate held through the bare dial click — gate=true reader=23
+B5 after-space: reader=24 tour=- idx=4(0) phase=idle gate=false(null) chip=false tiltSteps=0 tiltCells=0 focus=BODY
+PASS  B-LEAK: Space skipped the reader INTO §9 (23→24) — reader 23→24
+PASS  B-LEAK: tour EXITED (running=false, id=null) — skipped past its own section — running=false id=null phase=idle
+
+=== VARIANT C-LITE: §2 tour at the η-slider gate, Space ===
+PASS  C: booted on gd-c (step 6)
+PASS  C: tour synced to the etaMoved gate (idx 3) — idx=3/5
+PASS  C: etaMoved gate open — gate=true(etaMoved)
+C1 slider-clicked: reader=6 tour=s2 idx=3(5) phase=active gate=true(etaMoved) chip=true tiltSteps=0 tiltCells=0 focus=eta-slider
+PASS  C: focus on #eta-slider, gate held — focus=eta-slider gate=true
+C2 after-space: reader=7 tour=s2 idx=4(5) phase=travel gate=false(null) chip=false tiltSteps=0 tiltCells=0 focus=BODY
+PASS  C-LEAK: Space advanced the reader mid-gate (6→7) — reader 6→7
+PASS  C-LEAK: playlist sync-jumped to gd-d's sentence (idx 3→4), gate dropped — idx 3→4 gate=false
+
+PROBE_OK (no leak)

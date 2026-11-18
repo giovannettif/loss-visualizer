@@ -37,7 +37,11 @@ const proc = spawn(
   EDGE,
   [
     "--headless=new",
-    "--disable-gpu",
+    // Hardware-GL args (QA SCRUB-HITCH): default headless runs WebGL on
+    // SwiftShader, turning every §5 rebuild into a 50-80ms software raster.
+    "--use-angle=d3d11",
+    "--enable-gpu",
+    "--ignore-gpu-blocklist",
     "--hide-scrollbars",
     "--window-size=1600,900",
     "--remote-debugging-port=0",
@@ -122,6 +126,19 @@ await send("Emulation.setDeviceMetricsOverride", {
 });
 await send("Page.navigate", { url: `${base}/` });
 await sleep(60); // module graph still loading: the overlay must already cover
+// On hardware GL the first paint can beat the external stylesheet; wait for
+// page.css to apply (bounded) before reading the body color — the check's
+// target is "the backdrop is dark once styles apply", not stylesheet timing.
+{
+  const t0 = Date.now();
+  for (;;) {
+    const applied = await evalJson(
+      `getComputedStyle(document.body).backgroundColor !== "rgba(0, 0, 0, 0)"`,
+    );
+    if (applied || Date.now() - t0 > 2000) break;
+    await sleep(30);
+  }
+}
 {
   const early = await evalJson(`(function(){
     const b = document.getElementById("boot");

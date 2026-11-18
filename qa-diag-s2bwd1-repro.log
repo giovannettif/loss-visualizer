@@ -1,0 +1,57 @@
+serving dist on :4197
+A0 fresh ?step=19: {"step":19,"scene":"tilt-a","locked":false,"animating":false,"done":false,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+A1 unsteered run still live after 15s untouched: true {"step":19,"scene":"tilt-a","locked":false,"animating":false,"done":false,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+A2 ArrowUp DURING: {"step":18,"scene":"tilt-a","locked":false,"animating":false,"done":false,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+A3 ArrowUp AFTER : {"step":18,"scene":"tilt-a","locked":false,"animating":false,"done":false,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+A VERDICT: navigated = true | captured(board responded) = false
+B iter 0: NAVIGATED to 17
+B VERDICT: navigations in 12 ArrowUps = 1 final: {"step":17,"scene":"fog-c","locked":false,"animating":true,"done":false,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+C0 fresh ?step=18: {"step":18,"scene":"tilt-a","locked":false,"animating":false,"done":false,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+C1 after Space: {"step":19,"scene":"tilt-a","locked":false,"animating":false,"done":false,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"} | advanced = true
+C2 ArrowDown DURING: {"step":20,"scene":"tilt-b","locked":true,"animating":true,"done":true,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+C3 ArrowDown AFTER : {"step":20,"scene":"tilt-b","locked":true,"animating":true,"done":true,"steered":false,"settled":false,"pos":{"x":-5,"y":8.66},"vel":{"x":0,"y":0},"input":{"x":0,"y":0},"steps":0,"cells":1,"level":"valley"}
+C VERDICT2: ArrowDown navigated = true | captured(board responded) = false
+node:internal/modules/run_main:122
+    triggerUncaughtException(
+    ^
+
+page.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#tilt-finish')[22m
+[2m    - locator resolved to <button hidden="" class="btn" type="button" id="tilt-finish">Finish run · score</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is not visible[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    55 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is not visible[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+    at C:\Users\Franco\Desktop\Projects\NJIT-CS375-ProjectPart4\tools\diag-tilt-backkey.mjs:136:12 {
+  log: [
+    "  - waiting for locator('#tilt-finish')",
+    '    - locator resolved to <button hidden="" class="btn" type="button" id="tilt-finish">Finish run · score</button>',
+    '  - attempting click action',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is not visible',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    55 × waiting for element to be visible, enabled and stable',
+    '       - element is not visible',
+    '     - retrying click action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.14.0

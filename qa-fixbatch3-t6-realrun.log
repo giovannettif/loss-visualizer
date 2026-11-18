@@ -1,0 +1,4 @@
+idx 4 active (real run done): {"tour":{"stepIndex":4,"phase":"active","gate":false,"gateKind":null,"page":17},"fog":{"used":1,"done":true,"pathLen":2,"reveal":1},"step":17}
+after Back (fog-b): {"tour":{"stepIndex":3,"phase":"active","gate":false,"gateKind":null,"page":16},"fog":{"used":1,"done":true,"pathLen":2,"reveal":1},"step":16}
+fog panel after Back: {"finishHidden":true}
+after Next (fog-c again): {"tour":{"stepIndex":4,"phase":"active","gate":false,"gateKind":null,"page":17},"fog":{"used":1,"done":true,"pathLen":2,"reveal":1},"step":17}

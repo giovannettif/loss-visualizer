@@ -4,10 +4,18 @@
  *
  * Draws: contour ghost of the landscape (d3-contour, same grid convention as
  * LandscapeView), a hairline extent frame, mono axis ticks, the current
- * parameter point (learner white), the gradient needle (−∇f, Manim purple,
- * fixed length — the ANGLE is the message), and — for §2 — the GD step arrow
- * (red), the user's own drawn step arrow (white), and the current trajectory
- * polyline. All angles/lengths live in parameter space, never screen space.
+ * parameter point (learner white), the gradient needle (−∇f, fixed length —
+ * the ANGLE is the message), and — for §2 — the GD step arrow (red), the
+ * user's own drawn step arrow (white), and the current trajectory polyline.
+ * All angles/lengths live in parameter space, never screen space.
+ *
+ * Needle color (FIX-4 stray-purple-arrow): the needle is LAVENDER (#C9A6DD,
+ * spotlight #EBD9F7) — never the §8 custom-rule purple #9A72AC. It used to
+ * draw in exactly that hex, so the §2 compass (gd-b: needle + white user
+ * arrow + red GD step) showed a third arrow wearing §8's assembled-rule
+ * identity color and read as a stray nobody placed (user session, 2026-11-17).
+ * The needle is the only purple-family instrument on the compass; §8's
+ * purple stays exclusive to the workbench rule.
  *
  * §2 arrow drawing: with drag callbacks enabled, dragging anywhere on the
  * canvas draws an arrow FROM the current point THROUGH the pointer (tip
@@ -39,6 +47,13 @@ export interface MinimapArrows {
   userTip: Vec2 | null;
   /** GD's actual step arrow tip, param space. */
   gdTip: Vec2 | null;
+  /**
+   * Where the user's stride STARTS (QA S2A-READOUT-STALE-MIDWALK /
+   * S2-FOG8-QUEUED-PREVIEW-WRONG-ORIGIN): during a fog walk the drawn ball
+   * is still moving while the stride is planned from its landing point.
+   * Absent = the current point (gd-b unchanged).
+   */
+  userOrigin?: Vec2 | null;
 }
 
 /** One trajectory polyline on the minimap (§2 GD / §3 GD-vs-momentum). */
@@ -48,15 +63,32 @@ export interface MinimapPath {
 }
 
 export interface MinimapDragCallbacks {
-  /** Live during a drag: the arrow tip under the pointer (clamped). */
-  onPreview: (tip: Vec2) => void;
-  /** On release: the final tip. */
-  onCommit: (tip: Vec2) => void;
+  /**
+   * Live during a drag: the arrow tip under the pointer (clamped). Returns
+   * the tip actually drawn (e.g. fog-snapped/clamped), or null when the
+   * current scene does not accept a drawn arrow — the minimap then neither
+   * starts a draw nor shows the |Δθ|/∠ readout.
+   */
+  onPreview: (tip: Vec2) => Vec2 | null;
+  /**
+   * On release: the final tip, plus the gesture's pointer travel in CSS px —
+   * the fog game rejects taps/jitters (travel < its slop) so a mis-tap never
+   * spends a measurement.
+   */
+  onCommit: (tip: Vec2, gesture: { travelPx: number }) => void;
+  /**
+   * The gesture was cancelled by the UA (pointercancel): abandon the
+   * preview and never commit (QA S2-FOG8-POINTERCANCEL-COMMITS).
+   */
+  onCancel?: () => void;
 }
 
 export interface MinimapFog {
   path: readonly Vec2[];
   reach: number;
+  /** The REAL painted stamp radius in parameter units (stampFrac·diag) —
+   *  the visited glow must not claim more ground than the 3D corridor. */
+  stampR: number;
   done: boolean;
   /** The fog cell grid (nx × ny) — drawn as a faint grid while fogged. */
   cells?: { nx: number; ny: number } | null;
@@ -71,6 +103,8 @@ export class CompassMinimap {
   private readonly onResize: () => void;
 
   private landscape: Landscape | null = null;
+  /** Display names of the two axes (per-landscape; see setLandscape). */
+  private axisNames: readonly [string, string] = ["x", "y"];
   private contourPath: Path2D | null = null;
   private plane: { x0: number; y0: number; sx: number; sy: number } | null = null;
   private rect: { fx: number; fy: number; fw: number; fh: number } | null = null;
@@ -94,6 +128,12 @@ export class CompassMinimap {
 
   private drag: MinimapDragCallbacks | null = null;
   private drawing = false;
+  /** Gesture origin + max pointer travel (CSS px) of the current drag. */
+  private downX = 0;
+  private downY = 0;
+  private travelPx = 0;
+  /** The tip the current held drag previews (null when no drag is held). */
+  private previewTip: Vec2 | null = null;
   /** The gesture surface: the whole PANEL (canvas + padding + caption), so
    *  a press that misses the small canvas still starts the draw. */
   private readonly surface: HTMLElement;
@@ -126,7 +166,7 @@ export class CompassMinimap {
     this.surface.addEventListener("pointerdown", this.onPointerDown);
     this.surface.addEventListener("pointermove", this.onPointerMove);
     this.surface.addEventListener("pointerup", this.onPointerUp);
-    this.surface.addEventListener("pointercancel", this.onPointerUp);
+    this.surface.addEventListener("pointercancel", this.onPointerCancel);
     // A panel resize (or a late layout) invalidates the cached size and the
     // plane fit — re-measure and rebuild.
     this.onResize = () => {
@@ -143,9 +183,27 @@ export class CompassMinimap {
     window.addEventListener("resize", this.onResize);
   }
 
-  /** Recomputes plane fit, ticks and the contour ghost for a landscape. */
-  setLandscape(fn: Landscape): void {
+  /**
+   * Recomputes plane fit, ticks and (by default) the contour ghost for a
+   * landscape. `opts.contours = false` defers the d3-contour build to the
+   * next full setLandscape — the §5 live throttle uses it so the dragged
+   * valley keeps its fit/ticks/extent frame (which move) without the 5-6ms
+   * contour pass, and contours blank until the idle rebuild (QA
+   * PERF25-S2-REBUILD-COST-JANK).
+   */
+  setLandscape(
+    fn: Landscape,
+    opts: { contours?: boolean } = {},
+  ): void {
+    const withContours = opts.contours !== false;
     this.landscape = fn;
+    // Axis names follow the landscape (QA copy-symbol-drift): w/b on least
+    // squares, x/y on every test landscape; the HUD caption mirrors them.
+    this.axisNames = fn.axes ?? ["x", "y"];
+    const capX = this.canvas.closest("#minimap-panel")?.querySelector("#mm-ax-x");
+    const capY = this.canvas.closest("#minimap-panel")?.querySelector("#mm-ax-y");
+    if (capX) capX.textContent = this.axisNames[0];
+    if (capY) capY.textContent = this.axisNames[1];
     const { xMin, xMax, yMin, yMax } = fn.extent;
     const iw = this.w - PAD - 8;
     const ih = this.h - PAD - PAD_BOTTOM;
@@ -156,7 +214,9 @@ export class CompassMinimap {
     this.plane = { x0, y0, sx, sy };
     this.xTicks = niceTicks(xMin, xMax);
     this.yTicks = niceTicks(yMin, yMax);
-    this.contourPath = this.buildContours(fn);
+    // contours:false leaves contourPath null — draw() skips the ghost, so no
+    // STALE contour from the previous landscape can linger.
+    this.contourPath = withContours ? this.buildContours(fn) : null;
     this.draw();
   }
 
@@ -180,12 +240,25 @@ export class CompassMinimap {
     this.point = p;
     this.grad = grad;
     this.draw();
+    this.refreshReadout();
   }
 
   /** §2 step arrows (tips in parameter space, measured from the point). */
   setArrows(arrows: MinimapArrows): void {
     this.arrows = arrows;
     this.draw();
+    this.refreshReadout();
+  }
+
+  /** The user stride's origin (see MinimapArrows.userOrigin). */
+  private strideOrigin(): Vec2 {
+    return this.arrows.userOrigin ?? this.point;
+  }
+
+  /** A HELD drag's readout re-measures on state changes, not only on
+   *  pointermove — the ball landing (or a queued replay) moves the origin. */
+  private refreshReadout(): void {
+    if (this.drawing && this.previewTip) this.showReadout(this.previewTip);
   }
 
   /** §2/§3 trajectory polylines (drawn under the arrows, clipped to the plane). */
@@ -204,6 +277,12 @@ export class CompassMinimap {
   setFog(fog: MinimapFog | null): void {
     this.fog = fog;
     this.draw();
+  }
+
+  /** Diagnostics: true while the compass suppresses contours/paths (§6 fog
+   *  and §7's run-scoped board fog). */
+  get fogMode(): boolean {
+    return this.fog !== null;
   }
 
   /**
@@ -234,6 +313,27 @@ export class CompassMinimap {
     this.draw();
   }
 
+  /**
+   * Viewport position of the needle's base — the learner point the needle
+   * radiates from and the spotlight halo is drawn on (REG-2-NEEDLE-ANCHOR).
+   * Null while no landscape/plane is laid out (the caller falls back to the
+   * panel anchor). The old "needle" look anchored the PANEL's fixed 42%/50%
+   * fraction, which sits up to ~100px from the needle wherever the learner
+   * point is not mid-panel — the arrow pointed at bare contour rings while
+   * the halo glowed elsewhere (qa-needle-drift-probe: 102px static on
+   * task-b, 34–101px swinging on gd-a's drift).
+   */
+  needleScreenPoint(): { x: number; y: number } | null {
+    if (!this.landscape || !this.plane) return null;
+    // The needle (and its halo) draw only from a non-zero gradient — with
+    // none drawn there is nothing at the point to point at (the caller
+    // falls back to the panel anchor).
+    if (Math.hypot(this.grad.x, this.grad.y) <= 1e-9) return null;
+    const r = this.canvas.getBoundingClientRect();
+    if (r.width <= 0 || r.height <= 0) return null;
+    return { x: r.left + this.px(this.point.x), y: r.top + this.py(this.point.y) };
+  }
+
   /** Diagnostics: whether the needle spotlight is lit. */
   get spotlit(): boolean {
     return this.spotlight;
@@ -242,6 +342,7 @@ export class CompassMinimap {
   disableArrowDrag(): void {
     this.drag = null;
     this.drawing = false;
+    this.previewTip = null;
     this.hideReadout();
   }
 
@@ -278,13 +379,14 @@ export class CompassMinimap {
       this.surface.appendChild(el);
       this.readout = el;
     }
-    const dx = tip.x - this.point.x;
-    const dy = tip.y - this.point.y;
+    const o = this.strideOrigin();
+    const dx = tip.x - o.x;
+    const dy = tip.y - o.y;
     const len = Math.hypot(dx, dy);
     const ang = (Math.atan2(dy, dx) * 180) / Math.PI;
-    this.readout.textContent =
-      `|Δθ| ${len >= 10 ? len.toFixed(1) : len.toFixed(2)} · ∠ ${ang.toFixed(0)}°`;
-    this.readout.dataset.visible = "true";
+    const text = `|Δθ| ${len >= 10 ? len.toFixed(1) : len.toFixed(2)} · ∠ ${ang.toFixed(0)}°`;
+    if (this.readout.textContent !== text) this.readout.textContent = text;
+    if (this.readout.dataset.visible !== "true") this.readout.dataset.visible = "true";
   }
 
   private hideReadout(): void {
@@ -295,35 +397,71 @@ export class CompassMinimap {
     if (!this.drag || e.button !== 0) return;
     const tip = this.pointerToParam(e);
     if (!tip) return;
+    // The director decides whether this scene accepts a drawn arrow; a
+    // read-only compass press stays an ordinary press (no capture, no
+    // readout, and onPointerUp's !drawing guard skips the commit).
+    const shown = this.drag.onPreview(tip);
+    if (!shown) return;
+    this.previewTip = shown;
     this.drawing = true;
+    this.downX = e.clientX;
+    this.downY = e.clientY;
+    this.travelPx = 0;
     try {
       this.surface.setPointerCapture(e.pointerId);
     } catch {
       // synthetic pointers (probes) have no active pointer to capture
     }
     e.preventDefault();
-    this.showReadout(tip);
-    this.drag.onPreview(tip);
+    this.showReadout(shown);
   };
 
   private onPointerMove = (e: PointerEvent): void => {
     if (!this.drawing || !this.drag) return;
     const tip = this.pointerToParam(e);
-    if (tip) {
-      this.showReadout(tip);
-      this.drag.onPreview(tip);
-    }
+    if (!tip) return;
+    // Gesture travel (CSS px) — the commit reports it so the fog game can
+    // tell a real drag from a tap/jitter.
+    this.travelPx = Math.max(
+      this.travelPx,
+      Math.hypot(e.clientX - this.downX, e.clientY - this.downY),
+    );
+    // A scene change or freeze mid-drag stops the preview — hide the readout.
+    const shown = this.drag.onPreview(tip);
+    this.previewTip = shown;
+    if (shown) this.showReadout(shown);
+    else this.hideReadout();
   };
 
   private onPointerUp = (e: PointerEvent): void => {
     if (!this.drawing || !this.drag) return;
     this.drawing = false;
+    this.previewTip = null;
     this.hideReadout();
     if (this.surface.hasPointerCapture(e.pointerId)) {
       this.surface.releasePointerCapture(e.pointerId);
     }
     const tip = this.pointerToParam(e);
-    if (tip) this.drag.onCommit(tip);
+    this.travelPx = Math.max(
+      this.travelPx,
+      Math.hypot(e.clientX - this.downX, e.clientY - this.downY),
+    );
+    if (tip) this.drag.onCommit(tip, { travelPx: this.travelPx });
+  };
+
+  /** pointercancel: the UA took the gesture (scroll, palm rejection…) —
+   *  abandon the preview and NEVER commit (QA S2-FOG8-POINTERCANCEL-COMMITS).
+   *  The director owns the arrow state, so restoring it is its job. */
+  private onPointerCancel = (e: PointerEvent): void => {
+    if (!this.drawing || !this.drag) return;
+    this.drawing = false;
+    this.previewTip = null;
+    this.travelPx = 0;
+    this.hideReadout();
+    if (this.surface.hasPointerCapture(e.pointerId)) {
+      this.surface.releasePointerCapture(e.pointerId);
+    }
+    this.drag.onCancel?.();
   };
 
   /* ---------------- drawing ---------------- */
@@ -476,10 +614,12 @@ export class CompassMinimap {
         }
         ctx.stroke();
       }
-      const r = this.fog.reach * this.plane.sx * 0.95;
-      for (const p of this.fog.path) {
-        const x = this.px(p.x);
-        const y = this.py(p.y);
+      // Visited glow at the REAL painted radius (the 3D stamp is
+      // stampFrac·diag; the old reach-sized discs over-claimed explored
+      // ground), drawn along every path SEGMENT as well as at the vertices
+      // so it reads as the same continuous corridor the 3D view paints.
+      const r = Math.max(1, this.fog.stampR * this.plane.sx);
+      const glowAt = (x: number, y: number): void => {
         const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
         grad.addColorStop(0, "rgba(92, 208, 179, 0.22)");
         grad.addColorStop(0.6, "rgba(92, 208, 179, 0.10)");
@@ -488,6 +628,20 @@ export class CompassMinimap {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, Math.PI * 2);
         ctx.fill();
+      };
+      const fp = this.fog.path;
+      for (let i = 0; i < fp.length; i++) {
+        const ax = this.px(fp[i].x);
+        const ay = this.py(fp[i].y);
+        if (i > 0) {
+          const bx = this.px(fp[i - 1].x);
+          const by = this.py(fp[i - 1].y);
+          const steps = Math.max(1, Math.ceil(Math.hypot(ax - bx, ay - by) / (r * 0.5)));
+          for (let s = 1; s < steps; s++) {
+            glowAt(bx + ((ax - bx) * s) / steps, by + ((ay - by) * s) / steps);
+          }
+        }
+        glowAt(ax, ay);
       }
       // The player's own track (faint white — private memory, not a map).
       if (this.fog.path.length >= 2) {
@@ -501,8 +655,9 @@ export class CompassMinimap {
         ctx.stroke();
       }
       // Stride reach ring (hidden once the run is done). A rejected
-      // sub-minimum drag flashes it red for ~600ms (QA G2-1/N5-S2).
-      if (!this.fog.done) {
+      // sub-minimum drag flashes it red for ~600ms (QA G2-1). reach 0 = the
+      // fog has no stride instrument (§7's real-time board) — no ring.
+      if (!this.fog.done && this.fog.reach > 0) {
         const rejecting = performance.now() < this.rejectUntil;
         ctx.setLineDash([3, 4]);
         ctx.strokeStyle = rejecting
@@ -510,7 +665,11 @@ export class CompassMinimap {
           : "rgba(255,255,255,0.28)";
         ctx.lineWidth = rejecting ? 1.6 : 1;
         ctx.beginPath();
-        ctx.arc(this.px(this.point.x), this.py(this.point.y), this.fog.reach * this.plane.sx, 0, Math.PI * 2);
+        // While a stride is previewed, the ring bounding its tip sits on the
+        // stride's real origin (the landing point mid-walk); idle, it
+        // follows the ball.
+        const rc = this.arrows.userTip && this.arrows.userOrigin ? this.arrows.userOrigin : this.point;
+        ctx.arc(this.px(rc.x), this.py(rc.y), this.fog.reach * this.plane.sx, 0, Math.PI * 2);
         ctx.stroke();
         ctx.setLineDash([]);
       }
@@ -542,15 +701,16 @@ export class CompassMinimap {
       ctx.fillText(String(t), fx - 6, y);
     }
 
-    // Axis letters (italic serif math symbols).
+    // Axis letters (italic serif math symbols) — named by the LANDSCAPE
+    // (w/b on least squares, x/y on the test landscapes).
     ctx.fillStyle = "rgba(154,164,178,0.9)";
     ctx.font = 'italic 11px "STIX Two Text", Georgia, serif';
     ctx.textAlign = "right";
     ctx.textBaseline = "top";
-    ctx.fillText("w", fx + fw, fy + fh + 5 + 11);
+    ctx.fillText(this.axisNames[0], fx + fw, fy + fh + 5 + 11);
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
-    ctx.fillText("b", fx - 6, fy - 14);
+    ctx.fillText(this.axisNames[1], fx - 6, fy - 14);
 
     // §2/§3 trajectories (under the arrows, clipped to the plane). Fog mode
     // suppresses them: machine trajectories are post-reveal knowledge only.
@@ -564,9 +724,21 @@ export class CompassMinimap {
         if (mp.points.length < 2) continue;
         ctx.strokeStyle = mp.color;
         ctx.beginPath();
-        ctx.moveTo(this.px(mp.points[0].x), this.py(mp.points[0].y));
-        for (let i = 1; i < mp.points.length; i++) {
-          ctx.lineTo(this.px(mp.points[i].x), this.py(mp.points[i].y));
+        // Guard (QA S8-DIVERGE-STREAKS): a non-finite canvas coordinate
+        // corrupts the whole subpath — break the polyline there.
+        let pen = false;
+        for (const pt of mp.points) {
+          const x = this.px(pt.x);
+          const y = this.py(pt.y);
+          if (!Number.isFinite(x) || !Number.isFinite(y)) {
+            pen = false;
+            continue;
+          }
+          if (pen) ctx.lineTo(x, y);
+          else {
+            ctx.moveTo(x, y);
+            pen = true;
+          }
         }
         ctx.stroke();
       }
@@ -586,20 +758,23 @@ export class CompassMinimap {
         // canvas +y (down) is param −y.
         y: this.point.y - (uy * L) / this.plane.sy,
       };
-      // Spotlighted needle: a soft purple halo anchors WHERE to look.
+      // Spotlighted needle: a soft lavender halo anchors WHERE to look.
       if (this.spotlight) {
         const nx = this.px(this.point.x);
         const ny = this.py(this.point.y);
         const halo = ctx.createRadialGradient(nx, ny, 2, nx, ny, 26);
-        halo.addColorStop(0, "rgba(154,114,172,0.4)");
-        halo.addColorStop(1, "rgba(154,114,172,0)");
+        halo.addColorStop(0, "rgba(201, 166, 221, 0.42)");
+        halo.addColorStop(1, "rgba(201, 166, 221, 0)");
         ctx.fillStyle = halo;
         ctx.beginPath();
         ctx.arc(nx, ny, 26, 0, Math.PI * 2);
         ctx.fill();
-        this.drawArrow(this.point, tip, "#C9A6DD", 2.2, true);
+        this.drawArrow(this.point, tip, "#EBD9F7", 2.2, true);
       } else {
-        this.drawArrow(this.point, tip, "#9A72AC", 1.8, false);
+        // Lavender — never §8's custom-rule purple #9A72AC (FIX-4: on gd-b
+        // the needle used to read as a stray third arrow wearing the §8
+        // workbench rule's identity color).
+        this.drawArrow(this.point, tip, "#C9A6DD", 1.8, false);
       }
     }
 
@@ -610,7 +785,7 @@ export class CompassMinimap {
 
     // §2 user step arrow (white — the learner's own hand).
     if (this.arrows.userTip) {
-      this.drawArrow(this.point, this.arrows.userTip, "#FFFFFF", 2.2, true);
+      this.drawArrow(this.strideOrigin(), this.arrows.userTip, "#FFFFFF", 2.2, true);
     }
 
     // Learner point: soft glow + white core (drawn last, on top).

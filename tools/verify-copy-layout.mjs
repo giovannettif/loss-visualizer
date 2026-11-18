@@ -13,6 +13,7 @@
  */
 
 import { chromium } from "playwright";
+import { launchGL } from "./gl-launch.mjs";
 
 const base = process.argv[2] ?? "http://localhost:4185";
 let failures = 0;
@@ -34,7 +35,7 @@ async function waitIdle(page) {
   return false;
 }
 
-const browser = await chromium.launch();
+const browser = await launchGL(chromium);
 
 /* ---------------- copy checks ---------------- */
 {
@@ -50,19 +51,35 @@ const browser = await chromium.launch();
     });
   };
 
-  // §2 gd-c: the gloss must define λ₁ as the largest curvature via 1/λ₁.
+  // §2 gd-c: the gloss must use the largest Hessian eigenvalue — f = zᵀAz ⇒
+  // Hessian 2A, λmax = 2λ₁ = 2, oscillation past 1/λmax = 0.5 and divergence
+  // past 2/λmax = 1 (the live regimeOf thresholds). COPY-PLAN §2.7 rewrote
+  // the sentence (R3) to "λmax is the steepest curvature the landscape has"
+  // and moved the thresholds into stacked .frac spans (§3 F3) — the frac
+  // markup renders "1/λmax" as flat text "1λmax", so the assert reads the
+  // phrase + the numeric anchors instead of the slash form.
   const gdC = await stepText(6);
   check(
-    "copy-gdc-osc-gloss: gloss reads 'half of 1/λ₁' + defines λ₁",
-    gdC.includes("half of") && gdC.includes("1/λ₁") && gdC.includes("largest curvature"),
+    "copy-gdc-osc-gloss: λmax thresholds (oscillate/diverge), λmax = steepest curvature, η = 0.5/1",
+    gdC.includes("λmax") && gdC.includes("λmax = 2") &&
+      gdC.includes("steepest curvature the landscape has") &&
+      gdC.includes("thresholds sit at η = 0.5 and η = 1") &&
+      !gdC.includes("largest curvature") &&
+      !gdC.includes("half the largest curvature") && !gdC.includes("half of 1/λ₁"),
     gdC.slice(0, 200),
+  );
+  check(
+    "copy-gdc-symbol: curvature not written as L (L is the loss)",
+    !gdC.includes("1/L") && !gdC.includes("2/L") && !/L = 2/.test(gdC),
   );
   check(
     "copy-gdc-osc-gloss: old 'half the largest curvature' appositive gone",
     !gdC.includes("half the largest curvature"),
   );
 
-  // §6 fog-c: no false local-minimum claim; the moral stays.
+  // §6 fog-c: no false local-minimum claim; the moral matches Rosenbrock
+  // (slow progress ≠ convergence — it has ONE stationary point, so no local
+  // optimum is ever reached and "local vs global" would be a non-sequitur).
   const fogC = await stepText(17);
   check(
     "copy-fogc-local-min: 'found a local minimum' claim removed",
@@ -70,7 +87,13 @@ const browser = await chromium.launch();
   );
   check(
     "copy-fogc-local-min: honest replacement present",
-    fogC.includes("felt final") && fogC.includes("Local optimality is not global optimality"),
+    fogC.includes("felt final") &&
+      // Case-insensitive: the shipped copy (COPY-PLAN §2.15 final) reads
+      // "...a minimum at all: slow progress is not arrival." — lowercase
+      // after the colon; the old expectation demanded a capitalized variant
+      // the copy never shipped.
+      fogC.toLowerCase().includes("slow progress is not arrival") &&
+      !fogC.toLowerCase().includes("local optimality is not global optimality"),
     fogC.slice(fogC.indexOf("The gold marker"), fogC.indexOf("The gold marker") + 260),
   );
 

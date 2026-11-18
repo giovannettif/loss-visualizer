@@ -1,0 +1,611 @@
+
+=== page 0 (hero) ===
+  para 0: (1 sentences)
+    [0,0] Overview
+  para 1: (4 sentences)
+    [1,0] Two panes.
+    [1,1] Left: a 3D loss surface rendered live, with
+              the camera, the instruments and the game panels —…
+    [1,2] The title overlay states the
+              premise.
+    [1,3] Here: the reader — one step of text at a
+              time; the counter above it tracks your position.
+  para 2: (6 sentences)
+    [2,0] Scroll here to advance (or press Space — plain
+              clicks never advance);
+              continue …
+    [2,1] The thin
+              bar on the reader’s left edge fills while a step’s
+              animation plays.
+    [2,2] Over the landscape: scroll to zoom, drag to
+              pan (Map view too), right-drag to orbit, double-c…
+    [2,3] The ticks on the right edge
+              jump to any step, and the footer’s Play control
+              and…
+    [2,4] From the next step on, watch for dotted phrases — each
+              names something on stage: rest on one …
+    [2,5] Scroll all the way back to the top and the reader slides away
+              — the landscape takes the whole…
+  para 3: (3 sentences)
+    [3,0] Guided tours: every section carries a
+              ▶ Tour this section chip — a narrated,
+              se…
+    [3,1] The wheel still pages the reader
+              while a tour runs — the controller follows you.
+    [3,2] Esc exits anytime.
+
+=== page 1 (task-a) ===
+  para 0: (1 sentences)
+    [0,0] §1 · The task
+  para 1: (3 sentences)
+    [1,0] Twelve noisy measurements, one straight line.
+    [1,1] Two parameters
+              decide the fit: the slope w and the
+              intercept b.
+    [1,2] Drag the line or
+              its ends in the inset
+              — each red segment is one
+              …
+  para 2: (1 sentences)
+    [2,0] L(w, b) = Σᵢ (w·xᵢ + b − yᵢ)²
+  para 3: (3 sentences)
+    [3,0] The loss is one number for the whole fit: the sum of the squared residuals.
+    [3,1] The w and
+              b readouts under the inset report the
+              current parameters.
+    [3,2] Lower the loss by hand — drag until it
+              stops decreasing.
+
+=== page 2 (task-b) ===
+  para 0: (1 sentences)
+    [0,0] §1 · The task, continued
+  para 1: (2 sentences)
+    [1,0] Evaluating the loss never requires drawing a line.
+    [1,1] For
+              any pair (w,
+              b) — even an absurd one —
+              the loss is one formul…
+  para 2: (5 sentences)
+    [2,0] So picture the plane of all
+              (w, b) pairs
+              — call the pair
+              θ = (w, …
+    [2,1] The inset in the corner is a
+              compass: it shows that plane from above and, at
+              th…
+    [2,2] The purple needle points
+              along −∇L, the direction
+              that decreases the loss fastest.
+    [2,3] The faint rings behind it
+              are drawn for you, the reader.
+    [2,4] The optimizer receives only the
+              needle, which carries no information about the rest of the
+  …
+
+=== page 3 (task-c) ===
+  para 0: (1 sentences)
+    [0,0] §1 · The reveal
+  para 1: (2 sentences)
+    [1,0] Tip that plane upright and let height mean loss.
+    [1,1] The best line
+              — the one you were searching for by hand — is the
+              lowest point of…
+  para 2: (2 sentences)
+    [2,0] Drag the white point: it rides the surface, and the line, the
+              residuals and the loss follow.
+    [2,1] This is what optimizing means
+              — descending on a surface you can never see, with only
+        …
+  para 3: (1 sentences)
+    [3,0] §2 · following the needle automatically —
+              gradient descent — is where the story goes next.
+
+=== page 4 (gd-a) ===
+  para 0: (1 sentences)
+    [0,0] §2 · Gradient descent
+  para 1: (2 sentences)
+    [1,0] Here is gradient descent’s entire input: the loss at the
+              current point, and one arrow — the n…
+    [1,1] The needle
+              on the compass inset is that arrow. As the point drifts along
+              the va…
+  para 2: (2 sentences)
+    [2,0] The needle is local. It says nothing about the wall
+              behind the point or the valley ahead.
+    [2,1] Every decision gradient
+              descent makes follows from this single local measurement.
+  para 3: (1 sentences)
+    [3,0] from here on the surfaces are test landscapes: their two
+              coordinates are x and
+              …
+
+=== page 5 (gd-b) ===
+  para 0: (1 sentences)
+    [0,0] §2 · Gradient descent
+  para 1: (2 sentences)
+    [1,0] Before GD moves, commit to a step of your own:
+              drag on the compass to draw the arrow you woul…
+    [1,1] On release, your arrow stays and
+              GD’s actual step plays out beside it in red.
+  para 2: (4 sentences)
+    [2,0] Most first arrows head down the valley, toward the low
+              ground.
+    [2,1] GD’s step points almost straight across it, down
+              the near wall toward the floor: barely any o…
+    [2,2] The gradient is steepest across the valley, and
+              steepest is not the same as most progress here.
+    [2,3] Draw again; the
+              arrow is yours to redo.
+
+=== page 6 (gd-c) ===
+  para 0: (1 sentences)
+    [0,0] §2 · Gradient descent
+  para 1: (3 sentences)
+    [1,0] The step is η × the arrow:
+              η is the learning rate — the step
+              size.
+    [1,1] Slide η across three orders of
+              magnitude; GD restarts from the same white point each time.
+    [1,2] Too
+              small and it crawls; moderate and it descends;
+              past 1/λmax, where
+         …
+  para 2: (3 sentences)
+    [2,0] same landscape, same start, same rule — only
+              η changes.
+    [2,1] The regime readout
+              names the current behavior.
+    [2,2] Play (footer) rolls the ball
+              along the current trail.
+
+=== page 7 (gd-d) ===
+  para 0: (1 sentences)
+    [0,0] §2 · Gradient descent
+  para 1: (5 sentences)
+    [1,0] Every η draws a different route down
+              the same landscape —
+              watch the trail on th…
+    [1,1] Crawling hugs the wall for hundreds of steps.
+    [1,2] Descending glides
+              down the valley floor.
+    [1,3] Oscillating bounces between the walls
+              while still moving forward.
+    [1,4] Diverging leaves the frame entirely.
+  para 2: (3 sentences)
+    [2,0] Nothing about the landscape changed, and the gradient was
+              accurate at every point.
+    [2,1] The entire difference is
+              η — how far each step scales the
+              local arrow.
+    [2,2] Momentum, next, is the standard fix for exactly
+              this failure mode.
+
+=== page 8 (mom-a) ===
+  para 0: (1 sentences)
+    [0,0] §3 · Momentum
+  para 1: (4 sentences)
+    [1,0] Same steep valley, same start, same
+              η for both.
+    [1,1] Vanilla GD
+              (red) zigzags: each step crosses the
+              whole valley and the next one c…
+    [1,2] Momentum
+              (blue) replaces the raw gradient
+              with a running average of recent grad…
+    [1,3] What
+              survives is the component they agree on: down the valley.
+  para 2: (3 sentences)
+    [2,0] β, the momentum coefficient, sets the
+              length of the averaging window: β = 0
+              is …
+    [2,1] The regime readout names the current
+              behavior.
+    [2,2] Play (footer) rolls the blue ball along the
+              current path.
+
+=== page 9 (mom-b) ===
+  para 0: (1 sentences)
+    [0,0] §3 · Momentum
+  para 1: (2 sentences)
+    [1,0] Raise β and the accumulated velocity
+              carries the point past the valley floor and up the far w…
+    [1,1] With too
+              long a memory, the across-valley oscillation persists instead of
+              dampi…
+  para 2: (2 sentences)
+    [2,0] This beat starts at β = 0.97, where the
+              across-valley oscillation survives dozens of steps be…
+    [2,1] Drag β down and watch the
+              regime readout: below about 0.85 it glides; below about
+           …
+
+=== page 10 (mom-c) ===
+  para 0: (1 sentences)
+    [0,0] §3 · Momentum
+  para 1: (3 sentences)
+    [1,0] This is what averaging buys.
+    [1,1] Across the valley, the gradients
+              flip sign every step, so the average cancels them:
+         …
+    [1,2] Along the valley, they all point the same
+              way, so the average accumulates them: kept.
+  para 2: (2 sentences)
+    [2,0] Momentum is not an extra force.
+    [2,1] It is selective
+              forgetting — and
+              the direction it discards is exactly
+         …
+
+=== page 11 (adam-a) ===
+  para 0: (1 sentences)
+    [0,0] §4 · Adam
+  para 1: (2 sentences)
+    [1,0] Adam keeps a running mean mˆ of
+              the gradient and a running mean vˆ
+              of its squar…
+    [1,1] In the panel, each bar is one
+              coordinate’s
+              mˆᵢ/√vˆᵢ:
+              Adam measure…
+  para 2: (2 sentences)
+    [2,0] On the surface, the yellow arrow is
+              Adam’s actual update; the white arrow is
+              −∇…
+    [2,1] The angle between them —
+              computed in the parameter plane, never on screen — is the
+          …
+  para 3: (1 sentences)
+    [3,0] the panel’s readouts report the angle and both step lengths
+              (η∇L vs
+              Δadam) · Pl…
+
+=== page 12 (adam-b) ===
+  para 0: (1 sentences)
+    [0,0] §4 · Adam
+  para 1: (4 sentences)
+    [1,0] The steepness slider scales one curvature,
+              λ₁, up to
+              50×, live.
+    [1,1] GD’s step length
+              grows with it — same η, steeper
+              wall, longer step.
+    [1,2] Adam’s barely moves:
+              √vˆ absorbs exactly the
+              scale GD stepped into.
+    [1,3] This is Adam’s near-invariance to
+              per-coordinate gradient scale.
+
+=== page 13 (lab) ===
+  para 0: (1 sentences)
+    [0,0] §5 · The disagreement lab
+  para 1: (3 sentences)
+    [1,0] Two sliders rebuild the valley while the race re-runs.
+    [1,1] λ₁/λ₂ sets the curvature ratio;
+              rotation reorients the bowl relative to the start
+           …
+    [1,2] All three optimizers race from the same white point,
+              each with its own fixed η —
+            …
+  para 2: (3 sentences)
+    [2,0] the loss curves (top left) record every run; toggle log
+              L there.
+    [2,1] The checklist lights each
+              claim as the race confirms it.
+    [2,2] Play (footer) replays
+              the whole race, ball by ball.
+
+=== page 14 (lab) ===
+  para 0: (1 sentences)
+    [0,0] §5 · The disagreement lab
+  para 1: (3 sentences)
+    [1,0] Steep walls put GD past its oscillation threshold
+              — it zigzags.
+    [1,1] Strong elongation gives momentum a
+              wall worth overshooting — its averaged velocity swings
+   …
+    [1,2] Adam never enters either
+              regime: its per-coordinate normalization makes its step
+            …
+  para 2: (4 sentences)
+    [2,0] That invariance makes Adam steady, not fast: it never zigzags or
+              overshoots, yet at this sett…
+    [2,1] The
+              general lesson of this lab: whether an optimizer’s advantages
+              apply is a pr…
+    [2,2] Drag
+              λ₁/λ₂ down to ×1 — a round
+              bowl: GD and momentum fall onto one straight li…
+    [2,3] Its per-coordinate steps don’t follow the bowl’s
+              shape in either direction.
+  para 3: (1 sentences)
+    [3,0] §6 · the fog game — navigation with nothing but the
+              needle — is where the story goes next.
+
+=== page 15 (fog-a) ===
+  para 0: (1 sentences)
+    [0,0] §6 · The fog game
+  para 1: (3 sentences)
+    [1,0] This is the §1 landscape again — the exact least-squares
+              surface you fitted by hand — now inv…
+    [1,1] Three things
+              remain: the fit inset,
+              the compass needle,
+              and whate…
+    [1,2] That is the optimizer’s entire
+              information state; here you work under it too.
+  para 2: (4 sentences)
+    [2,0] Drag on the compass to take a step.
+    [2,1] Each landing point
+              measures the loss and the gradient there, and
+              the terrain yo…
+    [2,2] The budget is
+              10 measurements; the bar in the panel
+              tracks what you have spent.
+    [2,3] Find as low a point as you can.
+  para 3: (1 sentences)
+    [3,0] the dashed ring on the compass is the maximum stride per step
+              · the needle is still −∇L
+     …
+
+=== page 16 (fog-b) ===
+  para 0: (1 sentences)
+    [0,0] §6 · The fog game
+  para 1: (3 sentences)
+    [1,0] Level 2 is Rosenbrock — a strongly curved valley
+              whose floor is nearly flat.
+    [1,1] Fresh budget, same rules, same
+              needle.
+    [1,2] The flat floor reads as a reasonable place to stop; the
+              needle gives no warning about what li…
+  para 2: (2 sentences)
+    [2,0] Spend the budget or press
+              Finish run — either way
+              the fog lifts and the run is …
+    [2,1] Where you stop is your
+              answer.
+  para 3: (1 sentences)
+    [3,0] the three optimizers are graded by the same criterion —
+              their final loss when their own runs …
+
+=== page 17 (fog-c) ===
+  para 0: (1 sentences)
+    [0,0] §6 · The reveal
+  para 1: (2 sentences)
+    [1,0] Your run first replays as a white
+              ghost.
+    [1,1] Then three more launch from your same
+              start: GD,
+              momentum and
+              Ada…
+  para 2: (2 sentences)
+    [2,0] You scrolled past the fog game without drawing a stride, so
+              there is no run of yours to repla…
+    [2,1] Scroll back
+              to Level 2 and take at least one step; the reveal
+              will grade it aga…
+  para 3: (0 sentences)
+  para 4: (4 sentences)
+    [4,0] The gold marker is the true global minimum.
+    [4,1] If you stopped on
+              Rosenbrock’s curved valley floor, you stopped somewhere
+              that …
+    [4,2] A point can read as done and still not be a
+              minimum at all.
+    [4,3] Slow progress is not arrival: a flat floor is not a minimum.
+  para 5: (2 sentences)
+    [5,0] The gold marker is the true global minimum
+              — where the terrain actually bottoms out.
+    [5,1] Without a run of
+              your own there is no verdict to read; the machines’ race is
+              th…
+  para 6: (1 sentences)
+    [6,0] Replay (footer)
+              re-runs all four ghosts · no run
+              ever sees the whole surface — …
+
+=== page 18 (tilt-a) ===
+  para 0: (1 sentences)
+    [0,0] §7 · The tilt game
+  para 1: (2 sentences)
+    [1,0] The board is the parameter plane and you tilt it:
+              W A S D (or ← →) pitch and
+              ro…
+    [1,1] The physics is the
+              optimizer’s own update in disguise —
+              v += (−∇L·g + tilt − c·…
+  para 2: (5 sentences)
+    [2,0] The c slider is the damping
+              coefficient — β’s
+              role, made physical.
+    [2,1] Near zero, velocity persists for a long
+              time; raised, it dies away within a second or so.
+    [2,2] The readout beside
+              the slider names the current regime — long memory, damped,
+              o…
+    [2,3] The panel’s other readouts report the current
+              tilt, the unique cells visited, the steps elaps…
+    [2,4] Cells are how the scorecard counts measurements; the physics
+              itself reads the slope under the…
+  para 3: (1 sentences)
+    [3,0] level 1 · the elongated valley: tilt across it
+              and the ball swings wall to wall — momentum’s
+…
+
+=== page 19 (tilt-a) ===
+  para 0: (1 sentences)
+    [0,0] §7 · The tilt game, continued
+  para 1: (2 sentences)
+    [1,0] Level 2 is
+              Rosenbrock: a strongly curved valley whose floor is
+              nearly flat, wit…
+    [1,1] Level 
+              3 is Rastrigin: a regular
+              grid of local minima — there, any minimum you
+…
+  para 2: (3 sentences)
+    [2,0] Pick levels with the buttons in the panel.
+    [2,1] Your score is
+              measurements spent — the unique cells visited,
+              counted on the sam…
+    [2,2] Your steps are physics substeps (120 a second); the
+              optimizers’ rows count their update steps…
+  para 3: (1 sentences)
+    [3,0] keys are screen-relative · the physics always runs in the
+              parameter plane · finishing a level…
+
+=== page 20 (tilt-b) ===
+  para 0: (1 sentences)
+    [0,0] §7 · The scorecard
+  para 1: (1 sentences)
+    [1,0] Your run is recorded — drag the scrubber to move
+              the white ghost through your own trajectory,…
+  para 2: (2 sentences)
+    [2,0] You reached the scorecard without playing, so the white ghost is
+              a guided demo ride — a hand-…
+    [2,1] Drag the scrubber
+              or press ghost to watch it; scroll back to the game and
+              take …
+  para 3: (2 sentences)
+    [3,0] Then three optimizers start from your same start:
+              GD,
+              momentum and
+            …
+    [3,1] On Rosenbrock, GD crawls while momentum slides
+              along the floor; on Rastrigin, the blind stepp…
+  para 4: (1 sentences)
+    [4,0] the scorecard (steps · cells · final
+              L) sits in the panel beside the
+              scrubber ·…
+
+=== page 21 (swarm) ===
+  para 0: (1 sentences)
+    [0,0] §7 · The swarm finale
+  para 1: (2 sentences)
+    [1,0] This country has six basins, all different: a deep
+              canyon (the true global minimum), a narrow…
+    [1,1] One hundred balls are scattered across it and released; each
+              runs the same physics you just p…
+  para 2: (3 sentences)
+    [2,0] They do not agree — and they do not
+              end equal.
+    [2,1] The white streams split into clusters whose final
+              losses differ by whole units: the canyon’s …
+    [2,2] The
+              panel’s scorecard keeps each cluster’s count and
+              mean final loss — the same…
+  para 3: (1 sentences)
+    [3,0] ensembles (many restarts) cover ground faster — together
+              the hundred balls paint roughly
+    …
+  para 4: (1 sentences)
+    [4,0] §8 · the lab — assemble an optimizer from
+              parts and benchmark it against the three machines —…
+
+=== page 22 (labrule) ===
+  para 0: (1 sentences)
+    [0,0] §8 · Build your own optimizer
+  para 1: (3 sentences)
+    [1,0] Every optimizer you have met is a bet about landscape structure:
+              GD and momentum are exact co…
+    [1,1] The workbench
+              (left) exposes all four: the learning rate
+              η — the base step size…
+    [1,2] The pills beneath the dials select the benchmark
+              landscape.
+  para 2: (3 sentences)
+    [2,0] With the defaults assembled, your rule runs
+              purple — and on the opening
+              landsca…
+    [2,1] Don’t take
+              that on faith: the scoreboard below is live, re-run on every part
+              yo…
+    [2,2] Converged means the loss fell below the
+              landscape’s threshold; the count is the steps needed …
+  para 3: (0 sentences)
+  para 4: (4 sentences)
+    [4,0] turn every part off (β = 0, no
+              normalize, clip off) and your rule is plain GD —
+             …
+    [4,1] The
+              machines run their own hand-tuned η
+              per landscape, so their rows won’t matc…
+    [4,2] Want proof?
+    [4,3] Dial η
+              to a machine’s tuned value: on least squares,
+              η ≈ 0.008 lands on GD’s
+  …
+
+=== page 23 (labrule) ===
+  para 0: (1 sentences)
+    [0,0] §8 · Build your own optimizer
+  para 1: (2 sentences)
+    [1,0] Change nothing.
+    [1,1] Pick another landscape in the workbench and
+              the same rule’s verdict flips: on Rosenbrock, you…
+  para 2: (2 sentences)
+    [2,0] This is the no-free-lunch theorem, experienced rather than
+              quoted: an update rule is a bet ab…
+    [2,1] When a paper
+              claims its optimizer beats Adam, this scoreboard is what it
+              is cla…
+  para 3: (0 sentences)
+  para 4: (1 sentences)
+    [4,0] §9 · the epilogue — the exact map you played
+              on, and the honest size of the maps you’ll never…
+
+=== page 24 (epi-a) ===
+  para 0: (1 sentences)
+    [0,0] §9 · Epilogue
+  para 1: (2 sentences)
+    [1,0] One debt to settle: §1 gave you the formula but never its
+              answer.
+    [1,1] This is the surface you were optimizing —
+              literally, no metaphor left:
+  para 2: (1 sentences)
+    [2,0] L(w, b) = Σᵢ (w·xᵢ + b − yᵢ)²
+  para 3: (3 sentences)
+    [3,0] The gold point on the surface is the normal equations’
+              exact answer, w* = 0.9094, b* = 1.3064…
+    [3,1] The
+              overlay reports it, with the loss at that minimum,
+              L* = 1.4246.
+    [3,2] For
+              two parameters, the map was literal truth: height
+              really was loss, and the …
+  para 4: (1 sentences)
+    [4,0] the compass still reads that surface, one needle at a time
+              — every optimizer in this page saw…
+
+=== page 25 (epi-b) ===
+  para 0: (1 sentences)
+    [0,0] §9 · Epilogue
+  para 1: (4 sentences)
+    [1,0] Watch the surface dissolve into the lattice on the left.
+    [1,1] A
+              small real network has
+              ≈10⁶ parameters, not
+              two — its loss is a…
+    [1,2] There is no
+              picture of it.
+    [1,3] Not a hard one: a mathematically
+              impossible one — a three-dimensional landscape
+             …
+  para 2: (4 sentences)
+    [2,0] Every optimizer you have met still works in there, because
+              none of them ever used the picture.
+    [2,1] The needle, the momentum
+              memory, the per-coordinate scaling, the cap on step length
+         …
+    [2,2] The landscape was never visible.
+    [2,3] That is the through-line of
+              this page.
+  para 3: (1 sentences)
+    [3,0] the dots are a lattice of parameters — 13 824 of
+              them, about a seventieth of the real thing
+
+=== page 26 (epi-c) ===
+  para 0: (1 sentences)
+    [0,0] §9 · Epilogue
+  para 1: (1 sentences)
+    [1,0] CS375 · built as an interactive explorable — every
+              trajectory on this page is computed live, …

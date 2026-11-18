@@ -1,0 +1,316 @@
+PASS  overview names tours for EVERY section + the chip + Esc — 
+            Overview
+            How this page works.
+            
+            
+PASS  hero step: the tour entry is absent/hidden (the intro is not a section) — {"exists":true,"hidden":true,"label":""}
+PASS  every non-empty paragraph segmented into sentence spans (27 pages, >150 sentences) — {"pages":27,"total":221,"bad":[]}
+PASS  controller bar exists and is hidden at rest — {"on":"false","min":"false","label":"","count":"","auto":"false","visible":false}
+PASS  FIX-4a: the intro park hides the entry — {"exists":true,"hidden":true,"label":"","tour":null,"pos":"fixed","cx":0,"paneCx":512,"bottomGap":900,"dockLift":false}
+PASS  FIX-4a: ?step=1 → s1 chip fixed bottom-center, "Tour section 1"
+PASS  FIX-4a: ?step=2 → s1 chip fixed bottom-center, "Tour section 1"
+PASS  FIX-4a: ?step=3 → s1 chip fixed bottom-center, "Tour section 1"
+PASS  FIX-4a: ?step=4 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=5 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=6 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=7 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=8 → s3 chip fixed bottom-center, "Tour section 3"
+PASS  FIX-4a: ?step=9 → s3 chip fixed bottom-center, "Tour section 3"
+PASS  FIX-4a: ?step=10 → s3 chip fixed bottom-center, "Tour section 3"
+PASS  FIX-4a: ?step=11 → s4 chip fixed bottom-center, "Tour section 4"
+PASS  FIX-4a: ?step=12 → s4 chip fixed bottom-center, "Tour section 4"
+PASS  FIX-4a: ?step=13 → s5 chip fixed bottom-center, "Tour section 5"
+PASS  FIX-4a: ?step=14 → s5 chip fixed bottom-center, "Tour section 5"
+PASS  FIX-4a: ?step=15 → s6 chip fixed bottom-center, "Tour section 6"
+PASS  FIX-4a: ?step=16 → s6 chip fixed bottom-center, "Tour section 6"
+PASS  FIX-4a: ?step=17 → s6 chip fixed bottom-center, "Tour section 6"
+PASS  FIX-4a: ?step=18 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=19 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=20 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=21 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=22 → s8 chip fixed bottom-center, "Tour section 8"
+PASS  FIX-4a: ?step=23 → s8 chip fixed bottom-center, "Tour section 8"
+PASS  FIX-4a: ?step=24 → s9 chip fixed bottom-center, "Tour section 9"
+PASS  FIX-4a: ?step=25 → s9 chip fixed bottom-center, "Tour section 9"
+PASS  FIX-4a: ?step=26 → s9 chip fixed bottom-center, "Tour section 9"
+PASS  FIX-4a: sweep exercised all 26 section steps — swept=26
+PASS  nine tours present — s1,s2,s3,s4,s5,s6,s7,s8,s9
+PASS  every tour sentence resolves + matches expect (45 steps) — all ok
+PASS  boot: landed on task-a — {"scene":"task-a","step":1,"count":27,"locked":false,"animating":false}
+PASS  §1 tour starts on chip click — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+PASS  §1 first sentence is the inset gate — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+PASS  §1 controller visible: label + i/n + Auto off + Back disabled — {"on":"true","min":"false","label":"§1 · The task","count":"1 / 4","backDisabled":"true","auto":"false","visible":true}
+PASS  §1 exactly one SENTENCE span marked (bright + underline) — {"count":1,"isSentenceSpan":true,"text":"Drag the line or its ends in the inset — each red segment is one residual, the miss at a single point.","dim":true,"sibOpacity":0.35,"underline":true}
+PASS  §1 page dimmed to 0.35 around the active sentence — sibOpacity=0.35
+PASS  §1 spotlight on the fit inset — {"id":"fit-inset","label":"the fit-preview inset","active":true,"sceneDim":true,"ring":false,"spotPanels":["fit-panel"],"minimapSpot":false,"keptTrails":0,"ballOpacity":0.4}
+PASS  §1 leader overlay draws — {"on":"true","d":"M 1024 394.46875 C 694.7832 394.46875, 486.8568 223, 157.64 223"}
+PASS  §1 gate waits (no auto-advance while Auto is off) — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+PASS  §1 Back at the playlist head is disabled (gate still armed, no trap) — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+PASS  §1 Next during a gate SKIPS it (disarm + advance) — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":1,"count":4,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"loss-readout","auto":false,"minimized":false,"page":1,"sentenceText":"The loss is one number for the whole fit: the sum of the squared residuals."}
+PASS  §1 Back reverses into the gate sentence and re-arms it — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+PASS  §1 plain click does nothing (no tour advance, no reader advance, no lock) — tour={"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."} app={"scene":"task-a","step":1,"count":27,"locked":false,"animating":false}
+PASS  §1 inset drag releases the gate — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":1,"count":4,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"loss-readout","auto":false,"minimized":false,"page":1,"sentenceText":"The loss is one number for the whole fit: the sum of the squared residuals."}
+PASS  §1 highlight MOVED to the loss sentence — {"count":1,"isSentenceSpan":true,"text":"The loss is one number for the whole fit: the sum of the squared residuals.","dim":true,"sibOpacity":0.99272,"underline":true}
+PASS  §1 next sentence spotlights the loss readout — {"id":"loss-readout","label":"the loss readout","active":true,"sceneDim":true,"ring":false,"spotPanels":["loss-panel"],"minimapSpot":false,"keptTrails":0,"ballOpacity":0.4}
+PASS  §1 minimize collapses the bar to the chip — {"on":"true","min":"true","label":"§1 · The task","count":"2 / 4","backDisabled":"false","auto":"false","visible":false}
+PASS  §1 the chip restores the controller — {"on":"true","min":"false","label":"§1 · The task","count":"2 / 4","backDisabled":"false","auto":"false","visible":true}
+PASS  §1 Next at the page's last sentence advanced the STEP (→ task-b) — tour={"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":2,"count":4,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":2,"sentenceText":"The purple needle points\n              along −∇L, the direction\n              that decreases the loss fastest."} app={"scene":"task-b","step":2,"count":27,"locked":false,"animating":false}
+PASS  §1 needle sentence marked on task-b — {"count":1,"isSentenceSpan":true,"text":"The purple needle points along −∇L, the direction that decreases the loss fastest.","dim":true,"sibOpacity":1,"underline":true}
+PASS  §1 needle spotlight (minimap + needle) — {"id":"needle","label":"the gradient needle","active":true,"sceneDim":true,"ring":false,"spotPanels":["minimap-panel"],"minimapSpot":true,"keptTrails":0,"ballOpacity":0.35}
+PASS  §1 Back reversed across the page boundary (→ task-a, no lock) — tour={"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":1,"count":4,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"loss-readout","auto":false,"minimized":false,"page":1,"sentenceText":"The loss is one number for the whole fit: the sum of the squared residuals."} app={"scene":"task-a","step":1,"count":27,"locked":false,"animating":false}
+PASS  §1 back on the ball gate — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":3,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the white point","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":3,"sentenceText":"Drag the white point: it rides the surface, and the line, the\n              residuals and the loss follow."}
+PASS  FIX-4c: Back during an open gate reverses + disarms it (→ task-b, no lock) — tour={"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":2,"count":4,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":2,"sentenceText":"The purple needle points\n              along −∇L, the direction\n              that decreases the loss fastest."} app={"scene":"task-b","step":2,"count":27,"locked":false,"animating":false}
+PASS  §1 the ball gate re-arms on fresh arrival — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":3,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the white point","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":3,"sentenceText":"Drag the white point: it rides the surface, and the line, the\n              residuals and the loss follow."}
+PASS  §1 ball spotlight (ring on the surface) — {"id":"ball","label":"the white point (the learner)","active":true,"sceneDim":true,"ring":true,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §1 ball drag completes + exits the tour — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §1 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §1 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §1 end: no stray sentence highlight — count=0
+PASS  §1 end: leader overlay off
+PASS  §1 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§1 · The task","count":"4 / 4","backDisabled":"false","auto":"false","visible":false}
+PASS  §1 end: gate chip gone
+PASS  §1 end: no lock left behind — {"scene":"task-c","step":3,"count":27,"locked":false,"animating":false}
+PASS  §1 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 1"}
+PASS  §1 hover-to-look live again after the tour — {"id":"ball","label":"the white point (the learner)","active":true,"sceneDim":true,"ring":true,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  hover graduation: a registered sentence lights + spotlights its target — {"h1":{"hover":1},"lh":{"id":"fit-inset","label":"the fit-preview inset","active":true,"sceneDim":true,"ring":false,"spotPanels":["fit-panel"],"minimapSpot":false,"keptTrails":0,"ballOpacity":0.4}}
+PASS  hover graduation: the pointing overlay shows for the sentence hover — overlay=true
+PASS  hover graduation: leaving clears the sentence hover + spotlight — hover=0 look={"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  hover graduation: an unregistered sentence falls back to span-to-look — {"fb":{"hover":0,"spanLit":true},"lf":{"id":"loss-readout","label":"the loss readout","active":true,"sceneDim":true,"ring":false,"spotPanels":["loss-panel"],"minimapSpot":false,"keptTrails":0,"ballOpacity":0.4}}
+PASS  REG-2 p1 fit-inset: arrow lands on its target
+PASS  REG-2 p1 loss-readout: arrow lands on its target
+PASS  REG-2 p2 needle: arrow lands on its target
+PASS  REG-2 p3 ball: arrow lands on its target
+PASS  REG-2 p4 needle: arrow lands on its target
+PASS  REG-2 p5 compass: arrow lands on its target
+PASS  REG-2 p5 gd-step: arrow lands on its target
+PASS  REG-2 p6 eta-slider: arrow lands on its target
+PASS  REG-2 p7 trail-gd: arrow lands on its target
+PASS  REG-2 p8 trail-gd: arrow lands on its target
+PASS  REG-2 p8 trail-mom: arrow lands on its target
+PASS  REG-2 p8 beta-slider: arrow lands on its target
+PASS  REG-2 p9 mom-apexes: arrow lands on its target
+PASS  REG-2 p10 trail-mom: arrow lands on its target
+PASS  REG-2 p11 adam-bars: arrow lands on its target
+PASS  REG-2 p11 adam-arrows: arrow lands on its target
+PASS  REG-2 p12 steep-slider: arrow lands on its target
+PASS  REG-2 p13 lab-sliders: arrow lands on its target
+PASS  REG-2 p13 lab-checklist: arrow lands on its target
+PASS  REG-2 p14 trail-gd: arrow lands on its target
+PASS  REG-2 p14 trail-adam: arrow lands on its target
+PASS  REG-2 p15 needle: arrow lands on its target
+PASS  REG-2 p15 compass: arrow lands on its target
+PASS  REG-2 p15 ball: arrow lands on its target
+PASS  REG-2 p16 fog-panel: arrow lands on its target
+PASS  REG-2 p17 gold-marker: arrow lands on its target
+PASS  REG-2 p17 replay-btn: arrow lands on its target
+PASS  REG-2 p18 ball: arrow lands on its target
+PASS  REG-2 p18 tilt-damp: arrow lands on its target
+PASS  REG-2 p19 tilt-levels: arrow lands on its target
+PASS  REG-2 p20 tilt-replay: arrow lands on its target
+PASS  REG-2 p21 swarm-ensemble: arrow lands on its target
+PASS  REG-2 p21 tilt-panel: arrow lands on its target
+PASS  REG-2 p21 swarm-dock: arrow lands on its target
+PASS  REG-2 p22 rule-panel: arrow lands on its target
+PASS  REG-2 p22 rule-levels: arrow lands on its target
+PASS  REG-2 p23 rule-panel: arrow lands on its target
+PASS  REG-2 p23 rule-levels: arrow lands on its target
+PASS  REG-2 p24 epi-marker: arrow lands on its target
+PASS  REG-2 p25 epi-lattice: arrow lands on its target
+PASS  REG-2 p26 epi-lattice: arrow lands on its target
+PASS  REG-2 audit exercised real targets (41 rows, 0 flavor skips) — rows=41 skips=0
+PASS  wheel forward inside the section syncs the controller (task-b, needle sentence) — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":2,"count":4,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":2,"sentenceText":"The purple needle points\n              along −∇L, the direction\n              that decreases the loss fastest."}
+PASS  wheel really paged the reader (v4 stays master) — {"scene":"task-b","step":2,"count":27,"locked":false,"animating":false}
+PASS  wheel to task-c syncs + opens the ball gate — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":3,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the white point","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":3,"sentenceText":"Drag the white point: it rides the surface, and the line, the\n              residuals and the loss follow."}
+PASS  wheel past the section's last page exits the tour cleanly — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  wheel-out: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  wheel-out: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  wheel-out: no stray sentence highlight — count=0
+PASS  wheel-out: leader overlay off
+PASS  wheel-out: controller hidden (not minimized) — {"on":"false","min":"false","label":"§1 · The task","count":"4 / 4","backDisabled":"false","auto":"false","visible":false}
+PASS  wheel-out: gate chip gone
+PASS  wheel-out: no lock left behind — {"scene":"gd-a","step":4,"count":27,"locked":false,"animating":false}
+PASS  wheel-out: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 2"}
+PASS  §2 tour starts; needle sentence first — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":0,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":4,"sentenceText":"The needle\n              on the compass inset is that arrow. As the point drifts along\n              the valley floor, the needle swings: the gradient is re-measured,\n              fresh, at every point."}
+PASS  §2 Auto defaults OFF (no timed advance) — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":0,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":4,"sentenceText":"The needle\n              on the compass inset is that arrow. As the point drifts along\n              the valley floor, the needle swings: the gradient is re-measured,\n              fresh, at every point."}
+PASS  §2 Space advances the sentence (the tour pages to the gate's page, gd-b) — tour={"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":1,"count":5,"gate":true,"gateKind":"arrowDrawn","gateLabel":"drag an arrow on the compass","sentenceActive":true,"overlayOn":true,"lookKey":"compass","auto":false,"minimized":false,"page":5,"sentenceText":"Before GD moves, commit to a step of your own:\n              drag on the compass to draw the arrow you would follow\n              from the white point."} app={"scene":"gd-b","step":5,"count":27,"locked":false,"animating":false}
+PASS  §2 stride releases; GD's actual step sentence on — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":2,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"gd-step","auto":false,"minimized":false,"page":5,"sentenceText":"GD’s step points almost straight across it, down\n              the near wall toward the floor: barely any of it goes\n              along the valley."}
+PASS  §2 red-step spotlight (ring at GD's tip) — {"id":"gd-step","label":"GD's actual step (red)","active":true,"sceneDim":true,"ring":true,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":0.22}
+PASS  §2 Next advances the step → η gate pauses on gd-c — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":3,"count":5,"gate":true,"gateKind":"etaMoved","gateLabel":"slide the learning rate η","sentenceActive":true,"overlayOn":true,"lookKey":"eta-slider","auto":false,"minimized":false,"page":6,"sentenceText":"Slide η across three orders of\n              magnitude; GD restarts from the same white point each time."}
+PASS  FIX-4c: ArrowUp during an open gate reverses + disarms (→ gd-b sentence) — tour={"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":2,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":false,"lookKey":"gd-step","auto":false,"minimized":false,"page":5,"sentenceText":"GD’s step points almost straight across it, down\n              the near wall toward the floor: barely any of it goes\n              along the valley."} app={"scene":"gd-b","step":5,"count":27,"locked":false,"animating":false}
+PASS  §2 the η gate re-arms on fresh arrival — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":3,"count":5,"gate":true,"gateKind":"etaMoved","gateLabel":"slide the learning rate η","sentenceActive":true,"overlayOn":true,"lookKey":"eta-slider","auto":false,"minimized":false,"page":6,"sentenceText":"Slide η across three orders of\n              magnitude; GD restarts from the same white point each time."}
+PASS  §2 η move releases; trail sentence on gd-d — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":4,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"trail-gd","auto":false,"minimized":false,"page":7,"sentenceText":"Every η draws a different route down\n              the same landscape —\n              watch the trail on the surface."}
+PASS  §2 trail spotlight (kept trails, scene dim) — {"id":"trail-gd","label":"GD's trajectory (red)","active":true,"sceneDim":true,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":4,"ballOpacity":0.18}
+PASS  §2 tour completes + exits — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §2 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §2 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §2 end: no stray sentence highlight — count=0
+PASS  §2 end: leader overlay off
+PASS  §2 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§2 · Gradient descent","count":"5 / 5","backDisabled":"false","auto":"false","visible":false}
+PASS  §2 end: gate chip gone
+PASS  §2 end: no lock left behind — {"scene":"gd-d","step":7,"count":27,"locked":false,"animating":false}
+PASS  §2 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 2"}
+PASS  §3 tour starts (momentum) — {"running":true,"phase":"active","id":"s3","label":"§3 · Momentum","stepIndex":0,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"trail-gd","auto":false,"minimized":false,"page":8,"sentenceText":"One steep valley, one shared start, one\n              η for both."}
+PASS  §3 no auto-advance while Auto is off — {"running":true,"phase":"active","id":"s3","label":"§3 · Momentum","stepIndex":0,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"trail-gd","auto":false,"minimized":false,"page":8,"sentenceText":"One steep valley, one shared start, one\n              η for both."}
+PASS  §3 Auto ON advances the sentence by the beat — {"running":true,"phase":"active","id":"s3","label":"§3 · Momentum","stepIndex":1,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"trail-mom","auto":true,"minimized":false,"page":8,"sentenceText":"Momentum\n              (blue) replaces the raw gradient\n              with a running average of recent gradients — and the\n              average of opposite walls’ gradients is near zero."}
+PASS  §3 Auto button lit — {"on":"true","min":"false","label":"§3 · Momentum","count":"2 / 5","backDisabled":"false","auto":"true","visible":true}
+PASS  §3 Esc exits the tour — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":1,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §3 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":1,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §3 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §3 end: no stray sentence highlight — count=0
+PASS  §3 end: leader overlay off
+PASS  §3 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§3 · Momentum","count":"2 / 5","backDisabled":"false","auto":"false","visible":false}
+PASS  §3 end: gate chip gone
+PASS  §3 end: no lock left behind — {"scene":"mom-a","step":8,"count":27,"locked":false,"animating":false}
+PASS  §3 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 3"}
+PASS  §6 tour starts (needle sentence) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":0,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":15,"sentenceText":"Three things\n              remain: the fit inset,\n              the compass needle,\n              and whatever terrain\n              you have already measured."}
+PASS  §6 level-1 stride gate armed — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":1,"count":6,"gate":true,"gateKind":"fogStride","gateLabel":"drag a stride on the compass","sentenceActive":true,"overlayOn":true,"lookKey":"compass","auto":false,"minimized":false,"page":15,"sentenceText":"Drag on the compass to take a step."}
+PASS  §6 level-1 stride releases — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":2,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":15,"sentenceText":"Each landing point\n              measures the loss and the gradient there, and\n              the terrain you crossed paints itself in."}
+PASS  §6 level-2 fogRun gate armed on page 16 — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":3,"count":6,"gate":true,"gateKind":"fogRun","gateLabel":"take a stride here, then press Finish run","sentenceActive":true,"overlayOn":true,"lookKey":"fog-panel","auto":false,"minimized":false,"page":16,"sentenceText":"Spend the budget or press\n              Finish run — either way\n              the fog lifts and the run is scored."}
+PASS  TOURUX-S6: bare Finish with zero level-2 strides still releases the gate (no soft-lock) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":4,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"gold-marker","auto":false,"minimized":false,"page":17,"sentenceText":"The gold marker is the true global minimum\n              — where the terrain actually bottoms out."}
+PASS  TOURUX-S6: the empty-run reveal copy states the fact without the scolding — {"visible":true,"text":" Take the Level 2 run → With no measurements spent on this level there is no run of yours to replay — the stage runs the three optimizers alone, blind from the shared start. Sp
+PASS  §6 Esc exits the guard flow cleanly — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 guard end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 guard end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §6 guard end: no stray sentence highlight — count=0
+PASS  §6 guard end: leader overlay off
+PASS  §6 guard end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§6 · The fog game","count":"5 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  §6 guard end: gate chip gone
+PASS  §6 guard end: no lock left behind — {"scene":"fog-c","step":17,"count":27,"locked":false,"animating":false}
+PASS  §6 guard end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 6"}
+PASS  §6 flow-1 gate armed on page 16 — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":3,"count":6,"gate":true,"gateKind":"fogRun","gateLabel":"take a stride here, then press Finish run","sentenceActive":true,"overlayOn":true,"lookKey":"fog-panel","auto":false,"minimized":false,"page":16,"sentenceText":"Spend the budget or press\n              Finish run — either way\n              the fog lifts and the run is scored."}
+PASS  §6 a stride alone does not release either (the run is not finished) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":3,"count":6,"gate":true,"gateKind":"fogRun","gateLabel":"take a stride here, then press Finish run","sentenceActive":true,"overlayOn":true,"lookKey":"fog-panel","auto":false,"minimized":false,"page":16,"sentenceText":"Spend the budget or press\n              Finish run — either way\n              the fog lifts and the run is scored."}
+PASS  §6 stride + Finish releases the fogRun gate (→ the reveal sentence) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":4,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"gold-marker","auto":false,"minimized":false,"page":17,"sentenceText":"The gold marker is the true global minimum."}
+PASS  §6 the guided reveal grades a REAL run (no 'no run' row) — "you (manual run)148.3GD604.66momentum603.23Adam603.91"
+PASS  §6 Esc exits flow 1 cleanly — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 flow-1 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 flow-1 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §6 flow-1 end: no stray sentence highlight — count=0
+PASS  §6 flow-1 end: leader overlay off
+PASS  §6 flow-1 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§6 · The fog game","count":"5 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  §6 flow-1 end: gate chip gone
+PASS  §6 flow-1 end: no lock left behind — {"scene":"fog-c","step":17,"count":27,"locked":false,"animating":false}
+PASS  §6 flow-1 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 6"}
+PASS  TOURUX-S6-L1: bare Finish at the stride gate releases it (no soft-lock) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":2,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":15,"sentenceText":"Each landing point\n              measures the loss and the gradient there, and\n              the terrain you crossed paints itself in."}
+PASS  §6 Esc exits flow 3 cleanly — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":2,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 flow-3 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":2,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 flow-3 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §6 flow-3 end: no stray sentence highlight — count=0
+PASS  §6 flow-3 end: leader overlay off
+PASS  §6 flow-3 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§6 · The fog game","count":"3 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  §6 flow-3 end: gate chip gone
+PASS  §6 flow-3 end: no lock left behind — {"scene":"fog-a","step":15,"count":27,"locked":false,"animating":false}
+PASS  §6 flow-3 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 6"}
+PASS  TOURUX-S6-L1: strides-then-Finish before the gate still releases it (frozen snapshot) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":2,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":15,"sentenceText":"Each landing point\n              measures the loss and the gradient there, and\n              the terrain you crossed paints itself in."}
+PASS  §6 Esc exits flow 4 cleanly — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":2,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 flow-4 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":2,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §6 flow-4 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  §6 flow-4 end: no stray sentence highlight — count=0
+PASS  §6 flow-4 end: leader overlay off
+PASS  §6 flow-4 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§6 · The fog game","count":"3 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  §6 flow-4 end: gate chip gone
+PASS  §6 flow-4 end: no lock left behind — {"scene":"fog-a","step":15,"count":27,"locked":false,"animating":false}
+PASS  §6 flow-4 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 6"}
+PASS  FIX-4b: ?step=16 starts the tour AT the parked step (4 / 6) with NO upward travel
+PASS  FIX-4b: ?step=16 counter reads 4 / 6 — {"on":"true","min":"false","label":"§6 · The fog game","count":"4 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  FIX-4b: Esc exits clean (?step=16) — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  FIX-4b end ?step=16: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  FIX-4b end ?step=16: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  FIX-4b end ?step=16: no stray sentence highlight — count=0
+PASS  FIX-4b end ?step=16: leader overlay off
+PASS  FIX-4b end ?step=16: controller hidden (not minimized) — {"on":"false","min":"false","label":"§6 · The fog game","count":"4 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  FIX-4b end ?step=16: gate chip gone
+PASS  FIX-4b end ?step=16: no lock left behind — {"scene":"fog-b","step":16,"count":27,"locked":false,"animating":false}
+PASS  FIX-4b end ?step=16: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 6"}
+PASS  FIX-4b: ?step=17 starts the tour AT the parked step (5 / 6) with NO upward travel
+PASS  FIX-4b: ?step=17 counter reads 5 / 6 — {"on":"true","min":"false","label":"§6 · The fog game","count":"5 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  FIX-4b: Esc exits clean (?step=17) — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  FIX-4b end ?step=17: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":4,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  FIX-4b end ?step=17: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  FIX-4b end ?step=17: no stray sentence highlight — count=0
+PASS  FIX-4b end ?step=17: leader overlay off
+PASS  FIX-4b end ?step=17: controller hidden (not minimized) — {"on":"false","min":"false","label":"§6 · The fog game","count":"5 / 6","backDisabled":"false","auto":"false","visible":false}
+PASS  FIX-4b end ?step=17: gate chip gone
+PASS  FIX-4b end ?step=17: no lock left behind — {"scene":"fog-c","step":17,"count":27,"locked":false,"animating":false}
+PASS  FIX-4b end ?step=17: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 6"}
+PASS  FIX-4d: gd-b compass at rest draws NO custom-rule purple (the needle's old hex) — {"W":140,"H":220,"customPurple":0,"needleLavender":71,"gdRed":0,"whiteArrow":46}
+PASS  FIX-4d: the needle draws in lavender at rest — {"W":140,"H":220,"customPurple":0,"needleLavender":71,"gdRed":0,"whiteArrow":46}
+PASS  FIX-4d: after a committed draw the compass STILL draws no custom-rule purple — {"W":140,"H":220,"customPurple":0,"needleLavender":39,"gdRed":44,"whiteArrow":589}
+PASS  FIX-4d: the drawn set is white arrow + red step + lavender needle — {"W":140,"H":220,"customPurple":0,"needleLavender":39,"gdRed":44,"whiteArrow":589}
+PASS  §7 tour starts on the steering gate — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  §7 steering sentence marked — {"count":1,"isSentenceSpan":true,"text":"The board is the parameter plane and you tilt it: W A S D (or ← →) pitch and roll the valley under the white ball.","dim":true,"sibOpacity":0.965473,"underline":true}
+PASS  §7 steering releases the gate — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":1,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"tilt-damp","auto":false,"minimized":false,"page":18,"sentenceText":"The c slider is the damping\n              coefficient — β’s\n              role, made physical."}
+PASS  §7 Next → the Rosenbrock beat (points at the level pills — U5-POINT-LEVELS) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":2,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"tilt-levels","auto":false,"minimized":false,"page":19,"sentenceText":"Level 2 is\n              Rosenbrock: a strongly curved valley whose floor is\n              nearly flat, with the minimum around the bend."}
+PASS  REG-1: the tilt-b ghost sentence carries NO gate (the ghost press is not an advance trigger) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":3,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"tilt-replay","auto":false,"minimized":false,"page":20,"sentenceText":"Your run is recorded — drag the scrubber to move\n              the white ghost through your own trajectory, step by step,\n              or press ghost to play it back."}
+PASS  REG-1: clicking ▶ ghost keeps the reader parked on tilt-b (step 20) — before={"step":20,"locked":false} after={"step":20,"locked":false,"animating":false}
+PASS  REG-1: clicking ▶ ghost leaves the tour state untouched (still 4/7, sentence on) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":3,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"tilt-replay","auto":false,"minimized":false,"page":20,"sentenceText":"Your run is recorded — drag the scrubber to move\n              the white ghost through your own trajectory, step by step,\n              or press ghost to play it back."}
+PASS  REG-1: the ghost ride itself started (scrubPlaying) — scrubPlaying=true
+PASS  TOURUX-S7: the swarm sentence points at the ENSEMBLE (not the absent ball) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":4,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"swarm-ensemble","auto":false,"minimized":false,"page":21,"sentenceText":"One hundred balls are scattered across whichever\n              terrain you picked and released; each runs the same physics\n              you just played — no tilt, mid-range damping — and\n              settles into the first basin its trajectory enters."}
+PASS  TOURUX-S7: the ensemble spotlight is LIVE (ring + scene dim, ensemble label) — {"id":"swarm-ensemble","label":"the hundred-ball ensemble","active":true,"sceneDim":true,"ring":true,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":null}
+PASS  TOURUX-S7: the leader overlay draws for the swarm sentence (was dark pre-fix) — {"on":"true","d":"M 1024 281.65625 C 836.6032888297393 281.65625, 718.2474712485221 439.4387016453993, 530.8507600782614
+PASS  §7 Back leaves the swarm page (the gate-free ghost sentence) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":3,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"tilt-replay","auto":false,"minimized":false,"page":20,"sentenceText":"Your run is recorded — drag the scrubber to move\n              the white ghost through your own trajectory, step by step,\n              or press ghost to play it back."}
+PASS  §7 Esc exits the tour — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §7 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":3,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  §7 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":null}
+PASS  §7 end: no stray sentence highlight — count=0
+PASS  §7 end: leader overlay off
+PASS  §7 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§7 · The tilt game","count":"4 / 7","backDisabled":"false","auto":"false","visible":false}
+PASS  §7 end: gate chip gone
+PASS  §7 end: no lock left behind — {"scene":"tilt-b","step":20,"count":27,"locked":false,"animating":false}
+PASS  §7 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 7"}
+PASS  TR-2: steering gate armed (step 1/7) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  TOUR-TR-2: premature Finish releases the steering gate (no dead-end) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":1,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"tilt-damp","auto":false,"minimized":false,"page":18,"sentenceText":"The c slider is the damping\n              coefficient — β’s\n              role, made physical."}
+PASS  TR-2: Esc exits clean — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":1,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  TR-2 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":1,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  TR-2 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  TR-2 end: no stray sentence highlight — count=0
+PASS  TR-2 end: leader overlay off
+PASS  TR-2 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§7 · The tilt game","count":"2 / 7","backDisabled":"false","auto":"false","visible":false}
+PASS  TR-2 end: gate chip gone
+PASS  TR-2 end: no lock left behind — {"scene":"tilt-a","step":18,"count":27,"locked":false,"animating":false}
+PASS  TR-2 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 7"}
+PASS  s4: tour starts, sentence marked, controller on — tour={"running":true,"phase":"active","id":"s4","label":"§4 · Adam","stepIndex":0,"count":3,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"adam-bars","auto":false,"minimized":false,"page":11,"sentenceText":"In the panel, each bar is one\n              coordinate’s\n              mˆᵢ/√vˆᵢ:\n              Adam measures each coordinate’s gradient in its own units."} marked={"count":1,"isSentenceSpan":true,"text":"In the panel, each bar is one coordinate’s mˆᵢ/√vˆᵢ: Adam measures each coordinate’s gradient in its own units.","dim":true,"sibOpacity":1,"underline":true} bar={"on":"true","min":"false","label":"§4 · Adam","count":"1 / 3","backDisabled":"true","auto":"false","visible":false}
+PASS  s4: Esc exits clean — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s4 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s4 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  s4 end: no stray sentence highlight — count=0
+PASS  s4 end: leader overlay off
+PASS  s4 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§4 · Adam","count":"1 / 3","backDisabled":"true","auto":"false","visible":false}
+PASS  s4 end: gate chip gone
+PASS  s4 end: no lock left behind — {"scene":"adam-a","step":11,"count":27,"locked":false,"animating":false}
+PASS  s4 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 4"}
+PASS  s5: tour starts, sentence marked, controller on — tour={"running":true,"phase":"active","id":"s5","label":"§5 · The disagreement lab","stepIndex":0,"count":4,"gate":true,"gateKind":"labMoved","gateLabel":"reshape the valley with the sliders","sentenceActive":true,"overlayOn":true,"lookKey":"lab-sliders","auto":false,"minimized":false,"page":13,"sentenceText":"Two sliders in the dock (bottom-left) rebuild the valley while\n              the race re-runs: λ₁/λ₂ sets the\n              curvature ratio; rotation reorients the bowl relative\n              to the start point."} marked={"count":1,"isSentenceSpan":true,"text":"Two sliders in the dock (bottom-left) rebuild the valley while the race re-runs: λ₁/λ₂ sets the curvature ratio; rotation reorients the bowl relative to the start point.","dim":true,"sibOpacity":1,"underline":true} bar={"on":"true","min":"false","label":"§5 · The disagreement lab","count":"1 / 4","backDisabled":"true","auto":"false","visible":false}
+PASS  s5: Esc exits clean — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s5 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s5 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  s5 end: no stray sentence highlight — count=0
+PASS  s5 end: leader overlay off
+PASS  s5 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§5 · The disagreement lab","count":"1 / 4","backDisabled":"true","auto":"false","visible":false}
+PASS  s5 end: gate chip gone
+PASS  s5 end: no lock left behind — {"scene":"lab","step":13,"count":27,"locked":false,"animating":false}
+PASS  s5 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 5"}
+PASS  s8: tour starts, sentence marked, controller on — tour={"running":true,"phase":"active","id":"s8","label":"§8 · The optimizer lab","stepIndex":0,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"rule-panel","auto":false,"minimized":false,"page":22,"sentenceText":"The workbench\n              (left) exposes all four: the learning rate\n              η — the base step size; the\n              momentum coefficient β —\n              the length of the gradient-averaging window;\n              per-coordinate normalize — Adam’s trick,\n              scaling each coordinate by its own gradient magnitude; and\n              clip — a hard cap on a single step’s\n              length."} marked={"count":1,"isSentenceSpan":true,"text":"The workbench (left) exposes all four: the learning rate η — the base step size; the momentum coefficient β — the length of the gradient-averaging window; per-coordinate normalize — Adam’s trick, scaling each coordinate by its own gradient magnitude; and clip — a hard cap on a single step’s length.","dim":true,"sibOpacity":0.965359,"underline":true} bar={"on":"true","min":"false","label":"§8 · The optimizer lab","count":"1 / 5","backDisabled":"true","auto":"false","visible":false}
+PASS  s8: late-filling verdict paragraphs segmented once the benchmark writes them — []
+PASS  s8: Esc exits clean — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s8 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s8 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":1}
+PASS  s8 end: no stray sentence highlight — count=0
+PASS  s8 end: leader overlay off
+PASS  s8 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§8 · The optimizer lab","count":"1 / 5","backDisabled":"true","auto":"false","visible":false}
+PASS  s8 end: gate chip gone
+PASS  s8 end: no lock left behind — {"scene":"labrule","step":22,"count":27,"locked":false,"animating":false}
+PASS  s8 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 8"}
+PASS  s9: tour starts, sentence marked, controller on — tour={"running":true,"phase":"active","id":"s9","label":"§9 · Epilogue","stepIndex":0,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"epi-marker","auto":false,"minimized":false,"page":24,"sentenceText":"One debt to settle: §1 gave you the formula but never its\n              answer."} marked={"count":1,"isSentenceSpan":true,"text":"One debt to settle: §1 gave you the formula but never its answer.","dim":true,"sibOpacity":1,"underline":true} bar={"on":"true","min":"false","label":"§9 · Epilogue","count":"1 / 6","backDisabled":"true","auto":"false","visible":false}
+PASS  s9: Esc exits clean — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s9 end: tour not running — {"running":false,"phase":"idle","id":null,"label":null,"stepIndex":0,"count":0,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":false,"overlayOn":false,"lookKey":null,"auto":false,"minimized":false,"page":-1,"sentenceText":""}
+PASS  s9 end: spotlight released — {"id":null,"label":null,"active":false,"sceneDim":false,"ring":false,"spotPanels":[],"minimapSpot":false,"keptTrails":0,"ballOpacity":null}
+PASS  s9 end: no stray sentence highlight — count=0
+PASS  s9 end: leader overlay off
+PASS  s9 end: controller hidden (not minimized) — {"on":"false","min":"false","label":"§9 · Epilogue","count":"1 / 6","backDisabled":"true","auto":"false","visible":false}
+PASS  s9 end: gate chip gone
+PASS  s9 end: no lock left behind — {"scene":"epi-a","step":24,"count":27,"locked":false,"animating":false}
+PASS  s9 end: tour entry chip back (fixed bottom-center) — {"exists":true,"hidden":false,"label":"▶ Tour section 9"}
+PASS  no stray tour/sentence attributes anywhere — {"active":0,"dim":0,"keep":0,"hover":0}
+PASS  capture 30-tour-s1-gate.png — 194.6 KB
+PASS  capture 32-tour-s2-gdstep.png — 269.5 KB
+PASS  capture 34-tour-s7-gate.png — 157.6 KB
+ALL_PASS

@@ -1,0 +1,28 @@
+PASS  copy-gdc-osc-gloss: λmax thresholds (oscillate/diverge), λmax = steepest curvature, η = 0.5/1 —  §2 · Gradient descent One setting: the learning rate. The step is η × the arrow: η is the learning rate — the step size. Slide η across three orders of magnitude; GD restarts from the same white poin
+PASS  copy-gdc-symbol: curvature not written as L (L is the loss)
+PASS  copy-gdc-osc-gloss: old 'half the largest curvature' appositive gone
+PASS  copy-fogc-local-min: 'found a local minimum' claim removed
+PASS  copy-fogc-local-min: honest replacement present — The gold marker is the true global minimum. If you stopped on Rosenbrock’s curved valley floor, you stopped somewhere that felt final — flat underfoot, progress crawl-slow — while the global minimum sat a short distance away, across an unvisited ridge. A point
+PASS  copy-labrulea-four-parts: overclaim softened
+PASS  GP-3: caption rewritten (plain GD at your η; machines run their own) — turn every part off (β = 0, no normalize, clip off) and your rule is plain GD — at whatever η you have dialed. The machines run their own hand-tuned η per landscape, so their rows won’t match a dials-
+PASS  copy-labruleb-slowest: false 'slowest machine' claim removed
+PASS  copy-labruleb-slowest: true ranking present (momentum converged, GD never landed)
+PASS  cov-hover-to-look: Overview documents dotted phrases (hover/Tab) — From the next step on, watch for dotted phrases — each names something on stage: rest on one (or Tab to it) and the scene shows you what it names. Scroll all the way back
+PASS  layout 900x900 step6 gd-c: continue ↓ inside the viewport (or not shown) — right=880 vw=900
+NOTE  layout 900x900 step6 gd-c: fit inset not visible — hit test skipped
+PASS  layout 900x700 step15 fog-a: continue ↓ inside the viewport (or not shown) — right=880 vw=900
+PASS  layout 900x700 step15 fog-a: fit panel does not overlap the compass — overlap=0px² fit=[14,256] mm=[272,418]
+PASS  layout 900x700 step15 fog-a: fit canvas right edge not intercepted — elementFromPoint=fit-canvas
+PASS  layout 900x900 step20 tilt-b: continue ↓ inside the viewport (or not shown) — right=880 vw=900
+NOTE  layout 900x900 step20 tilt-b: fit inset not visible — hit test skipped
+PASS  layout 900x700 step18 tilt-a: continue ↓ inside the viewport (or not shown) — right=880 vw=900
+PASS  layout 900x700 step18 tilt-a: tilt panel does not overlap the compass — overlap=0px²
+NOTE  layout 900x700 step18 tilt-a: fit inset not visible — hit test skipped
+PASS  layout 900x700 step22 labrule: continue ↓ inside the viewport (or not shown) — right=880 vw=900
+NOTE  layout 900x700 step22 labrule: fit inset not visible — hit test skipped
+PASS  layout 1280x800 step15 fog-a: continue ↓ inside the viewport (or not shown) — right=1260 vw=1280
+PASS  layout 1280x800 step15 fog-a: fit panel does not overlap the compass — overlap=0px² fit=[14,356] mm=[517,703]
+PASS  layout 1280x800 step15 fog-a: fit canvas right edge not intercepted — elementFromPoint=fit-canvas
+PASS  layout 1440x900 step20 tilt-b: continue ↓ inside the viewport (or not shown) — right=1420 vw=1440
+NOTE  layout 1440x900 step20 tilt-b: fit inset not visible — hit test skipped
+VERIFY_COPY_LAYOUT_OK

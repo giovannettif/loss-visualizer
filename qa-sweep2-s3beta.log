@@ -1,0 +1,30 @@
+PASS  A · §3 β gate (page 8, mom-a): tour starts at head — {"running":true,"phase":"active","id":"s3","label":"§3 · Momentum","stepIndex":0,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"trail-gd","auto":false,"minimized":false,"page":8,"sentenceText":"Same steep valley, same start, same\n              η for both."}
+
+== A · §3 β gate (page 8, mom-a) ==
+tour:  idx=2/5 gate=true gateKind=betaMoved gateLabel="slide the momentum β" lookKey=beta-slider
+sentence: "β, the momentum coefficient, sets the length of the averaging window: β = 0 is exactly GD."
+dot: (1275.6, 458.4) overlay=true
+#beta-slider rect: {"left":1101.640625,"top":457.421875,"right":1449.578125,"bottom":459.421875,"w":347.9375,"h":2}
+distance dot→control center: 0.0px  control data-spot=true
+stage pane x-range: [0, 1600]  reader left: 1024
+PASS  A: paused on the betaMoved gate — gateKind=betaMoved
+FAIL  A: step lookKey is the STAGE trail (the bug) — lookKey=beta-slider
+PASS  A: gate chip demands the β slider — slide the momentum β
+FAIL  A: BUG — dot is far from #beta-slider (>300px) — dist=0.0px
+FAIL  A: BUG — dot sits on the STAGE pane, not the reader control — dot.x=1276 reader.left=1024 slider.left=1102
+FAIL  A: no glow on #beta-slider (control not spotted) — data-spot=true
+PASS  B · §2 η gate (page 6, gd-c — U1 precedent): tour starts at head — {"running":true,"phase":"active","id":"s2","label":"§2 · Gradient descent","stepIndex":0,"count":5,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":4,"sentenceText":"The needle\n              on the compass inset is that arrow. As the point drifts along\n              the valley floor, the needle swings: the gradient is re-measured,\n              fresh, at every point."}
+
+== B · §2 η gate (page 6, gd-c — U1 precedent) ==
+tour:  idx=3/5 gate=true gateKind=etaMoved gateLabel="slide the learning rate η" lookKey=eta-slider
+sentence: "Slide η across three orders of magnitude; GD restarts from the same white point each time."
+dot: (1275.6, 488.7) overlay=true
+#eta-slider rect: {"left":1101.578125,"top":487.734375,"right":1449.578125,"bottom":489.734375,"w":348,"h":2}
+distance dot→control center: 0.0px  control data-spot=true
+stage pane x-range: [0, 1600]  reader left: 1024
+PASS  B: paused on the etaMoved gate — gateKind=etaMoved
+PASS  B: step lookKey is the CONTROL target — lookKey=eta-slider
+PASS  B: precedent — dot anchors #eta-slider (<80px) — dist=0.0px
+PASS  B: precedent — #eta-slider glows (data-spot) — data-spot=true
+
+4 FAILURES

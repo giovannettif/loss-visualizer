@@ -1,0 +1,24 @@
+PASS  shot gd-b has the drawn user arrow + GD step tip — {"point":{"x":-11,"y":9.5},"eta":null,"regime":null,"userTip":{"x":-7,"y":2.5717968000000004},"gdTip":{"x":-7.153713429154904,"y":11.435339233758313},"pathSteps":0,"pathEnd":null}
+PASS  ?step=5 lands on gd-b — scene=gd-b
+PASS  live gd-b starts with no drawn arrows — {"point":{"x":-11,"y":9.5},"eta":null,"regime":null,"userTip":null,"gdTip":null,"pathSteps":0,"pathEnd":null}
+PASS  minimap drag previews the user arrow — {"x":6.578947368421055,"y":15}
+PASS  commit keeps the user arrow — {"x":6.578947368421055,"y":15}
+PASS  commit reveals GD's red step tip — {"x":-7.153713429154904,"y":11.435339233758313}
+PASS  ?step=6 lands on gd-c descending at mid-slider — {"scene":"gd-c","gd":{"point":{"x":-11,"y":9.5},"eta":0.06324555320336758,"regime":"descending","userTip":null,"gdTip":null,"pathSteps":160,"pathEnd":{"x":-4.576574037076717,"y":7.926858752990182}},"label":"descending","value":"0.0632"}
+PASS  slider far left -> crawling — eta=0.003027122496872418 label=crawling steps=160
+PASS  slider low-mid -> descending — eta=0.03169786384922229 label=descending
+PASS  slider high-mid -> oscillating — eta=0.5768063006253212 label=oscillating steps=160
+PASS  slider far right -> diverging — eta=1.8665086015939814 label=diverging steps=1
+PASS  trajectory re-runs per eta (crawl vs osc end far apart) — crawlEnd={"x":-8.297407411755804,"y":10.756192069200491} oscEnd={"x":-0.16388699853012692,"y":0.28386060815414577}
+PASS  diverging trajectory collapses to the extent edge — steps=1
+PASS  eta readout is monospace-formatted — value=0.0317
+PASS  gd-a point drifts so the needle swings — moved=3.537
+§1 regression suite follows:
+PASS  ball has a screen position in task-c — {"x":484.533744901473,"y":497.14836693541776}
+PASS  surface drag moves (w, b) — fit 0.91,1.31 -> 0.40,-0.82
+PASS  loss readout follows the drag — loss=77.66
+PASS  w readout follows the drag — ro-w=0.40
+PASS  inset handle drag changes the fit — fit -> 0.69,0.26
+PASS  ?step=2 lands on task-b — {"scene":"task-b","step":2,"fit":{"w":-0.35,"b":0.8},"minimap":"true","hero":"false"}
+PASS  ?step=2 fit eased to the task-b target — fit -0.35, 0.8
+PASS  ?step=2 shows minimap, hides hero — {"scene":"task-b","step":2,"fit":{"w":-0.35,"b":0.8},"minimap":"true","hero":"false"}

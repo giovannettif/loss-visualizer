@@ -1,0 +1,49 @@
+PASS  shot lab: E=50 θ=30, all three lines lit, curves panel up — {"lab":{"E":50,"rot":30,"checks":{"gdFlips":12,"momOvershoot":1.8284271247461898,"adamInvariant":1.0767352743259162,"zigzag":true,"overshoot":true,"invariant":true},"rebuildMs":0},"scene":"lab","panel":"true","lit":["true","true","true"]}
+PASS  ?step=13 lands on the lab — scene=lab
+PASS  lab JS rebuild stays cheap (< 30ms) — rebuildMs=10.2
+PASS  drag frame gaps stay bounded (median < 40ms; at most 2 warm-up spikes) — median=16.7ms worst=66.7ms spikes>100ms=0 (headless SwiftShader render inflates the spike)
+PASS  at ×1 the wall lines unlight (round bowl agrees) — {"E":1,"lit":"false,false,true"}
+PASS  at ×50 all three lines light — {"E":49.99999999999999,"lit":"true,true,true"}
+PASS  rotation slider reaches 0° live — {"rot":0,"label":"0°"}
+PASS  log toggle redraws the curves canvas — len lin=10658 log=20998
+§2+§3+§1 regression suite follows (cdp-interact-wp3.mjs):
+PASS  shot mom-a: glide at β=0.45 with both trails — {"beta":0.45,"regime":"glide","gdSteps":160,"momSteps":200,"gdEnd":{"x":0.016654979779087087,"y":0.022923613053751644},"momEnd":{"x":0.0000033307728189270714,"y":0.000004584415489168027},"apexes":4}
+PASS  shot mom-b: overshoot at β=0.97 with apex markers — {"beta":0.97,"regime":"overshoot","gdSteps":160,"momSteps":200,"gdEnd":{"x":0.016654979779087087,"y":0.022923613053751644},"momEnd":{"x":0.4539047212099613,"y":0.18869761544244107},"apexes":83}
+PASS  shot adam-a: baseline inspector (s=1, angle≈12°) — {"point":{"x":-4.250844325359445,"y":6.501833599421579},"ratio":{"x":-0.4895693618786932,"y":0.016683017451431838},"angleDeg":12.13263068056158,"gdStepLen":0.27451342351867597,"adamStepLen":0.14695605970678313,"steepness":1}
+PASS  shot adam-b: steepness maxed — GD ×38 while Adam ×1.0 — {"point":{"x":-4.546436279817635,"y":7.176595327482102},"ratio":{"x":-0.34510116142952135,"y":-0.3344243142796041},"angleDeg":14.65717876725955,"gdStepLen":10.471444966416302,"adamStepLen":0.14416691376361263,"steepness":50}
+PASS  ?step=8 lands on mom-a — scene=mom-a
+PASS  β=0.00 -> zigzag (the GD-regime label) — label=zigzag mom=200 gd=160
+PASS  β=0.45 -> glide — label=glide
+PASS  β=0.97 -> overshoot — label=overshoot apexes=83
+PASS  ?step=12 lands on adam-b — scene=adam-b
+PASS  adam-b live sits at ×50 — {"s":50,"gd":10.471444966416302}
+PASS  steep slider back to ×1 updates the inspector live — s=1 gdLen=0.27451342351867597 angle=12.13263068056158
+PASS  steep slider re-maxed: angle returns to the ×50 value — angle=14.65717876725955 gdLen=10.471444966416302
+PASS  adam step length ~invariant across steepness (<10% drift) — drift=1.9%
+PASS  GD step length scales with steepness (>10× across the sweep) — growth=38.1×
+PASS  adam inspector panel visible in §4
+§2+§1 regression suite follows (cdp-interact-gd.mjs):
+PASS  shot gd-b has the drawn user arrow + GD step tip — {"point":{"x":-11,"y":9.5},"eta":null,"regime":null,"userTip":{"x":-7,"y":2.5717968000000004},"gdTip":{"x":-7.153713429154904,"y":11.435339233758313},"pathSteps":0,"pathEnd":null}
+PASS  ?step=5 lands on gd-b — scene=gd-b
+PASS  live gd-b starts with no drawn arrows — {"point":{"x":-11,"y":9.5},"eta":null,"regime":null,"userTip":null,"gdTip":null,"pathSteps":0,"pathEnd":null}
+PASS  minimap drag previews the user arrow — {"x":6.578947368421055,"y":15}
+PASS  commit keeps the user arrow — {"x":6.578947368421055,"y":15}
+PASS  commit reveals GD's red step tip — {"x":-7.153713429154904,"y":11.435339233758313}
+PASS  ?step=6 lands on gd-c descending at mid-slider — {"scene":"gd-c","gd":{"point":{"x":-11,"y":9.5},"eta":0.06324555320336758,"regime":"descending","userTip":null,"gdTip":null,"pathSteps":160,"pathEnd":{"x":-4.576574037076717,"y":7.926858752990182}},"label":"descending","value":"0.0632"}
+PASS  slider far left -> crawling — eta=0.003027122496872418 label=crawling steps=160
+PASS  slider low-mid -> descending — eta=0.03169786384922229 label=descending
+PASS  slider high-mid -> oscillating — eta=0.5768063006253212 label=oscillating steps=160
+PASS  slider far right -> diverging — eta=1.8665086015939814 label=diverging steps=1
+PASS  trajectory re-runs per eta (crawl vs osc end far apart) — crawlEnd={"x":-8.297407411755804,"y":10.756192069200491} oscEnd={"x":-0.16388699853012692,"y":0.28386060815414577}
+PASS  diverging trajectory collapses to the extent edge — steps=1
+PASS  eta readout is monospace-formatted — value=0.0317
+PASS  gd-a point drifts so the needle swings — moved=3.485
+§1 regression suite follows:
+PASS  ball has a screen position in task-c — {"x":484.533744901473,"y":497.14836693541776}
+PASS  surface drag moves (w, b) — fit 0.91,1.31 -> 0.40,-0.82
+PASS  loss readout follows the drag — loss=77.66
+PASS  w readout follows the drag — ro-w=0.40
+PASS  inset handle drag changes the fit — fit -> 0.69,0.26
+PASS  ?step=2 lands on task-b — {"scene":"task-b","step":2,"fit":{"w":-0.35,"b":0.8},"minimap":"true","hero":"false"}
+PASS  ?step=2 fit eased to the task-b target — fit -0.35, 0.8
+PASS  ?step=2 shows minimap, hides hero — {"scene":"task-b","step":2,"fit":{"w":-0.35,"b":0.8},"minimap":"true","hero":"false"}

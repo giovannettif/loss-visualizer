@@ -1,0 +1,264 @@
+PASS  page 1: reader parked + unlocked — scene=task-a idle=true
+PASS  page 1: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p1 s0 "Drag the line or its ends in the inset — each red segment is" — highlight is exactly this sentence — litCount=1 lit=["Drag the line or\n              i"]
+PASS  p1 s0 "Drag the line or its ends in the inset — each red segment is" — pointing overlay on for the live target — overlayOn=true lookKey=fit-inset want=fit-inset
+PASS  p1 s0 "Drag the line or its ends in the inset — each red segment is" — arrow tip on the clamped anchor (≤3px) — tip={"x":157.64,"y":223} want={"x":157.64,"y":223} raw={"x":157.64,"y":223} d=0.0px
+PASS  p1 s0 "Drag the line or its ends in the inset — each red segment is" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p1 s1 "The loss is one number for the whole fit: the sum of the squ" — highlight is exactly this sentence — litCount=1 lit=["The loss is one number for the w"]
+PASS  p1 s1 "The loss is one number for the whole fit: the sum of the squ" — pointing overlay on for the live target — overlayOn=true lookKey=loss-readout want=loss-readout
+PASS  p1 s1 "The loss is one number for the whole fit: the sum of the squ" — arrow tip on the clamped anchor (≤3px) — tip={"x":157.64,"y":434} want={"x":157.64,"y":434} raw={"x":157.64,"y":434} d=0.0px
+PASS  p1 s1 "The loss is one number for the whole fit: the sum of the squ" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 1: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 2: reader parked + unlocked — scene=task-b idle=true
+PASS  page 2: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p2 s0 "The purple needle points along −∇L, the direction that decre" — highlight is exactly this sentence — litCount=1 lit=["The purple needle points\n       "]
+PASS  p2 s0 "The purple needle points along −∇L, the direction that decre" — pointing overlay on for the live target — overlayOn=true lookKey=needle want=needle
+PASS  p2 s0 "The purple needle points along −∇L, the direction that decre" — arrow tip on the clamped anchor (≤3px) — tip={"x":76.46875000005103,"y":733.8750000000612} want={"x":76.46875000005103,"y":733.8750000000612} raw={"x":76.46875000005103,"y":733.8750000000612} d=0.0px
+PASS  p2 s0 "The purple needle points along −∇L, the direction that decre" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 2: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 3: reader parked + unlocked — scene=task-c idle=true
+PASS  page 3: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p3 s0 "Drag the white point: it rides the surface, and the line, th" — highlight is exactly this sentence — litCount=1 lit=["Drag the white point: it rides t"]
+PASS  p3 s0 "Drag the white point: it rides the surface, and the line, th" — pointing overlay on for the live target — overlayOn=true lookKey=ball want=ball
+PASS  p3 s0 "Drag the white point: it rides the surface, and the line, th" — arrow tip on the clamped anchor (≤3px) — tip={"x":484.5337449014728,"y":497.14836693541787} want={"x":484.5337449014728,"y":497.14836693541787} raw={"x":484.5337449014728,"y":497.14836693541787} d=0.0px
+PASS  p3 s0 "Drag the white point: it rides the surface, and the line, th" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 3: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 4: reader parked + unlocked — scene=gd-a idle=true
+PASS  page 4: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p4 s0 "The needle on the compass inset is that arrow. As the point " — highlight is exactly this sentence — litCount=1 lit=["The needle\n              on the "]
+PASS  p4 s0 "The needle on the compass inset is that arrow. As the point " — pointing overlay on for the live target — overlayOn=true lookKey=needle want=needle
+PASS  p4 s0 "The needle on the compass inset is that arrow. As the point " — arrow tip on the clamped anchor (≤3px) — tip={"x":66.8014602624144,"y":697.905861328683} want={"x":66.8477447121821,"y":697.9860283469308} raw={"x":66.8477447121821,"y":697.9860283469308} d=0.1px
+PASS  p4 s0 "The needle on the compass inset is that arrow. As the point " — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 4: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 5: reader parked + unlocked — scene=gd-b idle=true
+PASS  page 5: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p5 s0 "Before GD moves, commit to a step of your own: drag on the c" — highlight is exactly this sentence — litCount=1 lit=["Before GD moves, commit to a ste"]
+PASS  p5 s0 "Before GD moves, commit to a step of your own: drag on the c" — pointing overlay on for the live target — overlayOn=true lookKey=compass want=compass
+PASS  p5 s0 "Before GD moves, commit to a step of your own: drag on the c" — arrow tip on the clamped anchor (≤3px) — tip={"x":90.41375,"y":747.5} want={"x":90.41375,"y":747.5} raw={"x":90.41375,"y":747.5} d=0.0px
+PASS  p5 s0 "Before GD moves, commit to a step of your own: drag on the c" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p5 s1 "GD’s step points almost straight across it, down the near wa" — highlight is exactly this sentence — litCount=1 lit=["GD’s step points almost straight"]
+PASS  p5 s1 "GD’s step points almost straight across it, down the near wa" — absent target keeps the overlay dark (never invents) — look=gd-step overlayOn=false
+PASS  p5 s1 "GD’s step points almost straight across it, down the near wa" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 5: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 6: reader parked + unlocked — scene=gd-c idle=true
+PASS  page 6: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p6 s0 "Slide η across three orders of magnitude; GD restarts from t" — highlight is exactly this sentence — litCount=1 lit=["Slide η across three orders of\n "]
+PASS  p6 s0 "Slide η across three orders of magnitude; GD restarts from t" — pointing overlay on for the live target — overlayOn=true lookKey=eta-slider want=eta-slider
+PASS  p6 s0 "Slide η across three orders of magnitude; GD restarts from t" — arrow tip on the clamped anchor (≤3px) — tip={"x":1275.578125,"y":488.203125} want={"x":1275.578125,"y":488.203125} raw={"x":1275.578125,"y":488.203125} d=0.0px
+PASS  p6 s0 "Slide η across three orders of magnitude; GD restarts from t" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 6: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 7: reader parked + unlocked — scene=gd-d idle=true
+PASS  page 7: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p7 s0 "Every η draws a different route down the same landscape — wa" — highlight is exactly this sentence — litCount=1 lit=["Every η draws a different route "]
+PASS  p7 s0 "Every η draws a different route down the same landscape — wa" — pointing overlay on for the live target — overlayOn=true lookKey=trail-gd want=trail-gd
+PASS  p7 s0 "Every η draws a different route down the same landscape — wa" — arrow tip on the clamped anchor (≤3px) — tip={"x":361.2674741370954,"y":594.3327175755529} want={"x":361.2674741370954,"y":594.3327175755529} raw={"x":361.2674741370954,"y":594.3327175755529} d=0.0px
+PASS  p7 s0 "Every η draws a different route down the same landscape — wa" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 7: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 8: reader parked + unlocked — scene=mom-a idle=true
+PASS  page 8: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p8 s0 "One steep valley, one shared start, one η for both." — highlight is exactly this sentence — litCount=1 lit=["One steep valley, one shared sta"]
+PASS  p8 s0 "One steep valley, one shared start, one η for both." — pointing overlay on for the live target — overlayOn=true lookKey=trail-gd want=trail-gd
+PASS  p8 s0 "One steep valley, one shared start, one η for both." — arrow tip on the clamped anchor (≤3px) — tip={"x":511.77814768411844,"y":508.0045758037908} want={"x":511.77814768411844,"y":508.0045758037908} raw={"x":511.77814768411844,"y":508.0045758037908} d=0.0px
+PASS  p8 s0 "One steep valley, one shared start, one η for both." — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p8 s1 "Momentum (blue) replaces the raw gradient with a running ave" — highlight is exactly this sentence — litCount=1 lit=["Momentum\n              (blue) re"]
+PASS  p8 s1 "Momentum (blue) replaces the raw gradient with a running ave" — pointing overlay on for the live target — overlayOn=true lookKey=trail-mom want=trail-mom
+PASS  p8 s1 "Momentum (blue) replaces the raw gradient with a running ave" — arrow tip on the clamped anchor (≤3px) — tip={"x":511.9999556325085,"y":508.26858102235485} want={"x":511.9999556325085,"y":508.26858102235485} raw={"x":511.9999556325085,"y":508.26858102235485} d=0.0px
+PASS  p8 s1 "Momentum (blue) replaces the raw gradient with a running ave" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p8 s2 "β, the momentum coefficient, sets the length of the averagin" — highlight is exactly this sentence — litCount=1 lit=["β, the momentum coefficient, set"]
+PASS  p8 s2 "β, the momentum coefficient, sets the length of the averagin" — pointing overlay on for the live target — overlayOn=true lookKey=beta-slider want=beta-slider
+PASS  p8 s2 "β, the momentum coefficient, sets the length of the averagin" — arrow tip on the clamped anchor (≤3px) — tip={"x":1275.609375,"y":458.421875} want={"x":1275.609375,"y":458.421875} raw={"x":1275.609375,"y":458.421875} d=0.0px
+PASS  p8 s2 "β, the momentum coefficient, sets the length of the averagin" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 8: registered sentences swept (hovered ≥1, hidden stamps 0) — count=3 hovered=3
+PASS  page 9: reader parked + unlocked — scene=mom-b idle=true
+PASS  page 9: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p9 s0 "Raise β and the accumulated velocity carries the point past " — highlight is exactly this sentence — litCount=1 lit=["Raise β and the accumulated velo"]
+PASS  p9 s0 "Raise β and the accumulated velocity carries the point past " — pointing overlay on for the live target — overlayOn=true lookKey=mom-apexes want=mom-apexes
+PASS  p9 s0 "Raise β and the accumulated velocity carries the point past " — arrow tip on the clamped anchor (≤3px) — tip={"x":552.4270600811016,"y":407.3603710156488} want={"x":552.4270600811016,"y":407.3603710156488} raw={"x":552.4270600811016,"y":407.3603710156488} d=0.0px
+PASS  p9 s0 "Raise β and the accumulated velocity carries the point past " — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 9: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 10: reader parked + unlocked — scene=mom-c idle=true
+PASS  page 10: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p10 s0 "It is selective forgetting — and the direction it discards i" — highlight is exactly this sentence — litCount=1 lit=["It is selective\n              fo"]
+PASS  p10 s0 "It is selective forgetting — and the direction it discards i" — pointing overlay on for the live target — overlayOn=true lookKey=trail-mom want=trail-mom
+PASS  p10 s0 "It is selective forgetting — and the direction it discards i" — arrow tip on the clamped anchor (≤3px) — tip={"x":511.9999507027877,"y":512.5368383694245} want={"x":511.9999507027877,"y":512.5368383694245} raw={"x":511.9999507027877,"y":512.5368383694245} d=0.0px
+PASS  p10 s0 "It is selective forgetting — and the direction it discards i" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 10: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 11: reader parked + unlocked — scene=adam-a idle=true
+PASS  page 11: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p11 s0 "In the panel, each bar is one coordinate’s mˆᵢ/√vˆᵢ: Adam me" — highlight is exactly this sentence — litCount=1 lit=["In the panel, each bar is one\n  "]
+PASS  p11 s0 "In the panel, each bar is one coordinate’s mˆᵢ/√vˆᵢ: Adam me" — pointing overlay on for the live target — overlayOn=true lookKey=adam-bars want=adam-bars
+PASS  p11 s0 "In the panel, each bar is one coordinate’s mˆᵢ/√vˆᵢ: Adam me" — arrow tip on the clamped anchor (≤3px) — tip={"x":164,"y":124} want={"x":164,"y":124} raw={"x":164,"y":124} d=0.0px
+PASS  p11 s0 "In the panel, each bar is one coordinate’s mˆᵢ/√vˆᵢ: Adam me" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p11 s1 "On the surface, the yellow arrow is Adam’s actual update; th" — highlight is exactly this sentence — litCount=1 lit=["On the surface, the yellow arrow"]
+PASS  p11 s1 "On the surface, the yellow arrow is Adam’s actual update; th" — pointing overlay on for the live target — overlayOn=true lookKey=adam-arrows want=adam-arrows
+PASS  p11 s1 "On the surface, the yellow arrow is Adam’s actual update; th" — arrow tip on the clamped anchor (≤3px) — tip={"x":404.17731612390446,"y":337.90035897574876} want={"x":404.17731612390446,"y":337.90035897574876} raw={"x":404.17731612390446,"y":337.90035897574876} d=0.0px
+PASS  p11 s1 "On the surface, the yellow arrow is Adam’s actual update; th" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 11: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 12: reader parked + unlocked — scene=adam-b idle=true
+PASS  page 12: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p12 s0 "Adam’s barely moves: √vˆ absorbs exactly the scale GD steppe" — highlight is exactly this sentence — litCount=1 lit=["Adam’s barely moves:\n           "]
+PASS  p12 s0 "Adam’s barely moves: √vˆ absorbs exactly the scale GD steppe" — pointing overlay on for the live target — overlayOn=true lookKey=steep-slider want=steep-slider
+PASS  p12 s0 "Adam’s barely moves: √vˆ absorbs exactly the scale GD steppe" — arrow tip on the clamped anchor (≤3px) — tip={"x":1294.953125,"y":485.25} want={"x":1294.953125,"y":485.25} raw={"x":1294.953125,"y":485.25} d=0.0px
+PASS  p12 s0 "Adam’s barely moves: √vˆ absorbs exactly the scale GD steppe" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 12: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 13: reader parked + unlocked — scene=lab idle=true
+PASS  page 13: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p13 s0 "Two sliders in the dock (bottom-left) rebuild the valley whi" — highlight is exactly this sentence — litCount=1 lit=["Two sliders in the dock (bottom-"]
+PASS  p13 s0 "Two sliders in the dock (bottom-left) rebuild the valley whi" — pointing overlay on for the live target — overlayOn=true lookKey=lab-sliders want=lab-sliders
+PASS  p13 s0 "Two sliders in the dock (bottom-left) rebuild the valley whi" — arrow tip on the clamped anchor (≤3px) — tip={"x":182,"y":761.5} want={"x":182,"y":761.5} raw={"x":182,"y":761.5} d=0.0px
+PASS  p13 s0 "Two sliders in the dock (bottom-left) rebuild the valley whi" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p13 s1 "Each claim in the checklist lights up when the race confirms" — highlight is exactly this sentence — litCount=1 lit=["Each claim in the checklist\n    "]
+PASS  p13 s1 "Each claim in the checklist lights up when the race confirms" — pointing overlay on for the live target — overlayOn=true lookKey=lab-checklist want=lab-checklist
+PASS  p13 s1 "Each claim in the checklist lights up when the race confirms" — arrow tip on the clamped anchor (≤3px) — tip={"x":182,"y":834.5} want={"x":182,"y":834.5} raw={"x":182,"y":834.5} d=0.0px
+PASS  p13 s1 "Each claim in the checklist lights up when the race confirms" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 13: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 14: reader parked + unlocked — scene=lab idle=true
+PASS  page 14: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p14 s0 "Steep walls put GD past its oscillation threshold — it zigza" — highlight is exactly this sentence — litCount=1 lit=["Steep walls put GD past its osci"]
+PASS  p14 s0 "Steep walls put GD past its oscillation threshold — it zigza" — pointing overlay on for the live target — overlayOn=true lookKey=trail-gd want=trail-gd
+PASS  p14 s0 "Steep walls put GD past its oscillation threshold — it zigza" — arrow tip on the clamped anchor (≤3px) — tip={"x":511.97091706571473,"y":506.2832116745482} want={"x":511.97091706571473,"y":506.2832116745482} raw={"x":511.97091706571473,"y":506.2832116745482} d=0.0px
+PASS  p14 s0 "Steep walls put GD past its oscillation threshold — it zigza" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p14 s1 "Adam never enters either regime: its per-coordinate normaliz" — highlight is exactly this sentence — litCount=1 lit=["Adam never enters either\n       "]
+PASS  p14 s1 "Adam never enters either regime: its per-coordinate normaliz" — pointing overlay on for the live target — overlayOn=true lookKey=trail-adam want=trail-adam
+PASS  p14 s1 "Adam never enters either regime: its per-coordinate normaliz" — arrow tip on the clamped anchor (≤3px) — tip={"x":511.83140923837504,"y":506.28374133859194} want={"x":511.83140923837504,"y":506.28374133859194} raw={"x":511.83140923837504,"y":506.28374133859194} d=0.0px
+PASS  p14 s1 "Adam never enters either regime: its per-coordinate normaliz" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 14: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 15: reader parked + unlocked — scene=fog-a idle=true
+PASS  page 15: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p15 s0 "Three things remain: the fit inset, the compass needle, and " — highlight is exactly this sentence — litCount=1 lit=["Three things\n              remai"]
+PASS  p15 s0 "Three things remain: the fit inset, the compass needle, and " — pointing overlay on for the live target — overlayOn=true lookKey=needle want=needle
+PASS  p15 s0 "Three things remain: the fit inset, the compass needle, and " — arrow tip on the clamped anchor (≤3px) — tip={"x":88.5,"y":740.4375} want={"x":88.5,"y":740.4375} raw={"x":88.5,"y":740.4375} d=0.0px
+PASS  p15 s0 "Three things remain: the fit inset, the compass needle, and " — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p15 s1 "Drag on the compass to take a step." — highlight is exactly this sentence — litCount=1 lit=["Drag on the compass to take a st"]
+PASS  p15 s1 "Drag on the compass to take a step." — pointing overlay on for the live target — overlayOn=true lookKey=compass want=compass
+PASS  p15 s1 "Drag on the compass to take a step." — arrow tip on the clamped anchor (≤3px) — tip={"x":91.87718749999999,"y":747.5} want={"x":91.87718749999999,"y":747.5} raw={"x":91.87718749999999,"y":747.5} d=0.0px
+PASS  p15 s1 "Drag on the compass to take a step." — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p15 s2 "Each landing point measures the loss and the gradient there," — highlight is exactly this sentence — litCount=1 lit=["Each landing point\n             "]
+PASS  p15 s2 "Each landing point measures the loss and the gradient there," — pointing overlay on for the live target — overlayOn=true lookKey=ball want=ball
+PASS  p15 s2 "Each landing point measures the loss and the gradient there," — arrow tip on the clamped anchor (≤3px) — tip={"x":475.64562400361297,"y":537.0970850311244} want={"x":475.64562400361297,"y":537.0970850311244} raw={"x":475.64562400361297,"y":537.0970850311244} d=0.0px
+PASS  p15 s2 "Each landing point measures the loss and the gradient there," — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 15: registered sentences swept (hovered ≥1, hidden stamps 0) — count=3 hovered=3
+PASS  page 16: reader parked + unlocked — scene=fog-b idle=true
+PASS  page 16: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p16 s0 "Spend the budget or press Finish run — either way the fog li" — highlight is exactly this sentence — litCount=1 lit=["Spend the budget or press\n      "]
+PASS  p16 s0 "Spend the budget or press Finish run — either way the fog li" — pointing overlay on for the live target — overlayOn=true lookKey=fog-panel want=fog-panel
+PASS  p16 s0 "Spend the budget or press Finish run — either way the fog li" — arrow tip on the clamped anchor (≤3px) — tip={"x":140,"y":160.5} want={"x":140,"y":160.5} raw={"x":140,"y":160.5} d=0.0px
+PASS  p16 s0 "Spend the budget or press Finish run — either way the fog li" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 16: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 17: reader parked + unlocked — scene=fog-c idle=true
+PASS  page 17: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p17 s1 "The gold marker is the true global minimum — where the terra" — highlight is exactly this sentence — litCount=1 lit=["The gold marker is the true glob"]
+PASS  p17 s1 "The gold marker is the true global minimum — where the terra" — pointing overlay on for the live target — overlayOn=true lookKey=gold-marker want=gold-marker
+PASS  p17 s1 "The gold marker is the true global minimum — where the terra" — arrow tip on the clamped anchor (≤3px) — tip={"x":619.3179602163742,"y":412.5990114602997} want={"x":619.3179602163742,"y":412.5990114602997} raw={"x":619.3179602163742,"y":412.5990114602997} d=0.0px
+PASS  p17 s1 "The gold marker is the true global minimum — where the terra" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p17 s2 "Replay (footer) re-runs all four ghosts." — highlight is exactly this sentence — litCount=1 lit=["Replay (footer)\n              re"]
+PASS  p17 s2 "Replay (footer) re-runs all four ghosts." — pointing overlay on for the live target — overlayOn=true lookKey=replay-btn want=replay-btn
+PASS  p17 s2 "Replay (footer) re-runs all four ghosts." — arrow tip on the clamped anchor (≤3px) — tip={"x":1189.4296875,"y":876.5} want={"x":1189.4296875,"y":876.5} raw={"x":1189.4296875,"y":876.5} d=0.0px
+PASS  p17 s2 "Replay (footer) re-runs all four ghosts." — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 17: registered sentences swept (hovered ≥1, hidden stamps 1) — count=3 hovered=2
+PASS  page 18: reader parked + unlocked — scene=tilt-a idle=true
+PASS  page 18: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p18 s0 "The board is the parameter plane and you tilt it: W A S D (o" — highlight is exactly this sentence — litCount=1 lit=["The board is the parameter plane"]
+PASS  p18 s0 "The board is the parameter plane and you tilt it: W A S D (o" — pointing overlay on for the live target — overlayOn=true lookKey=ball want=ball
+PASS  p18 s0 "The board is the parameter plane and you tilt it: W A S D (o" — arrow tip on the clamped anchor (≤3px) — tip={"x":319.51323557804,"y":526.0045053927839} want={"x":319.51323557804,"y":526.0045053927839} raw={"x":319.51323557804,"y":526.0045053927839} d=0.0px
+PASS  p18 s0 "The board is the parameter plane and you tilt it: W A S D (o" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p18 s1 "The c slider is the damping coefficient — β’s role, made phy" — highlight is exactly this sentence — litCount=1 lit=["The c slider is the damping\n    "]
+PASS  p18 s1 "The c slider is the damping coefficient — β’s role, made phy" — pointing overlay on for the live target — overlayOn=true lookKey=tilt-damp want=tilt-damp
+PASS  p18 s1 "The c slider is the damping coefficient — β’s role, made phy" — arrow tip on the clamped anchor (≤3px) — tip={"x":136.7540625,"y":227} want={"x":136.7540625,"y":227} raw={"x":136.7540625,"y":227} d=0.0px
+PASS  p18 s1 "The c slider is the damping coefficient — β’s role, made phy" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 18: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 19: reader parked + unlocked — scene=tilt-a idle=true
+PASS  page 19: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p19 s0 "Level 2 is Rosenbrock: a strongly curved valley whose floor " — highlight is exactly this sentence — litCount=1 lit=["Level 2 is\n              Rosenbr"]
+PASS  p19 s0 "Level 2 is Rosenbrock: a strongly curved valley whose floor " — pointing overlay on for the live target — overlayOn=true lookKey=tilt-levels want=tilt-levels
+PASS  p19 s0 "Level 2 is Rosenbrock: a strongly curved valley whose floor " — arrow tip on the clamped anchor (≤3px) — tip={"x":164,"y":313.5} want={"x":164,"y":313.5} raw={"x":164,"y":313.5} d=0.0px
+PASS  p19 s0 "Level 2 is Rosenbrock: a strongly curved valley whose floor " — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 19: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  page 20: reader parked + unlocked — scene=tilt-b idle=true
+PASS  page 20: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p20 s1 "You reached the scorecard without playing, so the white ghos" — highlight is exactly this sentence — litCount=1 lit=["You reached the scorecard withou"]
+PASS  p20 s1 "You reached the scorecard without playing, so the white ghos" — pointing overlay on for the live target — overlayOn=true lookKey=tilt-replay want=tilt-replay
+PASS  p20 s1 "You reached the scorecard without playing, so the white ghos" — arrow tip on the clamped anchor (≤3px) — tip={"x":66.28,"y":445.1875} want={"x":66.28,"y":445.1875} raw={"x":66.28,"y":445.1875} d=0.0px
+PASS  p20 s1 "You reached the scorecard without playing, so the white ghos" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 20: registered sentences swept (hovered ≥1, hidden stamps 2) — count=3 hovered=1
+PASS  page 21: reader parked + unlocked — scene=swarm idle=true
+PASS  page 21: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p21 s0 "One hundred balls are scattered across whichever terrain you" — highlight is exactly this sentence — litCount=1 lit=["One hundred balls are scattered "]
+PASS  p21 s0 "One hundred balls are scattered across whichever terrain you" — pointing overlay on for the live target — overlayOn=true lookKey=swarm-ensemble want=swarm-ensemble
+PASS  p21 s0 "One hundred balls are scattered across whichever terrain you" — arrow tip on the clamped anchor (≤3px) — tip={"x":521.888769368008,"y":438.1454321215132} want={"x":520.0728519770014,"y":437.9375960726038} raw={"x":520.0728519770014,"y":437.9375960726038} d=1.8px
+PASS  p21 s0 "One hundred balls are scattered across whichever terrain you" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p21 s1 "The panel’s scorecard keeps each cluster’s count and mean fi" — highlight is exactly this sentence — litCount=1 lit=["The panel’s scorecard\n          "]
+PASS  p21 s1 "The panel’s scorecard keeps each cluster’s count and mean fi" — pointing overlay on for the live target — overlayOn=true lookKey=tilt-panel want=tilt-panel
+PASS  p21 s1 "The panel’s scorecard keeps each cluster’s count and mean fi" — arrow tip on the clamped anchor (≤3px) — tip={"x":140,"y":114} want={"x":140,"y":114} raw={"x":140,"y":114} d=0.0px
+PASS  p21 s1 "The panel’s scorecard keeps each cluster’s count and mean fi" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p21 s2 "Ensembles cover ground faster: together the hundred balls pa" — highlight is exactly this sentence — litCount=1 lit=["Ensembles cover ground faster: t"]
+PASS  p21 s2 "Ensembles cover ground faster: together the hundred balls pa" — pointing overlay on for the live target — overlayOn=true lookKey=swarm-dock want=swarm-dock
+PASS  p21 s2 "Ensembles cover ground faster: together the hundred balls pa" — arrow tip on the clamped anchor (≤3px) — tip={"x":140,"y":814.5} want={"x":140,"y":814.5} raw={"x":140,"y":814.5} d=0.0px
+PASS  p21 s2 "Ensembles cover ground faster: together the hundred balls pa" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 21: registered sentences swept (hovered ≥1, hidden stamps 0) — count=3 hovered=3
+PASS  page 22: reader parked + unlocked — scene=labrule idle=true
+PASS  page 22: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p22 s0 "The workbench (left) exposes all four: the learning rate η —" — highlight is exactly this sentence — litCount=1 lit=["The workbench\n              (lef"]
+PASS  p22 s0 "The workbench (left) exposes all four: the learning rate η —" — pointing overlay on for the live target — overlayOn=true lookKey=rule-panel want=rule-panel
+PASS  p22 s0 "The workbench (left) exposes all four: the learning rate η —" — arrow tip on the clamped anchor (≤3px) — tip={"x":140,"y":211.25} want={"x":140,"y":211.25} raw={"x":140,"y":211.25} d=0.0px
+PASS  p22 s0 "The workbench (left) exposes all four: the learning rate η —" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p22 s1 "The pills beneath the dials select the benchmark landscape." — highlight is exactly this sentence — litCount=1 lit=["The pills beneath the dials sele"]
+PASS  p22 s1 "The pills beneath the dials select the benchmark landscape." — pointing overlay on for the live target — overlayOn=true lookKey=rule-levels want=rule-levels
+PASS  p22 s1 "The pills beneath the dials select the benchmark landscape." — arrow tip on the clamped anchor (≤3px) — tip={"x":142.72,"y":290.75} want={"x":142.72,"y":290.75} raw={"x":142.72,"y":290.75} d=0.0px
+PASS  p22 s1 "The pills beneath the dials select the benchmark landscape." — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p22 s2 "With the defaults assembled, your rule runs purple — and on " — highlight is exactly this sentence — litCount=1 lit=["With the defaults assembled, you"]
+PASS  p22 s2 "With the defaults assembled, your rule runs purple — and on " — pointing overlay on for the live target — overlayOn=true lookKey=rule-panel want=rule-panel
+PASS  p22 s2 "With the defaults assembled, your rule runs purple — and on " — arrow tip on the clamped anchor (≤3px) — tip={"x":140,"y":211.25} want={"x":140,"y":211.25} raw={"x":140,"y":211.25} d=0.0px
+PASS  p22 s2 "With the defaults assembled, your rule runs purple — and on " — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 22: registered sentences swept (hovered ≥1, hidden stamps 0) — count=3 hovered=3
+PASS  page 23: reader parked + unlocked — scene=labrule idle=true
+PASS  page 23: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p23 s0 "Change nothing." — highlight is exactly this sentence — litCount=1 lit=["Change nothing."]
+PASS  p23 s0 "Change nothing." — pointing overlay on for the live target — overlayOn=true lookKey=rule-panel want=rule-panel
+PASS  p23 s0 "Change nothing." — arrow tip on the clamped anchor (≤3px) — tip={"x":140,"y":211.25} want={"x":140,"y":211.25} raw={"x":140,"y":211.25} d=0.0px
+PASS  p23 s0 "Change nothing." — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p23 s1 "Pick another landscape in the workbench and the same rule’s " — highlight is exactly this sentence — litCount=1 lit=["Pick another landscape in the wo"]
+PASS  p23 s1 "Pick another landscape in the workbench and the same rule’s " — pointing overlay on for the live target — overlayOn=true lookKey=rule-levels want=rule-levels
+PASS  p23 s1 "Pick another landscape in the workbench and the same rule’s " — arrow tip on the clamped anchor (≤3px) — tip={"x":142.72,"y":290.75} want={"x":142.72,"y":290.75} raw={"x":142.72,"y":290.75} d=0.0px
+PASS  p23 s1 "Pick another landscape in the workbench and the same rule’s " — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 23: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 24: reader parked + unlocked — scene=epi-a idle=true
+PASS  page 24: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p24 s0 "One debt to settle: §1 gave you the formula but never its an" — highlight is exactly this sentence — litCount=1 lit=["One debt to settle: §1 gave you "]
+PASS  p24 s0 "One debt to settle: §1 gave you the formula but never its an" — pointing overlay on for the live target — overlayOn=true lookKey=epi-marker want=epi-marker
+PASS  p24 s0 "One debt to settle: §1 gave you the formula but never its an" — arrow tip on the clamped anchor (≤3px) — tip={"x":484.73000214051973,"y":503.5622212576343} want={"x":484.73000214051973,"y":503.5622212576343} raw={"x":484.73000214051973,"y":503.5622212576343} d=0.0px
+PASS  p24 s0 "One debt to settle: §1 gave you the formula but never its an" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p24 s1 "The gold point on the surface is the normal equations’ exact" — highlight is exactly this sentence — litCount=1 lit=["The gold point on the surface is"]
+PASS  p24 s1 "The gold point on the surface is the normal equations’ exact" — pointing overlay on for the live target — overlayOn=true lookKey=epi-marker want=epi-marker
+PASS  p24 s1 "The gold point on the surface is the normal equations’ exact" — arrow tip on the clamped anchor (≤3px) — tip={"x":484.73000214051973,"y":503.5622212576343} want={"x":484.73000214051973,"y":503.5622212576343} raw={"x":484.73000214051973,"y":503.5622212576343} d=0.0px
+PASS  p24 s1 "The gold point on the surface is the normal equations’ exact" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p24 s2 "For two parameters, the map was literal truth: height really" — highlight is exactly this sentence — litCount=1 lit=["For\n              two parameters"]
+PASS  p24 s2 "For two parameters, the map was literal truth: height really" — pointing overlay on for the live target — overlayOn=true lookKey=epi-marker want=epi-marker
+PASS  p24 s2 "For two parameters, the map was literal truth: height really" — arrow tip on the clamped anchor (≤3px) — tip={"x":484.73000214051973,"y":503.5622212576343} want={"x":484.73000214051973,"y":503.5622212576343} raw={"x":484.73000214051973,"y":503.5622212576343} d=0.0px
+PASS  p24 s2 "For two parameters, the map was literal truth: height really" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 24: registered sentences swept (hovered ≥1, hidden stamps 0) — count=3 hovered=3
+PASS  page 25: reader parked + unlocked — scene=epi-b idle=true
+PASS  page 25: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p25 s0 "Watch the surface dissolve into the lattice on the left." — highlight is exactly this sentence — litCount=1 lit=["Watch the surface dissolve into "]
+PASS  p25 s0 "Watch the surface dissolve into the lattice on the left." — pointing overlay on for the live target — overlayOn=true lookKey=epi-lattice want=epi-lattice
+PASS  p25 s0 "Watch the surface dissolve into the lattice on the left." — arrow tip on the clamped anchor (≤3px) — tip={"x":511.95235695378864,"y":537.1847269770647} want={"x":511.95235695378864,"y":537.1847269770647} raw={"x":511.95235695378864,"y":537.1847269770647} d=0.0px
+PASS  p25 s0 "Watch the surface dissolve into the lattice on the left." — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  p25 s1 "The landscape was never visible." — highlight is exactly this sentence — litCount=1 lit=["The landscape was never visible."]
+PASS  p25 s1 "The landscape was never visible." — pointing overlay on for the live target — overlayOn=true lookKey=epi-lattice want=epi-lattice
+PASS  p25 s1 "The landscape was never visible." — arrow tip on the clamped anchor (≤3px) — tip={"x":511.95235695378864,"y":537.1847269770647} want={"x":511.95235695378864,"y":537.1847269770647} raw={"x":511.95235695378864,"y":537.1847269770647} d=0.0px
+PASS  p25 s1 "The landscape was never visible." — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 25: registered sentences swept (hovered ≥1, hidden stamps 0) — count=2 hovered=2
+PASS  page 26: reader parked + unlocked — scene=epi-c idle=true
+PASS  page 26: unregistered sentence stays dark — {"litCount":0,"overlayOn":false}
+PASS  p26 s0 "CS375 · built as an interactive explorable — every trajector" — highlight is exactly this sentence — litCount=1 lit=["CS375 · built as an interactive "]
+PASS  p26 s0 "CS375 · built as an interactive explorable — every trajector" — pointing overlay on for the live target — overlayOn=true lookKey=epi-lattice want=epi-lattice
+PASS  p26 s0 "CS375 · built as an interactive explorable — every trajector" — arrow tip on the clamped anchor (≤3px) — tip={"x":511.95235695378864,"y":537.1847269770647} want={"x":511.95235695378864,"y":537.1847269770647} raw={"x":511.95235695378864,"y":537.1847269770647} d=0.0px
+PASS  p26 s0 "CS375 · built as an interactive explorable — every trajector" — unhover clears highlight + overlay — {"litCount":0,"overlayOn":false,"lookKey":null}
+PASS  page 26: registered sentences swept (hovered ≥1, hidden stamps 0) — count=1 hovered=1
+PASS  hover: §1–§5 registered sentence floor (≥18) — checked=45
+PASS  hover: §1–§9 full-sweep floor (≥30) — checked=45
+PASS  clamp probe: the ball sentence is registered on page 3 — count=1
+PASS  clamp probe: drove the ball's raw anchor off-window (zoom, then pan) — raw={"x":-218.13894219271378,"y":291.12265631950595}
+PASS  clamp probe: panned the ball's raw anchor off-window — raw={"x":-218.13894219271378,"y":291.12265631950595}
+PASS  clamp probe: arrowhead pinned to the viewport boundary — tip={"x":12,"y":291.12265631950595} want={"x":12,"y":291.12265631950595}
+GATE_HOVER_OK (45 registered sentences)

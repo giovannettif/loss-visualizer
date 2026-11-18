@@ -48,6 +48,26 @@ export function samplePath(path: readonly Vec2[], p: number): Vec2 {
   return { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u };
 }
 
+/**
+ * Position at a fractional STEP s ∈ [0, path.length−1] (QA
+ * SEC5-S2-REPLAY-TRAIL-LEAD / S8SW2-RACE-SIMULTANEOUS-ARRIVAL): every
+ * optimizer step takes the same time and keeps the per-step ease, so lanes
+ * sharing one step clock arrive in convergence order and the trail
+ * (AnimatedTrail.setStep) never leads the ball. Past the end the ball rests
+ * at its last point.
+ */
+export function samplePathAtStep(path: readonly Vec2[], s: number): Vec2 {
+  if (path.length === 0) return { x: 0, y: 0 };
+  const n = path.length - 1;
+  if (n === 0 || s >= n) return { ...path[n] };
+  const sc = Math.max(0, s);
+  const i = Math.min(Math.floor(sc), n - 1);
+  const u = smooth(sc - i);
+  const a = path[i];
+  const b = path[i + 1];
+  return { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u };
+}
+
 export class TrajectoryPlayer {
   private tSec = 0;
   private playing = false;

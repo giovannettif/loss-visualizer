@@ -20,6 +20,9 @@ import {
   fogReach,
   fogClampTip,
   fogMinStep,
+  fogResolveStride,
+  fogSameCell,
+  FOG_DRAG_SLOP_PX,
   fogCommit,
   fogCellGrid,
   fogSnapToCell,
@@ -76,10 +79,59 @@ describe("fog run rules", () => {
     expect(fogClampTip(FOG_RB, st.point, near)).toEqual(near);
   });
 
-  it("a mis-drag under the minimum stride is detectable (never wastes budget)", () => {
+  it("fogResolveStride rejects taps/jitters but commits real drags (QA SEC6-F1)", () => {
+    // Rejected: a tap with NO travel at both fresh starts — both starts are
+    // off-grid, so the cell snap would otherwise convert the tap into a
+    // whole stride and waste a measurement.
+    for (const level of [FOG_RB, FOG_LS]) {
+      const st = fogInit(level);
+      expect(fogResolveStride(level, st.point, { ...st.point }, 0)).toBeNull();
+    }
+    // Rejected: sub-slop travel at a point HALF A CELL away — the snap moves
+    // the tip a full stride, but the gesture never dragged.
     const st = fogInit(FOG_RB);
-    const tap = fogClampTip(FOG_RB, st.point, { x: st.point.x + 0.01, y: st.point.y });
-    expect(dist(tap, st.point)).toBeLessThan(fogMinStep(FOG_RB));
+    const halfCell = fogCellGrid(FOG_RB);
+    const nearTip = { x: st.point.x + halfCell.cw * 0.5, y: st.point.y };
+    expect(fogResolveStride(FOG_RB, st.point, nearTip, FOG_DRAG_SLOP_PX - 1)).toBeNull();
+    // Rejected: full travel but the raw tip equals the start (on-ball check
+    // happens BEFORE the snap).
+    expect(fogResolveStride(FOG_RB, st.point, { ...st.point }, 40)).toBeNull();
+    // Rejected: a raw tip just under the minimum stride even at full travel.
+    const tiny = fogClampTip(FOG_RB, st.point, {
+      x: st.point.x + fogMinStep(FOG_RB) * 0.5,
+      y: st.point.y,
+    });
+    expect(fogResolveStride(FOG_RB, st.point, tiny, 40)).toBeNull();
+    // Committed: a real drag to a far tip returns a snapped cell center
+    // inside the reach ring. (+0.6, not +0.3: the start (−1.2, 1.44) sits in
+    // a 0.571-wide cell whose centre is 0.14 away, so +0.3 snapped back into
+    // the ball's OWN cell — exactly the own-cell hop QA
+    // S2A-FOG-OWNCELL-SPEND forbids.)
+    const far = fogClampTip(FOG_RB, st.point, { x: st.point.x + 0.6, y: st.point.y });
+    const resolved = fogResolveStride(FOG_RB, st.point, { x: st.point.x + 0.6, y: st.point.y }, 40);
+    expect(resolved).not.toBeNull();
+    expect(dist(resolved!, far)).toBeLessThanOrEqual(fogCellGrid(FOG_RB).cw); // snapped nearby
+    expect(dist(resolved!, st.point)).toBeLessThanOrEqual(fogReach(FOG_RB) + 1e-9);
+    // The result is a cell center.
+    const g = fogCellGrid(FOG_RB);
+    expect(((resolved!.x - FOG_RB.landscape.extent.xMin) / g.cw) % 1).toBeCloseTo(0.5, 9);
+  });
+
+  it("fogResolveStride never commits a hop back into the ball's own cell (QA S2A-FOG-OWNCELL-SPEND)", () => {
+    // An off-centre ball, as every reach-clamped stride leaves it.
+    const from = fogClampTip(FOG_LS, fogInit(FOG_LS).point, { x: 2.5, y: 0.111 });
+    expect(from.x).toBeCloseTo(1.611, 3);
+    expect(from.y).toBeCloseTo(0.261, 3);
+    // Own-cell drag: the snap target is the ball's own cell centre, a hop
+    // longer than minStep — the bug committed it.
+    const own = { x: 1.511, y: 0.126 };
+    expect(fogSameCell(FOG_LS, from, fogSnapToCell(FOG_LS, own))).toBe(true);
+    expect(fogResolveStride(FOG_LS, from, own, 40)).toBeNull();
+    // A genuinely different cell still commits, within reach.
+    const other = fogResolveStride(FOG_LS, from, { x: 2.5, y: 0.111 }, 40);
+    expect(other).not.toBeNull();
+    expect(fogSameCell(FOG_LS, from, other!)).toBe(false);
+    expect(dist(other!, from)).toBeLessThanOrEqual(fogReach(FOG_LS) + 1e-9);
   });
 
   it("snaps stride tips onto fog cell centers (grid covers the extent exactly)", () => {

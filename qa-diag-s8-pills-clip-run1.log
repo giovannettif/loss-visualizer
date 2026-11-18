@@ -1,0 +1,38 @@
+
+[step 1/5] dot=(140.00,211.25) atDot=INPUT#rule-clip
+  "The workbench (left) exposes all four: the learning rate η — the base step size;"
+  #rule-levels → dotDist=66px inside=false rect=(31,277 266×28)
+  #rule-clip → dotDist=0px inside=true rect=(85,211 141×2)
+  #rule-panel → dotDist=0px inside=true rect=(14,62 300×299)
+  .rule-clip-row → dotDist=0px inside=true rect=(48,202 232×19)
+
+[step 2/5] dot=(140.00,211.25) atDot=INPUT#rule-clip
+  "The pills beneath the dials select the benchmark landscape."
+  #rule-levels → dotDist=66px inside=false rect=(31,277 266×28)
+  #rule-clip → dotDist=0px inside=true rect=(85,211 141×2)
+  #rule-panel → dotDist=0px inside=true rect=(14,62 300×299)
+  .rule-clip-row → dotDist=0px inside=true rect=(48,202 232×19)
+
+[step 3/5] dot=(140.00,211.25) atDot=INPUT#rule-clip
+  "With the defaults assembled, your rule runs purple — and on the opening landscap"
+  #rule-levels → dotDist=66px inside=false rect=(31,277 266×28)
+  #rule-clip → dotDist=0px inside=true rect=(85,211 141×2)
+  #rule-panel → dotDist=0px inside=true rect=(14,62 300×299)
+  .rule-clip-row → dotDist=0px inside=true rect=(48,202 232×19)
+
+[step 4/5] dot=(140.00,211.25) atDot=INPUT#rule-clip
+  "Change nothing."
+  #rule-levels → dotDist=66px inside=false rect=(31,277 266×28)
+  #rule-clip → dotDist=0px inside=true rect=(85,211 141×2)
+  #rule-panel → dotDist=0px inside=true rect=(14,62 300×299)
+  .rule-clip-row → dotDist=0px inside=true rect=(48,202 232×19)
+
+[step 5/5] dot=(140.00,211.25) atDot=INPUT#rule-clip
+  "Pick another landscape in the workbench and the same rule’s verdict flips: on Ro"
+  #rule-levels → dotDist=66px inside=false rect=(31,277 266×28)
+  #rule-clip → dotDist=0px inside=true rect=(85,211 141×2)
+  #rule-panel → dotDist=0px inside=true rect=(14,62 300×299)
+  .rule-clip-row → dotDist=0px inside=true rect=(48,202 232×19)
+
+complete ✓
+DONE -> qa/tourpoint/s8-pills-clip-repro.json

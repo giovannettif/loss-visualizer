@@ -1,0 +1,174 @@
+[
+ {
+  "at": "step 4/6 (epi-b)",
+  "scene": "epi-b",
+  "tour": {
+   "running": true,
+   "phase": "active",
+   "id": "s9",
+   "label": "§9 · Epilogue",
+   "stepIndex": 3,
+   "count": 6,
+   "gate": false,
+   "gateKind": null,
+   "gateLabel": null,
+   "sentenceActive": true,
+   "overlayOn": true,
+   "lookKey": "epi-lattice",
+   "auto": false,
+   "minimized": false,
+   "page": 25,
+   "sentenceText": "Watch the surface dissolve into the lattice on the left."
+  },
+  "noteVisible": "true",
+  "note": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "noteWrap": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "bar": {
+   "x": 13,
+   "y": 643,
+   "w": 407,
+   "h": 41
+  },
+  "pill": {
+   "x": 203,
+   "y": 618,
+   "w": 26,
+   "h": 10
+  },
+  "chip": {
+   "x": 0,
+   "y": 0,
+   "w": 0,
+   "h": 0
+  },
+  "barOn": "true",
+  "noteAndBar": null,
+  "noteAndPill": null,
+  "noteAndChip": null
+ },
+ {
+  "at": "step 6/6 (epi-c)",
+  "scene": "epi-c",
+  "tour": {
+   "running": true,
+   "phase": "active",
+   "id": "s9",
+   "label": "§9 · Epilogue",
+   "stepIndex": 5,
+   "count": 6,
+   "gate": false,
+   "gateKind": null,
+   "gateLabel": null,
+   "sentenceActive": true,
+   "overlayOn": true,
+   "lookKey": "epi-lattice",
+   "auto": false,
+   "minimized": false,
+   "page": 26,
+   "sentenceText": "CS375 · built as an interactive explorable — every\n              trajectory on this page is computed live, in your browser, from\n              ~200 lines of hand-written optimizer math"
+  },
+  "noteVisible": "true",
+  "note": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "noteWrap": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "bar": {
+   "x": 12,
+   "y": 643,
+   "w": 408,
+   "h": 41
+  },
+  "pill": {
+   "x": 203,
+   "y": 618,
+   "w": 26,
+   "h": 10
+  },
+  "chip": {
+   "x": 0,
+   "y": 0,
+   "w": 0,
+   "h": 0
+  },
+  "barOn": "true",
+  "noteAndBar": null,
+  "noteAndPill": null,
+  "noteAndChip": null
+ },
+ {
+  "at": "closing pill",
+  "scene": "epi-c",
+  "tour": {
+   "running": true,
+   "phase": "closing",
+   "id": "s9",
+   "label": "§9 · Epilogue",
+   "stepIndex": 5,
+   "count": 6,
+   "gate": false,
+   "gateKind": null,
+   "gateLabel": null,
+   "sentenceActive": false,
+   "overlayOn": false,
+   "lookKey": null,
+   "auto": false,
+   "minimized": false,
+   "page": 26,
+   "sentenceText": ""
+  },
+  "noteVisible": "true",
+  "note": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "noteWrap": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "bar": {
+   "x": 12,
+   "y": 643,
+   "w": 408,
+   "h": 41
+  },
+  "pill": {
+   "x": 95,
+   "y": 602,
+   "w": 243,
+   "h": 26
+  },
+  "chip": {
+   "x": 0,
+   "y": 0,
+   "w": 0,
+   "h": 0
+  },
+  "barOn": "true",
+  "noteAndBar": null,
+  "noteAndPill": null,
+  "noteAndChip": null
+ }
+]
+DONE

@@ -1,0 +1,20 @@
+[run-gate] killing stale listener on :4173 (pid 0)
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+node:internal/modules/run_main:122
+    triggerUncaughtException(
+    ^
+
+page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:4185/?step=6
+Call log:
+[2m  - navigating to "http://localhost:4185/?step=6", waiting until "load"[22m
+
+    at stepText (C:\Users\Franco\Desktop\Projects\NJIT-CS375-ProjectPart4\tools\verify-copy-layout.mjs:46:16)
+    at C:\Users\Franco\Desktop\Projects\NJIT-CS375-ProjectPart4\tools\verify-copy-layout.mjs:61:21 {
+  log: [
+    '  - navigating to "http://localhost:4185/?step=6", waiting until "load"'
+  ],
+  name: 'Error'
+}
+
+Node.js v22.14.0

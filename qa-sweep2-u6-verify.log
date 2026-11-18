@@ -1,0 +1,102 @@
+
+=== A: s7 tour head → page 20 (ghost gate) → page 21 (swarm) @ 1280x800 ===
+PASS  A: reader idle after boot — still locked
+PASS  A: tour starts at the head (steering gate, page 18) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  A: parked on page 19 — still locked
+PASS  A: parked on page 20 — still locked
+A before: {"page":20,"scene":"tilt-b","gateOn":"true","bar":{"x":108,"y":743,"w":500.9,"h":41,"top":743,"bottom":784,"cssBottom":"16px"},"dockVis":"false","dock":{"x":14,"y":651,"w":300,"h":143,"top":651,"bottom":794,"cssBottom":"14px"},"dot":{"cx":"66.28","cy":"407.6875"}}
+A after : {"tour":{"page":21,"stepIndex":4,"gate":false},"bar":{"x":108,"y":593,"w":500.9,"h":41,"top":593,"bottom":634,"cssBottom":"166px"},"dockVis":"true","dock":{"x":14,"y":643,"w":300,"h":143,"top":643,"bottom":786,"cssBottom":"14px"},"dot":{"cx":"363.5051740584861","cy":"390.2598698561707"}}
+PASS  A: pre-state — ghost gate on page 20, the stack at FREE-PLAY height (cssBottom:16px) — bar.cssBottom=16px bar.bottom=784 vh=800
+PASS  A: the swarm dock APPEARS beneath it mid-tour — dock data-visible false → true
+PASS  A: FIXED — exactly the SANCTIONED page-21 boundary move (bottom 16 → 166, dy=−150) — bar.bottom 784 → 634 (dy=-150px)
+PASS  A: FIXED — bar cssBottom holds the dock lift (166px) through the swarm page — cssBottom=166px
+
+=== B: s7 control — head → page 19 → page 20 (nothing appears) @ 1280x800 ===
+PASS  B: reader idle after boot — still locked
+PASS  B: tour starts at the head (steering gate, page 18) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  B: parked on page 19 — still locked
+PASS  B: parked on page 20 — still locked
+B dy: {"bottomBefore":784,"bottomAfter":784,"dy":0} dockVis: false → false
+PASS  B: control — bar does NOT move when no panel appears (pages 19→20; free-play height on tilt pages) — dy=0 cssBottom=16px
+
+=== C: s6 tour head → page 17 (reveal; footer Replay) @ 1280x800 ===
+PASS  C: reader idle after boot — still locked
+PASS  C: tour starts at the head (needle sentence, page 15) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":0,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":15,"sentenceText":"Three things\n              remain: the fit inset,\n              the compass needle,\n              and whatever terrain\n              you have already measured."}
+PASS  C: parked on page 16 — still locked
+PASS  C: parked on page 17 — still locked
+PASS  C: tour active on page 17 (gold-marker step, no gate) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":4,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"gold-marker","auto":false,"minimized":false,"page":17,"sentenceText":"The gold marker is the true global minimum\n              — where the terrain actually bottoms out."}
+C gate-open dy: {"bottomBefore":784,"bottomAfter":784,"dy":0} readerFoot: {"x":717.8,"y":752,"w":562.2,"h":48,"top":752,"bottom":800,"cssBottom":"0px"} replayBtn hidden: false statusOn: false
+PASS  C: control — gate chip appearing does not move the bar — dy=0
+PASS  C: control — closing pill phase does not move the bar — dy=0
+C status pill: {"x":223,"y":702.1,"w":270.8,"h":25.9,"top":702.1,"bottom":728,"cssBottom":"72px"} on: false
+
+=== F: s7 last step (blindToggled gate) on page 21 — gate chip vs lifted bar/dock @ 1280x800 ===
+PASS  F: reader idle after boot — still locked
+PASS  F: tour starts at the head (steering gate, page 18) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  F: parked on page 19 — still locked
+PASS  F: parked on page 20 — still locked
+PASS  F: ghost release lands the swarm step (page 21) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":4,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"swarm-ensemble","auto":false,"minimized":false,"page":21,"sentenceText":"One hundred balls are scattered across whichever\n              country you picked and released; each runs the same physics\n              you just played — no tilt, mid-range damping — and\n              settles into the first basin its trajectory enters."}
+PASS  F: blindToggled gate open on page 21 — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":6,"count":7,"gate":true,"gateKind":"blindToggled","gateLabel":"tick run blind / show map on the dock (bottom-left)","sentenceActive":true,"overlayOn":true,"lookKey":"swarm-dock","auto":false,"minimized":false,"page":21,"sentenceText":"ensembles (many restarts) cover ground faster — together\n              the hundred balls paint roughly\n              20× the ground any one of them\n              crosses alone — but no ball ever sees the whole map:\n              the ensemble’s information exceeds any member’s\n              — and where a ball lands is a property of its\n              basin, not of how hard it tried"}
+F: {"bar":{"x":101,"y":593,"w":514.8,"h":41,"top":593,"bottom":634,"cssBottom":"166px"},"gateChip":{"x":102.7,"y":544.9,"w":511.3,"h":34.1,"top":544.9,"bottom":579,"cssBottom":"221px"},"gateOn":"true","dock":{"x":14,"y":643,"w":300,"h":143,"top":643,"bottom":786,"cssBottom":"14px"},"dockVis":"true"}
+PASS  F: FIXED — the gate chip rides the lifted stack (cssBottom:221px, above the bar) — chip.cssBottom=221px chip.top=544.9 bar.bottom=634 → below=false
+PASS  F: FIXED — the gate chip no longer overlaps the swarm dock — overlap=false; chip=(102.7,544.9 511.3x34.1) dock=(14,643 300x143)
+
+=== A: s7 tour head → page 20 (ghost gate) → page 21 (swarm) @ 1440x900 ===
+PASS  A: reader idle after boot — still locked
+PASS  A: tour starts at the head (steering gate, page 18) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  A: parked on page 19 — still locked
+PASS  A: parked on page 20 — still locked
+A before: {"page":20,"scene":"tilt-b","gateOn":"true","bar":{"x":181.6,"y":843,"w":500.9,"h":41,"top":843,"bottom":884,"cssBottom":"16px"},"dockVis":"false","dock":{"x":14,"y":751,"w":300,"h":143,"top":751,"bottom":894,"cssBottom":"14px"},"dot":{"cx":"66.28","cy":"407.6875"}}
+A after : {"tour":{"page":21,"stepIndex":4,"gate":false},"bar":{"x":181.6,"y":693,"w":500.9,"h":41,"top":693,"bottom":734,"cssBottom":"166px"},"dockVis":"true","dock":{"x":14,"y":743,"w":300,"h":143,"top":743,"bottom":886,"cssBottom":"14px"},"dot":{"cx":"438.14591735848904","cy":"438.2598692904093"}}
+PASS  A: pre-state — ghost gate on page 20, the stack at FREE-PLAY height (cssBottom:16px) — bar.cssBottom=16px bar.bottom=884 vh=900
+PASS  A: the swarm dock APPEARS beneath it mid-tour — dock data-visible false → true
+PASS  A: FIXED — exactly the SANCTIONED page-21 boundary move (bottom 16 → 166, dy=−150) — bar.bottom 884 → 734 (dy=-150px)
+PASS  A: FIXED — bar cssBottom holds the dock lift (166px) through the swarm page — cssBottom=166px
+
+=== B: s7 control — head → page 19 → page 20 (nothing appears) @ 1440x900 ===
+PASS  B: reader idle after boot — still locked
+PASS  B: tour starts at the head (steering gate, page 18) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  B: parked on page 19 — still locked
+PASS  B: parked on page 20 — still locked
+B dy: {"bottomBefore":884,"bottomAfter":884,"dy":0} dockVis: false → false
+PASS  B: control — bar does NOT move when no panel appears (pages 19→20; free-play height on tilt pages) — dy=0 cssBottom=16px
+
+=== C: s6 tour head → page 17 (reveal; footer Replay) @ 1440x900 ===
+PASS  C: reader idle after boot — still locked
+PASS  C: tour starts at the head (needle sentence, page 15) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":0,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"needle","auto":false,"minimized":false,"page":15,"sentenceText":"Three things\n              remain: the fit inset,\n              the compass needle,\n              and whatever terrain\n              you have already measured."}
+PASS  C: parked on page 16 — still locked
+PASS  C: parked on page 17 — still locked
+PASS  C: tour active on page 17 (gold-marker step, no gate) — {"running":true,"phase":"active","id":"s6","label":"§6 · The fog game","stepIndex":4,"count":6,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"gold-marker","auto":false,"minimized":false,"page":17,"sentenceText":"The gold marker is the true global minimum\n              — where the terrain actually bottoms out."}
+C gate-open dy: {"bottomBefore":884,"bottomAfter":884,"dy":0} readerFoot: {"x":865,"y":852,"w":575,"h":48,"top":852,"bottom":900,"cssBottom":"0px"} replayBtn hidden: false statusOn: false
+PASS  C: control — gate chip appearing does not move the bar — dy=0
+PASS  C: control — closing pill phase does not move the bar — dy=0
+C status pill: {"x":296.6,"y":802.1,"w":270.8,"h":25.9,"top":802.1,"bottom":828,"cssBottom":"72px"} on: false
+
+=== F: s7 last step (blindToggled gate) on page 21 — gate chip vs lifted bar/dock @ 1440x900 ===
+PASS  F: reader idle after boot — still locked
+PASS  F: tour starts at the head (steering gate, page 18) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":0,"count":7,"gate":true,"gateKind":"tiltSteered","gateLabel":"steer with W A S D (or ← →)","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":18,"sentenceText":"The board is the parameter plane and you tilt it:\n              W A S D (or ← →) pitch and\n              roll the valley under the white ball."}
+PASS  F: parked on page 19 — still locked
+PASS  F: parked on page 20 — still locked
+PASS  F: ghost release lands the swarm step (page 21) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":4,"count":7,"gate":false,"gateKind":null,"gateLabel":null,"sentenceActive":true,"overlayOn":true,"lookKey":"swarm-ensemble","auto":false,"minimized":false,"page":21,"sentenceText":"One hundred balls are scattered across whichever\n              country you picked and released; each runs the same physics\n              you just played — no tilt, mid-range damping — and\n              settles into the first basin its trajectory enters."}
+PASS  F: blindToggled gate open on page 21 — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":6,"count":7,"gate":true,"gateKind":"blindToggled","gateLabel":"tick run blind / show map on the dock (bottom-left)","sentenceActive":true,"overlayOn":true,"lookKey":"swarm-dock","auto":false,"minimized":false,"page":21,"sentenceText":"ensembles (many restarts) cover ground faster — together\n              the hundred balls paint roughly\n              20× the ground any one of them\n              crosses alone — but no ball ever sees the whole map:\n              the ensemble’s information exceeds any member’s\n              — and where a ball lands is a property of its\n              basin, not of how hard it tried"}
+F: {"bar":{"x":174.6,"y":693,"w":514.8,"h":41,"top":693,"bottom":734,"cssBottom":"166px"},"gateChip":{"x":176.4,"y":644.9,"w":511.3,"h":34.1,"top":644.9,"bottom":679,"cssBottom":"221px"},"gateOn":"true","dock":{"x":14,"y":743,"w":300,"h":143,"top":743,"bottom":886,"cssBottom":"14px"},"dockVis":"true"}
+PASS  F: FIXED — the gate chip rides the lifted stack (cssBottom:221px, above the bar) — chip.cssBottom=221px chip.top=644.9 bar.bottom=734 → below=false
+PASS  F: FIXED — the gate chip no longer overlaps the swarm dock — overlap=false; chip=(176.4,644.9 511.3x34.1) dock=(14,743 300x143)
+
+=== D: s6 tour wheel-walk 15→16→17 @1280x720 — fog-panel + minimap re-dock ===
+PASS  D: reader idle after boot — still locked
+PASS  D: parked on page 16 — still locked
+PASS  D: parked on page 17 — still locked
+D p15: {"fogVis":"true","minimap":{"x":517.4,"y":62,"w":185.4,"h":277,"top":62,"bottom":339,"cssBottom":"381px"},"dot":{"cx":"595.2678125","cy":"200.5"},"overlayOn":"true","barBottom":704,"tourPage":15}
+D p16: {"fogVis":"true","minimap":{"x":520.9,"y":62,"w":181.9,"h":277,"top":62,"bottom":339,"cssBottom":"381px"},"dot":{"cx":"140","cy":"160.5"},"overlayOn":"true","barBottom":704,"tourPage":16}
+D p17: {"fogVis":"true","minimap":{"x":520.9,"y":62,"w":181.9,"h":277,"top":62,"bottom":339,"cssBottom":"381px"},"dot":{"cx":"443.88053373066634","cy":"330.21167100265137"},"overlayOn":"true","barBottom":704,"tourPage":17}
+PASS  D: minimap anchor across s6 pages mid-tour (report only — jump if fog-panel toggles) — minimap.top p15→p16: 0px, p16→p17: 0px; fog-panel true→true→true
+
+=== E: s1 tour wheel-walk 1→2 @1280x720 — loss-panel + minimap re-dock ===
+PASS  E: reader idle after boot — still locked
+PASS  E: parked on page 2 — still locked
+E p1: {"lossVis":"true","minimap":{"x":517.4,"y":62,"w":185.4,"h":277,"top":62,"bottom":339,"cssBottom":"381px"},"dot":{"cx":"157.64","cy":"223"},"overlayOn":"true","barBottom":704,"tourPage":1,"tourLook":"fit-inset"}
+E p2: {"lossVis":"true","minimap":{"x":517.4,"y":62,"w":185.4,"h":277,"top":62,"bottom":339,"cssBottom":"381px"},"dot":{"cx":"595.2678125","cy":"200.5"},"overlayOn":"true","barBottom":704,"tourPage":2,"tourLook":"needle"}
+PASS  E: minimap/arrow anchor jump when loss-panel toggles mid-tour (report only) — minimap.top 62 → 62 (dy=0px); loss-panel true→true; dot {"cx":"157.64","cy":"223"}→{"cx":"595.2678125","cy":"200.5"}
+
+=== sweep2-r1 done: 0 failing check(s) ===

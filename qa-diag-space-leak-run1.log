@@ -1,0 +1,199 @@
+
+=== VARIANT A: §7 tiltSteered gate, damping slider, Space ===
+PASS  A: booted on tilt-a (step 18)
+PASS  A: tour started on idx 0 — idx=0/7
+PASS  A: tiltSteered gate open — gate=true
+A0 gate-open: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=BUTTON
+A1 space-no-slider: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=BUTTON
+PASS  A-CONTROL: Space (focus on chip) is swallowed — reader stays 18, gate stays open — reader=18 gate=true idx=0
+A2 slider-clicked: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=tilt-friction
+PASS  A: gate still open after slider click (plain clicks advance nothing) — gate=true reader=18
+PASS  A: focus is on #tilt-friction — focus=tilt-friction
+A3 after-space: reader=19 tour=s7 idx=2(7) phase=travel gate=false(null) chip=false tiltSteps=0 tiltCells=1 focus=BODY
+PASS  A-LEAK: Space advanced the READER (18→19) mid-gate — reader 18→19
+PASS  A-LEAK: playlist JUMPED past the unvisited sentence (idx 0→2, 1/7→3/7) — idx 0→2 id=s7
+PASS  A-LEAK: gate DROPPED without the action — gate=false chip=false
+PASS  A-LEAK: demanded action never performed (run unsteered, 0 steps) — tiltSteps=0
+
+=== VARIANT B: §8 ruleLevelMoved gate, η dial, Space ===
+PASS  B: booted on labrule (step 22)
+PASS  B: tour started on idx 0 — idx=0/5
+B1 at-idx2-gate: reader=22 tour=s8 idx=2(5) phase=active gate=true(ruleMoved) chip=true tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: parked on the ruleMoved gate (idx 2) — idx=2 gate=true(ruleMoved)
+B2 gate-released: reader=23 tour=s8 idx=3(5) phase=travel gate=false(null) chip=false tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: gate released → advanced to idx 3 (page 23) — idx=3 gate=false
+B3 final-gate: reader=23 tour=s8 idx=4(5) phase=active gate=true(ruleLevelMoved) chip=true tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: parked on the FINAL ruleLevelMoved gate (idx 4) — idx=4 gate=true(ruleLevelMoved)
+B4 eta-clicked: reader=23 tour=s8 idx=4(5) phase=active gate=true(ruleLevelMoved) chip=true tiltSteps=0 tiltCells=0 focus=rule-eta
+PASS  B: gate held through the bare dial click — gate=true reader=23
+B5 after-space: reader=24 tour=- idx=4(0) phase=idle gate=false(null) chip=false tiltSteps=0 tiltCells=0 focus=BODY
+PASS  B-LEAK: Space skipped the reader INTO §9 (23→24) — reader 23→24
+PASS  B-LEAK: tour EXITED (running=false, id=null) — skipped past its own section — running=false id=null phase=idle
+
+=== VARIANT C-LITE: §2 tour idx0, η slider, Space ===
+PASS  C: booted on gd-a (step 4)
+PASS  C: tour started on idx 0 — idx=0/5
+node:internal/modules/run_main:122
+    triggerUncaughtException(
+    ^
+
+page.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#eta-slider')[22m
+[2m    - locator resolved to <input min="0" step="1" max="1000" value="500" class="knob" type="range" id="eta-slider" aria-label="learning rate eta"/>[22m
+[2m  - attempting click action[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <span class="sent" data-sent="1"> Every decision gradient↵              descent ma…</span> from <div class="rstep" data-scene="gd-a" data-active="true">…</div> subtree intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <footer id="reader-foot">…</footer> intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 100ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - element is outside of the viewport[22m
+[2m  - retrying click action[22m
+[2m    - waiting 100ms[22m
+[2m    13 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <footer id="reader-foot">…</footer> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m       - waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 500ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+[2m    - done scrolling[22m
+[2m    - <footer id="reader-foot">…</footer> intercepts pointer events[22m
+[2m  - retrying click action[22m
+[2m    - waiting 500ms[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m    - element is visible, enabled and stable[22m
+[2m    - scrolling into view if needed[22m
+
+    at C:\Users\Franco\Desktop\Projects\NJIT-CS375-ProjectPart4\qa-diag-space-leak-probe.mjs:232:12 {
+  log: [
+    "  - waiting for locator('#eta-slider')",
+    '    - locator resolved to <input min="0" step="1" max="1000" value="500" class="knob" type="range" id="eta-slider" aria-label="learning rate eta"/>',
+    '  - attempting click action',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <span class="sent" data-sent="1"> Every decision gradient↵              descent ma…</span> from <div class="rstep" data-scene="gd-a" data-active="true">…</div> subtree intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <footer id="reader-foot">…</footer> intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting 20ms',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting 100ms',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - element is outside of the viewport',
+    '  - retrying click action',
+    '    - waiting 100ms',
+    '    13 × waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '       - waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <footer id="reader-foot">…</footer> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '       - waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '       - waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <div data-dir="fwd" id="reader-body">…</div> intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting 500ms',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed',
+    '    - done scrolling',
+    '    - <footer id="reader-foot">…</footer> intercepts pointer events',
+    '  - retrying click action',
+    '    - waiting 500ms',
+    '    - waiting for element to be visible, enabled and stable',
+    '    - element is visible, enabled and stable',
+    '    - scrolling into view if needed'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.14.0

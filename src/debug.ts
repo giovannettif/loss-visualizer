@@ -138,6 +138,7 @@ const roFn = document.querySelector<HTMLElement>("#ro-fn");
 const roAzim = document.querySelector<HTMLElement>("#ro-azim");
 const roElev = document.querySelector<HTMLElement>("#ro-elev");
 const roZoom = document.querySelector<HTMLElement>("#ro-zoom");
+const roPan = document.querySelector<HTMLElement>("#ro-pan");
 
 function setUrlParam(key: string, value: string | null): void {
   const next = new URLSearchParams(window.location.search);
@@ -189,6 +190,8 @@ if (stage) {
   });
 
   show(currentFn);
+  // Probe hook (camera gates read the pan clamp state: tools/cdp-interact-cam.mjs).
+  (window as unknown as { __view?: LandscapeView }).__view = view;
 
   // Live attitude readout (monospace numbers per the visual bar).
   function tick(): void {
@@ -196,6 +199,10 @@ if (stage) {
     if (roAzim) roAzim.textContent = `${fmt(a.azimuthDeg)}°`;
     if (roElev) roElev.textContent = `${fmt(a.elevationDeg)}°`;
     if (roZoom) roZoom.textContent = fmt(a.zoomRadius, 2);
+    if (roPan) {
+      const p = view.panInfo.px; // screen-plane pan, CSS px (x right, y up)
+      roPan.textContent = `${fmt(p.x, 0)},${fmt(p.y, 0)}`;
+    }
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);

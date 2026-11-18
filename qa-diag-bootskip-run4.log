@@ -1,0 +1,11 @@
+boot walk parked: step=3 scene=task-c
+4-D150: entered step=4, clicked Skip +276ms (pre: swap=out locked=true rise=0.852 opac=0.852) → settled rise=1 opac=1 scene=gd-a
+PASS  4-D150: settled rise=1 opac=1 (spec 1/1)
+4-D150-repeat: entered step=4, clicked Skip +228ms (pre: swap=out locked=true rise=0.852 opac=0.852) → settled rise=1 opac=1 scene=gd-a
+PASS  4-D150-repeat: settled rise=1 opac=1 (spec 1/1)
+bootwalk-skip-8-D100: entered step=8, clicked Skip +179ms (pre: swap=out locked=true rise=0.943 opac=0.943) → settled rise=1 opac=1 scene=mom-a
+PASS  mom-a@100ms: settled rise=1 opac=1
+bootwalk-skip-13-D100: entered step=13, clicked Skip +177ms (pre: swap=out locked=true rise=0.986 opac=0.986) → settled rise=1 opac=1 scene=lab
+PASS  lab@100ms: settled rise=1 opac=1
+
+ALL PASS

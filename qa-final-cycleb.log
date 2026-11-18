@@ -1,0 +1,27 @@
+PASS  student-2: attract pose frozen — 0 steps before any keypress, still 0 after 2.5s — steps at entry=0 after 2.5s=0 steered=false (was 216→585)
+PASS  student-2: Restart hidden while unsteered
+PASS  student-2: first keypress starts the ride — steered=true steps=86
+PASS  student-2: Restart visible on a steered live run
+PASS  student-2: Restart resets to a fresh frozen run — steps=0 cells=1 steered=false
+PASS  student-2: unsteered tilt-b verdict is honest — verdict="You never tilted the board — nothing on stage is your run. The optimizers ran the same sta…" row="you (no run)———"
+PASS  critic-tilt-verdict: all-three case reads 'all three optimizers reached a minimum' — verdict="You stopped after 115 steps and 6 measurements — L 0.284, 3.8 units short of the true minimum (L≈0.00) — all t…"
+PASS  student-1: untouched run reaches fog-c with used=0 — used=0 done=true
+PASS  student-1: scorecard row reads 'you (no run)' and the verdict stays hidden (no scolding remnant) — row="you (no run)04.84" verdictHidden=true verdict="…"
+PASS  student-1: narrative swapped (played-run copy hidden, empty-run copy shown) — runLead=true emptyLead=false trap=true emptyNote=false
+PASS  student-1: no fake player ghost — three machine lanes staged — ghosts=3 (played runs keep 4)
+PASS  student-1: a played run keeps the four-ghost reveal + played-run narrative — used=3 ghosts=4 row="you (manual run)3132.4" trapHidden=false
+PASS  swarm: flight starts playing — playing=true time=0.11670000000000028
+PASS  swarm: playing flips false once every ball is parked — playing=false time=8.43
+PASS  swarm: show-map rewind re-arms the flight (visible) — playing=true blind=false time=1.22
+PASS  swarm: blind rewind re-arms the flight — playing=true blind=true time=0.52
+PASS  critic-gdd: live gd-d stages the four-lane family (hover-to-look keeps 4 trails) — keptTrails=4 active=true id=trail-gd
+PASS  critic-gdd: Play rides all four lanes (four ball positions) — playing=true positions=[{"x":-8.75358969301339,"y":10.568746411578207},{"x":-5.129875021888801,"y":8.885204085682329},{"x":-1.8179819195360596,"y":3.1471276228911735},{"x":-0.0693188198499346,"y":15}]
+PASS  critic-gdd: screenshot captured — qa/critic-fix/gdd-live-four-lanes.png
+PASS  critic-gdd: frozen ?shot=gd-d also stages the four lanes — keptTrails=4
+PASS  critic-labrule-clip: 1280×720 scorecard rows clear the footer — lastRowBottom=456 footTop=672 rows=4
+PASS  critic-labrule-clip: 1280×720 captions clear the footer — captionBottom=602 footTop=672
+PASS  critic-labrule-clip: 1100×700 scorecard rows clear the footer — lastRowBottom=425 footTop=617 rows=4
+PASS  critic-labrule-clip: 1100×700 captions clear the footer — captionBottom=562 footTop=617
+PASS  critic-labrule-clip: 1280×800 scorecard rows clear the footer — lastRowBottom=496 footTop=752 rows=4
+PASS  critic-labrule-clip: 1280×800 captions clear the footer — captionBottom=642 footTop=752
+VERIFY_CYCLEB_OK

@@ -1,0 +1,43 @@
+=== A. chip click from every chip-bearing page ===
+page 1 (task-a): idle=true | tour=s1 stepIndex=0/4 counter="1 / 4" tourPage=1
+page 2 (task-b): idle=true | tour=s1 stepIndex=2/4 counter="3 / 4" tourPage=2
+page 3 (task-c): idle=true | tour=s1 stepIndex=3/4 counter="4 / 4" tourPage=3
+  (timeout waiting for p3 one-next-exit: {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":3,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the white point","sentenceActive":true,"overlayOn":true,"lookKey":"ball","auto":false,"minimized":false,"page":3,"sentenceText":"Drag the white point: it rides the surface, and the line, the\n              residuals and the loss follow."})
+   └ one Next from the seeded position → tour exits: false
+page 4 (gd-a): idle=true | tour=s2 stepIndex=0/5 counter="1 / 5" tourPage=4
+page 5 (gd-b): idle=true | tour=s2 stepIndex=1/5 counter="2 / 5" tourPage=5
+page 6 (gd-c): idle=true | tour=s2 stepIndex=3/5 counter="4 / 5" tourPage=6
+page 7 (gd-d): idle=true | tour=s2 stepIndex=4/5 counter="5 / 5" tourPage=7
+   └ one Next from the seeded position → tour exits: true
+page 8 (mom-a): idle=true | tour=s3 stepIndex=0/5 counter="1 / 5" tourPage=8
+page 9 (mom-b): idle=true | tour=s3 stepIndex=3/5 counter="4 / 5" tourPage=9
+page 10 (mom-c): idle=true | tour=s3 stepIndex=4/5 counter="5 / 5" tourPage=10
+   └ one Next from the seeded position → tour exits: true
+page 11 (adam-a): idle=true | tour=s4 stepIndex=0/3 counter="1 / 3" tourPage=11
+page 12 (adam-b): idle=true | tour=s4 stepIndex=2/3 counter="3 / 3" tourPage=12
+  (timeout waiting for p12 one-next-exit: {"running":true,"phase":"active","id":"s4","label":"§4 · Adam","stepIndex":2,"count":3,"gate":true,"gateKind":"steepMoved","gateLabel":"slide the steepness λ₁","sentenceActive":true,"overlayOn":true,"lookKey":"adam-arrows","auto":false,"minimized":false,"page":12,"sentenceText":"Adam’s barely moves:\n              √vˆ absorbs exactly the\n              scale GD stepped into."})
+   └ one Next from the seeded position → tour exits: false
+page 13 (lab): idle=true | tour=s5 stepIndex=0/4 counter="1 / 4" tourPage=13
+page 14 (lab): idle=true | tour=s5 stepIndex=2/4 counter="3 / 4" tourPage=14
+page 15 (fog-a): idle=true | tour=s6 stepIndex=0/6 counter="1 / 6" tourPage=15
+page 16 (fog-b): idle=true | tour=s6 stepIndex=3/6 counter="4 / 6" tourPage=16
+page 17 (fog-c): idle=true | tour=s6 stepIndex=4/6 counter="5 / 6" tourPage=17
+page 18 (tilt-a): idle=true | tour=s7 stepIndex=0/7 counter="1 / 7" tourPage=18
+page 19 (tilt-a): idle=true | tour=s7 stepIndex=2/7 counter="3 / 7" tourPage=19
+page 20 (tilt-b): idle=true | tour=s7 stepIndex=3/7 counter="4 / 7" tourPage=20
+page 21 (swarm): idle=true | tour=s7 stepIndex=4/7 counter="5 / 7" tourPage=21
+page 22 (labrule): idle=true | tour=s8 stepIndex=0/5 counter="1 / 5" tourPage=22
+page 23 (labrule): idle=true | tour=s8 stepIndex=3/5 counter="4 / 5" tourPage=23
+page 24 (epi-a): idle=true | tour=s9 stepIndex=0/6 counter="1 / 6" tourPage=24
+page 25 (epi-b): idle=true | tour=s9 stepIndex=3/6 counter="4 / 6" tourPage=25
+page 26 (epi-c): idle=true | tour=s9 stepIndex=5/6 counter="6 / 6" tourPage=26
+   └ one Next from the seeded position → tour exits: true
+=== C. the finding's exact example: park on the LAST page of §6/§9 ===
+page 17: counter="5 / 6" stepIndex=4/6 marked="The gold marker is the true global minimum — where the terra"
+page 25: counter="4 / 6" stepIndex=3/6 marked="Watch the surface dissolve into the lattice on the left."
+=== D. finicky window: chip click DURING the deep-link entry lock ===
+page 15: clicked mid-entry (locked=true) → settled step=15 tour=s6 stepIndex=0/6 counter="1 / 6" tourPage=15
+page 17: clicked mid-entry (locked=true) → settled step=17 tour=s6 stepIndex=4/6 counter="5 / 6" tourPage=17
+=== E. restart after a partial walk (exit mid-tour, chip again) ===
+E: restart from page 15 → stepIndex=0/6 counter="1 / 6"
+DONE

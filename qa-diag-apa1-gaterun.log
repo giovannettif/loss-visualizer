@@ -1,0 +1,10 @@
+FAIL  no document scrolling (overflow hidden, page fits viewport) — {"bodyOverflow":"visible","htmlScrollH":900,"innerH":900,"docScrollT":0,"docScrollable":false}
+file:///C:/Users/Franco/Desktop/Projects/NJIT-CS375-ProjectPart4/tools/cdp-interact-apa1.mjs:110
+  if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails));
+                                ^
+
+Error: {"exceptionId":1,"text":"Uncaught","lineNumber":0,"columnNumber":28,"scriptId":"6","stackTrace":{"callFrames":[{"functionName":"","scriptId":"6","url":"","lineNumber":0,"columnNumber":28}]},"exception":{"type":"object","subtype":"error","className":"TypeError","description":"TypeError: Cannot read properties of undefined (reading 'scroll')\n    at <anonymous>:1:29","objectId":"-4770075746326462616.1.2"}}
+    at evalJson (file:///C:/Users/Franco/Desktop/Projects/NJIT-CS375-ProjectPart4/tools/cdp-interact-apa1.mjs:110:33)
+    at async file:///C:/Users/Franco/Desktop/Projects/NJIT-CS375-ProjectPart4/tools/cdp-interact-apa1.mjs:183:31
+
+Node.js v22.14.0

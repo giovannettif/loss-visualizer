@@ -1,0 +1,44 @@
+
+=== VARIANT A: §7 tiltSteered gate, damping slider, Space ===
+PASS  A: booted on tilt-a (step 18)
+PASS  A: tour started on idx 0 — idx=0/7
+PASS  A: tiltSteered gate open — gate=true
+A0 gate-open: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=BUTTON
+A1 space-no-slider: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=BUTTON
+PASS  A-CONTROL: Space (focus on chip) is swallowed — reader stays 18, gate stays open — reader=18 gate=true idx=0
+A2 slider-clicked: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=tilt-friction
+PASS  A: gate still open after slider click (plain clicks advance nothing) — gate=true reader=18
+PASS  A: focus is on #tilt-friction — focus=tilt-friction
+A3 after-space: reader=18 tour=s7 idx=0(7) phase=active gate=true(tiltSteered) chip=true tiltSteps=0 tiltCells=1 focus=tilt-friction
+PASS  A-FIXED: Space does NOT advance the reader (stays 18) — reader 18→18
+PASS  A-FIXED: playlist idx unchanged (0 — no sync-jump past the unvisited sentence) — idx 0→0 id=s7
+PASS  A-FIXED: gate STILL OPEN (the action is the only way through) — gate=true chip=true
+PASS  A: demanded action still never performed (run unsteered, 0 steps) — tiltSteps=0
+
+=== VARIANT B: §8 ruleLevelMoved gate, η dial, Space ===
+PASS  B: booted on labrule (step 22)
+PASS  B: tour started on idx 0 — idx=0/5
+B1 at-idx2-gate: reader=22 tour=s8 idx=2(5) phase=active gate=true(ruleMoved) chip=true tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: parked on the ruleMoved gate (idx 2) — idx=2 gate=true(ruleMoved)
+B2 gate-released: reader=23 tour=s8 idx=3(5) phase=travel gate=false(null) chip=false tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: gate released → advanced to idx 3 (page 23) — idx=3 gate=false
+B3 final-gate: reader=23 tour=s8 idx=4(5) phase=active gate=true(ruleLevelMoved) chip=true tiltSteps=0 tiltCells=0 focus=tour-next
+PASS  B: parked on the FINAL ruleLevelMoved gate (idx 4) — idx=4 gate=true(ruleLevelMoved)
+B4 eta-clicked: reader=23 tour=s8 idx=4(5) phase=active gate=true(ruleLevelMoved) chip=true tiltSteps=0 tiltCells=0 focus=rule-eta
+PASS  B: gate held through the bare dial click — gate=true reader=23
+B5 after-space: reader=23 tour=s8 idx=4(5) phase=active gate=true(ruleLevelMoved) chip=true tiltSteps=0 tiltCells=0 focus=rule-eta
+PASS  B-FIXED: Space does NOT move the reader (stays 23, not into §9) — reader 23→23
+PASS  B-FIXED: tour STILL RUNNING at the final gate (idx 4, gate open) — running=true id=s8 idx=4 gate=true
+
+=== VARIANT C: §2 tour at the etaMoved gate on gd-c, Space ===
+PASS  C: booted on gd-a (step 4, the s2 head)
+PASS  C: tour started at the head (idx 0) — idx=0/5
+C0 eta-gate: reader=6 tour=s2 idx=3(5) phase=active gate=true(etaMoved) chip=true tiltSteps=0 tiltCells=0 focus=BODY
+PASS  C: walked to the etaMoved gate on gd-c (idx 3) — gate=true(etaMoved) reader=6
+C1 slider-clicked: reader=6 tour=s2 idx=3(5) phase=active gate=true(etaMoved) chip=true tiltSteps=0 tiltCells=0 focus=eta-slider
+PASS  C: focus on #eta-slider, gate held — focus=eta-slider gate=true
+C2 after-space: reader=6 tour=s2 idx=3(5) phase=active gate=true(etaMoved) chip=true tiltSteps=0 tiltCells=0 focus=eta-slider
+PASS  C-FIXED: Space does NOT advance the reader (stays 6) — reader 6→6
+PASS  C-FIXED: playlist idx unchanged (3), gate STILL OPEN — idx 3→3 gate=true
+
+PROBE_OK (leak fixed — all hold checks green)

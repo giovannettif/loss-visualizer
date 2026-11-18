@@ -7,6 +7,7 @@
  */
 
 import { chromium } from "playwright";
+import { launchGL } from "./gl-launch.mjs";
 
 const base = process.argv[2] ?? "http://localhost:4185";
 let failures = 0;
@@ -28,7 +29,7 @@ async function waitIdle(page) {
   return false;
 }
 
-const browser = await chromium.launch();
+const browser = await launchGL(chromium);
 
 /* ---------------- GP-1: valley tap → auto-settle + cue ---------------- */
 {
@@ -233,6 +234,13 @@ const browser = await chromium.launch();
     "fog-c 2×: race ends with the scrub bar full",
     ended?.scrub === 1000,
     `scrub=${ended?.scrub} label="${ended?.label}" after ${wall}s at 2×`,
+  );
+  // QA transport-finished-label-resume: a FINISHED race reads ▶ Play (its
+  // next click relaunches from the top), never the paused '▶ Resume'.
+  check(
+    "fog-c 2×: a naturally finished race reads ▶ Play, not ▶ Resume",
+    (ended?.label ?? "").trim() === "▶ Play",
+    `label="${ended?.label}"`,
   );
   await sleep(1200);
   const settledState = await page.evaluate(() => ({

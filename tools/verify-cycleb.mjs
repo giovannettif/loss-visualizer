@@ -12,6 +12,7 @@
  */
 
 import { chromium } from "playwright";
+import { launchGL } from "./gl-launch.mjs";
 
 const base = process.argv[2] ?? "http://localhost:4185";
 let failures = 0;
@@ -33,7 +34,7 @@ async function waitIdle(page) {
   return false;
 }
 
-const browser = await chromium.launch();
+const browser = await launchGL(chromium);
 
 /* ---------------- student-2: tilt attract freeze + restart ---------------- */
 {
@@ -126,6 +127,7 @@ const browser = await chromium.launch();
   const fog = await page.evaluate(() => ({
     state: window.__wp1.fog(),
     verdict: document.querySelector("#fog-verdict")?.textContent ?? "",
+    verdictHidden: document.querySelector("#fog-verdict")?.hidden ?? null,
     row: document.querySelector("#fog-scorecard-body tr")?.textContent ?? "",
     runLeadHidden: document.querySelector("#fog-run-lead")?.hidden ?? null,
     emptyLeadHidden: document.querySelector("#fog-empty-lead")?.hidden ?? null,
@@ -138,9 +140,11 @@ const browser = await chromium.launch();
     `used=${fog.state?.used} done=${fog.state?.done}`,
   );
   check(
-    "student-1: scorecard row reads 'you (no run)' and verdict is honest",
-    fog.row.includes("you (no run)") && fog.verdict.includes("never took a measurement"),
-    `row="${fog.row}" verdict="${fog.verdict.slice(0, 70)}…"`,
+    "student-1: scorecard row reads 'you (no run)' and the verdict stays hidden (no scolding remnant)",
+    fog.row.includes("you (no run)") &&
+      fog.verdictHidden === true &&
+      !fog.verdict.includes("never took a measurement"),
+    `row="${fog.row}" verdictHidden=${fog.verdictHidden} verdict="${fog.verdict.slice(0, 70)}…"`,
   );
   check(
     "student-1: narrative swapped (played-run copy hidden, empty-run copy shown)",
@@ -170,7 +174,11 @@ const browser = await chromium.launch();
   };
   await drag(0.12, 0.3, 0.75, 0.62);
   await drag(0.2, 0.35, 0.72, 0.6);
-  await drag(0.25, 0.4, 0.7, 0.58);
+  // Third stride aims past the ball's own cell: after two reach-clamped
+  // strides the ball sits at ≈(0.30, 0.43), and the old (0.7, 0.58) tip
+  // snapped back into its OWN cell — a hop that no longer spends a
+  // measurement (QA S2A-FOG-OWNCELL-SPEND; probe: tools/diag-s2-fogdrag.mjs).
+  await drag(0.25, 0.4, 0.92, 0.72);
   await page.evaluate(() => document.querySelector("#fog-finish").click());
   await sleep(900);
   await page.evaluate(() => document.querySelectorAll("#rail button")[17].click());
@@ -214,6 +222,24 @@ const browser = await chromium.launch();
     `playing=${parked?.playing} time=${parked?.time?.toFixed(2)}`,
   );
   // The finale can still re-run: blind toggle rewinds and re-arms.
+  // The finale can still re-run: a REAL blind round-trip. The old check
+  // toggled to checked=true while blind was still the boot default —
+  // setSwarmBlind early-returns on no-change, so the re-arm it asserted
+  // never ran (stale cycle-B expectation, STATUS Still-open #3). Untick
+  // first (OFF: rewind + re-arm visible), then tick (ON: rewind dark +
+  // re-arm again — the toggle's actual contract).
+  await page.evaluate(() => {
+    const t = document.querySelector("#swarm-blind");
+    t.checked = false;
+    t.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await sleep(1200);
+  const shown = await page.evaluate(() => window.__wp1.swarm());
+  check(
+    "swarm: show-map rewind re-arms the flight (visible)",
+    shown?.playing === true && shown.blind === false && shown.time < 6,
+    `playing=${shown?.playing} blind=${shown?.blind} time=${shown?.time?.toFixed(2)}`,
+  );
   await page.evaluate(() => {
     const t = document.querySelector("#swarm-blind");
     t.checked = true;
@@ -223,8 +249,8 @@ const browser = await chromium.launch();
   const rearmed = await page.evaluate(() => window.__wp1.swarm());
   check(
     "swarm: blind rewind re-arms the flight",
-    rearmed?.playing === true && rearmed.time < 1.5,
-    `playing=${rearmed?.playing} time=${rearmed?.time?.toFixed(2)}`,
+    rearmed?.playing === true && rearmed.blind === true && rearmed.time < 1.5,
+    `playing=${rearmed?.playing} blind=${rearmed?.blind} time=${rearmed?.time?.toFixed(2)}`,
   );
   await page.close();
 }

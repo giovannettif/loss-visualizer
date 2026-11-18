@@ -1,0 +1,3 @@
+verify-copy-layout: 1
+cdp-responsive: 1
+shots: 0

@@ -22,7 +22,15 @@ import {
   leastSquares,
   defaultBowl,
   multiWell,
+  multiWellLarge,
+  himmelblau,
+  archipelago,
+  canyonPeaks,
+  ARCHIPELAGO_WELLS,
+  ARCHIPELAGO_RIDGES,
   MULTI_WELL_WELLS,
+  MULTI_WELL_LARGE_WELLS,
+  HIMMELBLAU_WELLS,
   LEAST_SQUARES_POINTS,
 } from "./functions";
 import { gd, momentum, adam, type OptimizerState } from "./optimizers";
@@ -212,6 +220,282 @@ describe("gradient checks: multi-well country", () => {
     }
     // And the shallowest well floor is >4 units above the deepest.
     expect(values[values.length - 1] - values[0]).toBeGreaterThan(4);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* Deterministic multi-start descent (the minima-structure pattern)    */
+/* ------------------------------------------------------------------ */
+
+/** Fixed-lr gradient descent from every grid point; dedupe at `cluster`
+ *  radius — the same pattern the multi-well tests established. */
+function multiStartMinima(
+  landscape: Landscape,
+  half: number,
+  grid: number,
+  lr: number,
+  iters: number,
+  cluster: number,
+): Array<{ x: number; y: number; f: number }> {
+  const mins: Array<{ x: number; y: number; f: number }> = [];
+  for (let ix = 0; ix < grid; ix++) {
+    for (let iy = 0; iy < grid; iy++) {
+      let x = -half + (ix / (grid - 1)) * 2 * half;
+      let y = -half + (iy / (grid - 1)) * 2 * half;
+      for (let i = 0; i < iters; i++) {
+        const g = landscape.grad({ x, y });
+        x -= lr * g.x;
+        y -= lr * g.y;
+      }
+      const f = landscape.f({ x, y });
+      const near = mins.find((m) => Math.hypot(m.x - x, m.y - y) < cluster);
+      if (!near) mins.push({ x, y, f });
+    }
+  }
+  return mins;
+}
+
+describe("gradient checks: multi-well large (the §7 picker's second country)", () => {
+  it("matches FD at 6 points (well centers, flank, rim, between wells)", () => {
+    checkGradient(multiWellLarge, [
+      { x: -2.4, y: 2.6 }, // great rift center (the global basin)
+      { x: 4.4, y: -3.4 }, // needle center
+      { x: 1.0, y: 4.6 }, // kettle center
+      { x: 0.3, y: -4.6 }, // fjord flank
+      { x: 6.2, y: 6.2 }, // rim
+      { x: 1.8, y: 1.8 }, // open plain between wells
+    ]);
+  });
+
+  it("carries its 9-well list on the landscape", () => {
+    expect(multiWellLarge.wells).toBe(MULTI_WELL_LARGE_WELLS);
+    expect(MULTI_WELL_LARGE_WELLS).toHaveLength(9);
+    expect(MULTI_WELL_LARGE_WELLS.filter((w) => w.global)).toHaveLength(1);
+  });
+
+  it("has exactly one local minimum per well — 9 distinct basins", () => {
+    const mins = multiStartMinima(multiWellLarge, 6.35, 19, 0.01, 4000, 0.25);
+    expect(mins).toHaveLength(MULTI_WELL_LARGE_WELLS.length);
+    // Every hardcoded well owns exactly one of the found minima. The true
+    // floor of a WIDE shallow well drifts from its nominal center (the rim
+    // bowl tilts the Gaussian: shift ≈ bowl·r·a²/depth ≈ 0.3 for the
+    // prairie bowl) — so the tolerance is 0.35, not the default's 0.3.
+    for (const w of MULTI_WELL_LARGE_WELLS) {
+      const nearest = mins.reduce((a, b) =>
+        Math.hypot(b.x - w.x, b.y - w.y) < Math.hypot(a.x - w.x, a.y - w.y) ? b : a,
+      );
+      expect(Math.hypot(nearest.x - w.x, nearest.y - w.y)).toBeLessThan(0.35);
+    }
+  });
+
+  it("basin floors are clearly DIFFERENT and the rift is far below all", () => {
+    const values = MULTI_WELL_LARGE_WELLS.map((w) => multiWellLarge.f({ x: w.x, y: w.y })).sort(
+      (a, b) => a - b,
+    );
+    expect(values[0]).toBeLessThan(-6);
+    for (let i = 1; i < values.length; i++) {
+      expect(values[i] - values[i - 1]).toBeGreaterThan(0.3);
+    }
+    expect(values[values.length - 1] - values[0]).toBeGreaterThan(5);
+  });
+});
+
+describe("gradient checks: himmelblau (four equal GLOBAL minima)", () => {
+  it("matches FD at 6 points (basins, saddle, rim)", () => {
+    checkGradient(himmelblau, [
+      { x: 2.7, y: 1.8 }, // near the (3, 2) pit
+      { x: -2.5, y: 3.2 }, // near the (−2.8, 3.1) pit
+      { x: -3.6, y: -3.1 }, // near the (−3.8, −3.3) pit
+      { x: 3.5, y: -1.9 }, // near the (3.6, −1.8) pit
+      { x: 0.2, y: 0.4 }, // the saddle between pits
+      { x: 4.9, y: -4.9 }, // the steep quartic rim
+    ]);
+  });
+
+  it("carries its 4-well list, every well flagged global", () => {
+    expect(himmelblau.wells).toBe(HIMMELBLAU_WELLS);
+    expect(HIMMELBLAU_WELLS).toHaveLength(4);
+    expect(HIMMELBLAU_WELLS.every((w) => w.global === true)).toBe(true);
+  });
+
+  it("each well center is EXACTLY a stationary point with f = 0", () => {
+    for (const w of HIMMELBLAU_WELLS) {
+      const g = himmelblau.grad({ x: w.x, y: w.y });
+      expect(Math.hypot(g.x, g.y)).toBeLessThan(1e-6);
+      expect(himmelblau.f({ x: w.x, y: w.y })).toBeLessThan(1e-6);
+    }
+  });
+
+  it("has exactly 4 distinct minima — ALL of them global (f = 0)", () => {
+    const mins = multiStartMinima(himmelblau, 4.6, 15, 0.005, 6000, 0.2);
+    expect(mins).toHaveLength(HIMMELBLAU_WELLS.length);
+    for (const w of HIMMELBLAU_WELLS) {
+      const nearest = mins.reduce((a, b) =>
+        Math.hypot(b.x - w.x, b.y - w.y) < Math.hypot(a.x - w.x, a.y - w.y) ? b : a,
+      );
+      expect(Math.hypot(nearest.x - w.x, nearest.y - w.y)).toBeLessThan(0.05);
+    }
+    // THE counter-story to the multi-well countries: no hierarchy at all.
+    for (const m of mins) {
+      expect(m.f).toBeLessThan(1e-6);
+    }
+  });
+});
+
+describe("gradient checks: archipelago (the ridge-walled basin country)", () => {
+  it("matches FD at 10 points (well centers, ridge crests, plain, rim)", () => {
+    checkGradient(archipelago, [
+      { x: -4.6, y: 3.9 }, // deep atoll center (the global basin)
+      { x: 5.3, y: -4.6 }, // blue hole center
+      { x: 6.4, y: 1.6 }, // cove center
+      { x: -0.4, y: 0.0 }, // the skerry (interior plain)
+      { x: 2.2, y: 3.0 }, // the tide pool (interior plain)
+      { x: -2.47, y: 6.06 }, // strait wall crest (atoll ↔ crater)
+      { x: 6.85, y: -1.6 }, // strait wall crest (cove ↔ blue hole)
+      { x: -6.53, y: 0.68 }, // strait wall crest (lagoon ↔ atoll)
+      { x: 0, y: 0 }, // the plain's drain node
+      { x: 8.5, y: 8.5 }, // the sextic rim corner
+    ]);
+  });
+
+  it("carries its 8-well list, deepest-first, one global basin", () => {
+    expect(archipelago.wells).toBe(ARCHIPELAGO_WELLS);
+    expect(ARCHIPELAGO_WELLS).toHaveLength(8);
+    expect(ARCHIPELAGO_WELLS.filter((w) => w.global)).toHaveLength(1);
+    expect(ARCHIPELAGO_WELLS[0].name).toBe("the deep atoll");
+  });
+
+  it("has exactly one local minimum per well — 8 distinct basins", () => {
+    const mins = multiStartMinima(archipelago, 8.85, 19, 0.01, 4000, 0.35);
+    expect(mins).toHaveLength(ARCHIPELAGO_WELLS.length);
+    for (const w of ARCHIPELAGO_WELLS) {
+      const nearest = mins.reduce((a, b) =>
+        Math.hypot(b.x - w.x, b.y - w.y) < Math.hypot(a.x - w.x, a.y - w.y) ? b : a,
+      );
+      expect(Math.hypot(nearest.x - w.x, nearest.y - w.y)).toBeLessThan(0.35);
+    }
+  });
+
+  it("basin floors are clearly DIFFERENT, all below sea level, atoll far below", () => {
+    const values = ARCHIPELAGO_WELLS.map((w) => archipelago.f({ x: w.x, y: w.y })).sort(
+      (a, b) => a - b,
+    );
+    for (const v of values) expect(v).toBeLessThan(0);
+    expect(values[0]).toBeLessThan(-7);
+    for (let i = 1; i < values.length; i++) {
+      expect(values[i] - values[i - 1]).toBeGreaterThan(0.45);
+    }
+    expect(values[values.length - 1] - values[0]).toBeGreaterThan(7);
+  });
+
+  it("the strait ridges are REAL walls between neighboring basins", () => {
+    // Straight lines between each neighboring ring pair must cross a ridge
+    // well above both basins' floors — walls, not just empty space.
+    const neighbors: Array<[number, number]> = [
+      [0, 3], [3, 4], [4, 1], [1, 5], [5, 2], [2, 0],
+    ];
+    expect(ARCHIPELAGO_RIDGES).toHaveLength(6);
+    for (const [i, j] of neighbors) {
+      const a = ARCHIPELAGO_WELLS[i];
+      const b = ARCHIPELAGO_WELLS[j];
+      const floors = Math.max(archipelago.f({ x: a.x, y: a.y }), archipelago.f({ x: b.x, y: b.y }));
+      let crossing = -Infinity;
+      const d = Math.hypot(b.x - a.x, b.y - a.y);
+      for (let k = 1; k < 64; k++) {
+        const u = k / 64;
+        const s = u * d; // arc distance from a
+        if (s < 0.2 || d - s < 0.2) continue; // skip the basin interiors
+        const p = { x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u };
+        crossing = Math.max(crossing, archipelago.f(p));
+      }
+      expect(crossing - floors).toBeGreaterThan(1.5);
+    }
+  });
+});
+
+describe("gradient checks: canyon peaks (the winding valley)", () => {
+  // The floor's path g(x) = 1.5·sin(1.05x) + 0.15x², as exact doubles.
+  const g = (x: number): number => 1.5 * Math.sin(1.05 * x) + 0.15 * x * x;
+
+  it("matches FD at 10 points (floor, walls, peaks, rim)", () => {
+    checkGradient(canyonPeaks, [
+      { x: -2.9, y: g(-2.9) }, // the high west mouth
+      { x: -1.5, y: g(-1.5) }, // the southern bend
+      { x: 0, y: 0 }, // the middle of the groove
+      { x: 1.5, y: g(1.5) }, // the northern bend
+      { x: 2.6, y: g(2.6) }, // the sea gate (the global minimum)
+      { x: -1.3, y: -0.3145 }, // west peak's named center
+      { x: 1.85, y: 2.811 }, // north-east peak's named center
+      { x: -1.365, y: -0.025 }, // the west summit (the climb's landing)
+      { x: 0, y: 2.2 }, // the north wall
+      { x: -3.2, y: -3.3 }, // the south-west rim
+    ]);
+  });
+
+  it("drains to the sea gate at (2.6, g(2.6)) — the global minimum", () => {
+    expect(g(2.6)).toBeCloseTo(1.6141042163886286, 15);
+    // The gate floor is near zero (only the north-east peak's tail lifts
+    // it, to ≈ 0.06).
+    expect(canyonPeaks.f({ x: 2.6, y: g(2.6) })).toBeLessThan(0.1);
+    // A slow descent from mid-canyon floor converges to the gate: GD's
+    // asymptotic creep leaves it within 0.15 of the exact gate point — far
+    // inside the tilt game's 0.495 goal radius there.
+    let p = { x: 1.5, y: g(1.5) };
+    for (let i = 0; i < 20000; i++) {
+      const gr = canyonPeaks.grad(p);
+      p = { x: p.x - 0.001 * gr.x, y: p.y - 0.001 * gr.y };
+    }
+    expect(Math.hypot(p.x - 2.6, p.y - g(2.6))).toBeLessThan(0.15);
+  });
+
+  it("each named peak is a REAL local summit near its named center", () => {
+    const centers: ReadonlyArray<Vec2> = [
+      { x: -1.3, y: -0.3145 },
+      { x: 1.85, y: 2.811 },
+    ];
+    for (const c of centers) {
+      // Climb from the named center to the TRUE stationary summit (the
+      // summit sits slightly up-wall of the center). Fixed-LENGTH steps so
+      // the steep wall gradient can't fling the climber into NaN.
+      let p = { ...c };
+      for (let i = 0; i < 400; i++) {
+        const gr = canyonPeaks.grad(p);
+        const gn = Math.hypot(gr.x, gr.y);
+        if (gn < 0.02) break;
+        p = { x: p.x + (0.01 * gr.x) / gn, y: p.y + (0.01 * gr.y) / gn };
+      }
+      // …the summit stands within 0.45 of the named center (the climb
+      // stayed on THIS peak, it did not escape over a wall)…
+      expect(Math.hypot(p.x - c.x, p.y - c.y)).toBeLessThan(0.45);
+      // …it IS stationary…
+      const gr = canyonPeaks.grad(p);
+      expect(Math.hypot(gr.x, gr.y)).toBeLessThan(0.05);
+      // …and it towers ≥ 15 units over the floor directly below the center.
+      const floorBelow = canyonPeaks.f({ x: c.x, y: g(c.x) });
+      expect(canyonPeaks.f(p) - floorBelow).toBeGreaterThan(15);
+    }
+  });
+
+  it("one navigable floor, dramatic walls: the groove stays low, the sides soar", () => {
+    // The whole walkable floor from the mouth to the gate stays below 32
+    // (the west mouth's drain height)…
+    let maxFloor = -Infinity;
+    for (let i = 0; i <= 118; i++) {
+      const x = -2.95 + (i / 118) * 5.75;
+      maxFloor = Math.max(maxFloor, canyonPeaks.f({ x, y: g(x) }));
+    }
+    expect(maxFloor).toBeLessThan(32);
+    // …while the walls 1.6 units off the groove already exceed 20 at every
+    // sample point along it (the dy⁴ far-wall term at work).
+    for (const x of [-2.0, -1.0, 0, 1.0, 2.0]) {
+      for (const side of [1, -1]) {
+        expect(canyonPeaks.f({ x, y: g(x) + side * 1.6 })).toBeGreaterThan(20);
+      }
+    }
+  });
+
+  it("carries no well list — tilt-only terrain, no basin-of-attraction story", () => {
+    expect(canyonPeaks.wells).toBeUndefined();
   });
 });
 

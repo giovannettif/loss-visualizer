@@ -1,0 +1,61 @@
+[run-gate] killing stale listener on :4173 (pid 0)
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m4173[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+PASS  labrule: scene booted — scene=labrule
+PASS  labrule: on Rosenbrock (the win landscape) — {"level":"rosen","built":"rosen"}
+PASS  labrule: benchmark ran (4 lanes) — ["custom:14","gd:DNF","mom:113","adam:164"]
+PASS  labrule: custom rule BEATS Adam (14 vs 164) — custom=14 adam=164
+PASS  labrule: custom wins overall — mom=113
+PASS  labrule: curated parts assembled — {"lr":0.5,"beta":0.9,"normalize":true,"clip":0.35}
+PASS  labrule: workbench panel visible
+PASS  labrule: scorecard A has 4 rows — rows=4
+PASS  labrule: scorecard B has 4 rows — rowsB=4
+PASS  labrule: verdict names the win — Your rule wins Rosenbrock: 14 steps — momentum needed 113. On this landscape, th
+PASS  labrule: screenshot captured — 270.8 KB
+PASS  live: reader reached the workbench
+PASS  live: scene is labrule
+PASS  live: rosen benchmark ran — ["custom","gd","mom","adam"]
+PASS  live: bowl level swaps terrain + re-runs — {"level":"bowl","built":"bowl"}
+PASS  live: FLIP — momentum (21) beats custom (57) on the bowl — mom=21 custom=57
+PASS  live: FLIP — custom no longer wins — custom=57 vs mom=21
+PASS  live: Adam behind custom on the bowl too — adam=137
+PASS  live: verdict B reports the flip — The verdict flips: momentum wins elongated valley in 21 steps; your rule needed 
+PASS  live: scorecard B updated (4 rows) — rows=4
+PASS  live: least-squares level runs — level=ls
+PASS  live: LAST — custom (42) behind Adam (8) — adam=8 custom=42
+PASS  live: custom behind every machine on ls — machines=[11,20,8]
+PASS  live: archipelago pill swaps terrain + re-runs — {"level":"archi","built":"archi"}
+PASS  live: archipelago pill is the lit one
+PASS  live: archipelago — all four lanes DNF above the -4.5 threshold — ["custom:DNF@-0.50","gd:DNF@0.46","mom:DNF@-0.50","adam:DNF@-0.50"]
+PASS  live: archipelago verdict says nothing converges — Nothing converges below L -4.50 within 400 steps — including your rule.
+PASS  live: archipelago panel line names the threshold — archipelago · converge < L -4.50
+PASS  live: canyon pill swaps terrain + re-runs — {"level":"canyon","built":"canyon"}
+PASS  live: canyon — custom (25) beats momentum (38) and Adam (160); GD DNF — ["custom:25","gd:DNF","mom:38","adam:160"]
+PASS  live: normalize off re-runs the benchmark — custom={"key":"custom","label":"your rule","steps":29,"finalLoss":1.605026505533878}
+PASS  live: config changed (normalize off)
+PASS  live: parts-change verdict names the right cause (no 'different landscape', no 'in DNF') — Your rule wins canyon peaks: 29 steps — momentum needed 38. On this landscape, the bet pays off.
+PASS  epi-a: scene booted — scene=epi-a
+PASS  epi-a: gold marker on the normal-equation minimum — marker=true
+PASS  epi-a: argmin exact (w 0.9094, b 1.3064) — {"x":0.9093822843822843,"y":1.3063519813519813}
+PASS  epi-a: formula note visible
+PASS  epi-a: note carries the exact formula — 
+          
+            L(w, b) = Σᵢ (w·xᵢ + b − yᵢ)²
+      
+PASS  epi-a: no lattice yet — lattice=false
+PASS  epi-a: screenshot captured — 264.6 KB
+PASS  epi-b: scene booted — scene=epi-b
+PASS  epi-b: lattice on stage — lattice=true
+PASS  epi-b: lattice faint but visible — opacity=0.50
+PASS  epi-b: marker dissolved with the map — marker=false
+PASS  epi-b: formula note hidden, lattice note shown — {"formula":"false","lattice":"true"}
+PASS  epi-b: screenshot captured — 210.8 KB
+PASS  epi-c: scene booted — scene=epi-c
+PASS  epi-c: lattice holds — lattice=true
+PASS  epi-c: four stated limitations — items=4
+PASS  epi-c: five prior-art links — ["https://distill.pub/2017/momentum/","https://playground.tensorflow.org/","https://emiliendupont.github.io/2018/01/24/optimization-visualization/","https://www.kudosai.com/Play-and-Learn/Gradient-Golf","https://openreview.net/forum?id=dojxn0hE8m"]
+PASS  epi-c: screenshot captured — 228.4 KB
+PASS  journey: reader has 27 steps — count=27
+PASS  journey: rail jump lands on epi-c — scene=epi-c
+PASS  journey: lattice builds live — lattice=true opacity=0.50
+GATE_LABRULE_EPI_OK

@@ -42,6 +42,13 @@ export class LossCurves {
     this.draw();
   }
 
+  /** Re-draws the stored curves on a new axis scale (no data change). */
+  setLogScale(logScale: boolean): void {
+    if (this.logScale === logScale) return;
+    this.logScale = logScale;
+    this.draw();
+  }
+
   private y(v: number, lo: number, hi: number): number {
     const t = this.logScale
       ? (Math.log10(Math.max(v, 1e-6)) - Math.log10(Math.max(lo, 1e-6))) /

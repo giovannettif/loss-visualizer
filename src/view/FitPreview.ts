@@ -40,14 +40,19 @@ export interface FitPreviewOptions {
 
 export class FitPreview {
   private readonly ctx: CanvasRenderingContext2D;
-  private readonly w: number;
-  private readonly h: number;
+  /** Live CSS size of the canvas (re-measured on resize — see measure()). */
+  private w: number;
+  private h: number;
 
   private fit = { w: 0, b: 0 };
+  /** False = read-only inset (fog-a tracks the fog point; QA COV22-1). */
+  private interactive = true;
   private mode: DragMode = null;
   private hover: DragMode = null;
   private grabStartY = 0;
   private grabFrom = { w: 0, b: 0 };
+
+  private readonly resizeObserver: ResizeObserver | null = null;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -59,11 +64,7 @@ export class FitPreview {
     const rect = canvas.getBoundingClientRect();
     this.w = rect.width || 320;
     this.h = rect.height || 240;
-
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(this.w * dpr);
-    canvas.height = Math.round(this.h * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.applyBackingStore();
 
     canvas.style.touchAction = "none";
     canvas.addEventListener("pointerdown", this.onDown);
@@ -71,7 +72,28 @@ export class FitPreview {
     canvas.addEventListener("pointerup", this.onUp);
     canvas.addEventListener("pointercancel", this.onUp);
     canvas.addEventListener("pointerleave", this.onLeave);
+    // The ≤1100px media query (and vw-based sizing below ~867px) shrinks
+    // #fit-canvas after boot; the inset must follow its live CSS size or the
+    // pointer mapping keeps the stale boot geometry (same re-measure pattern
+    // as CompassMinimap). The ResizeObserver also covers late layout.
+    window.addEventListener("resize", this.onResize);
+    if (typeof ResizeObserver !== "undefined") {
+      this.resizeObserver = new ResizeObserver(this.onResize);
+      this.resizeObserver.observe(canvas);
+    }
 
+    this.draw();
+  }
+
+  /** Read-only vs draggable (the inset only owns the fit in §1). */
+  setInteractive(on: boolean): void {
+    if (on === this.interactive) return;
+    this.interactive = on;
+    if (!on) {
+      this.mode = null;
+      this.hover = null;
+      this.canvas.style.cursor = "default";
+    }
     this.draw();
   }
 
@@ -88,7 +110,47 @@ export class FitPreview {
     c.removeEventListener("pointerup", this.onUp);
     c.removeEventListener("pointercancel", this.onUp);
     c.removeEventListener("pointerleave", this.onLeave);
+    window.removeEventListener("resize", this.onResize);
+    this.resizeObserver?.disconnect();
   }
+
+  /* ---------------- sizing ---------------- */
+
+  /**
+   * Allocates the backing store for the current CSS size (DPR-capped at 2).
+   * Setting canvas.width resets the context state, so the transform is
+   * applied AFTER the resize.
+   */
+  private applyBackingStore(): void {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.round(this.w * dpr);
+    this.canvas.height = Math.round(this.h * dpr);
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  /**
+   * Re-reads the canvas CSS size; returns true when it changed and the
+   * backing store was reallocated. Zero dimensions never replace a good
+   * size (a hidden canvas must not clobber the last known geometry).
+   */
+  private measure(): boolean {
+    const r = this.canvas.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return false;
+    if (
+      Math.round(r.width) === Math.round(this.w) &&
+      Math.round(r.height) === Math.round(this.h)
+    ) {
+      return false;
+    }
+    this.w = r.width;
+    this.h = r.height;
+    this.applyBackingStore();
+    return true;
+  }
+
+  private readonly onResize = (): void => {
+    if (this.measure()) this.draw();
+  };
 
   /* ---------------- coordinate mapping ---------------- */
 
@@ -120,6 +182,7 @@ export class FitPreview {
   }
 
   private onDown = (e: PointerEvent): void => {
+    if (!this.interactive) return;
     const rect = this.canvas.getBoundingClientRect();
     const mode = this.hitMode(e.clientX - rect.left, e.clientY - rect.top);
     if (!mode) return;
@@ -137,6 +200,7 @@ export class FitPreview {
     const my = e.clientY - rect.top;
 
     if (!this.mode) {
+      if (!this.interactive) return;
       const hover = this.hitMode(mx, my);
       if (hover !== this.hover) {
         this.hover = hover;
@@ -271,7 +335,8 @@ export class FitPreview {
       [this.px(HANDLE_X0), yL, this.mode === "left" || (this.hover === "left" && !this.mode)],
       [this.px(HANDLE_X1), yR, this.mode === "right" || (this.hover === "right" && !this.mode)],
     ];
-    for (const [hx, hy, active] of handles) {
+    // No grab handles on a read-only inset — it must not look draggable.
+    for (const [hx, hy, active] of this.interactive ? handles : []) {
       ctx.beginPath();
       ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = active ? "rgba(255,255,255,0.25)" : "rgba(11,13,16,0.9)";

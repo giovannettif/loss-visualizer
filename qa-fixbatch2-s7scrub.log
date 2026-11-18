@@ -1,0 +1,29 @@
+serving dist on :4234
+{
+  "tour": {
+    "idx": 3,
+    "gate": true,
+    "gateKind": "ghostReplay",
+    "lookKey": "tilt-replay",
+    "page": 20
+  },
+  "dot": {
+    "x": 142.72,
+    "y": 444.9375
+  },
+  "overlayOn": "true",
+  "replayRow": {
+    "x": 31,
+    "y": 410.9375,
+    "w": 266,
+    "h": 68
+  },
+  "atDot": "DIV#tilt-replay.eta-row"
+}
+PASS  S7-SCRUB: gate armed on step 4/7 (page 20) — {"running":true,"phase":"active","id":"s7","label":"§7 · The tilt game","stepIndex":3,"count":7,"gate":true,"gateKind":"ghostReplay","gateLabel":"press ▶ ghost in the panel","sentenceActive":true,"overlayOn":true,"lookKey":"tilt-replay","auto":false,"minimized":false,"page":20,"sentenceText":"Your run is recorded — drag the scrubber to move\n              the white ghost through your own trajectory, step by step,\n              or press ghost to play it back."}
+PASS  S7-SCRUB: lookKey is tilt-replay (was tilt-panel) — lookKey=tilt-replay
+PASS  S7-SCRUB: leader dot INSIDE the #tilt-replay transport row (was 133px away on the momentum row) — dot={"x":142.72,"y":444.9375} row={"x":31,"y":410.9375,"w":266,"h":68} dist=0
+PASS  S7-SCRUB: element at the dot is inside #tilt-replay — atDot=DIV#tilt-replay.eta-row
+PASS  S7-SCRUB: overlay live — overlay=true
+
+S7-SCRUB POSTFIX: ALL CHECKS PASSED

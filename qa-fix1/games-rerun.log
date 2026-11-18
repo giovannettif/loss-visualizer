@@ -1,0 +1,20 @@
+PASS  GP-1: scene is tilt-a on the valley
+PASS  GP-1: valley 80ms tap ends the run by itself — done=true settled=true |v|=0.245 after 15.6s
+PASS  GP-1: fresh run after advance (scorecard accepted) — steps=1879
+PASS  GP-1: level 2 (Rosenbrock) live — level=rosen
+PASS  GP-1: Finish button pulses while pinned near-still & unsettled — cue=pulse done=false |v|=0.005
+PASS  GP-2: level 3 (Rastrigin) live — level=rastr
+PASS  GP-2: 250ms Rastrigin hold is a nudge — moved=0.41 (was ~5), |v|=1.40
+PASS  GP-1/GP-2: after the nudge the Rastrigin run settles (no 25s hang) — done=true cue=null
+PASS  GP-3: parts-off row reads 'diverged', not 'Infinity' — your rule (η 0.50 · β 0.00 · raw · unclipped)DNFdiverged
+PASS  GP-3: GD row still shows a step count (machine η ≠ dial η) — GDDNF3.59
+PASS  fog: minimap visible for arrow drawing
+PASS  fog: strides committed (path grew) — pathLen=3 used=2
+PASS  fog: ghost race launched and drained at 1×
+PASS  fog: replay running at 2×
+PASS  fog-c 2×: race ends with the scrub bar full — scrub=1000 label="▶ Play" after 3.3s at 2×
+PASS  fog-c 2×: a naturally finished race reads ▶ Play, not ▶ Resume — label="▶ Play"
+PASS  fog-c 2×: end state holds (no frozen 68% bar) — scrub=1000 label="▶ Play"
+PASS  fog-c 2×: ▶ after the race relaunches from the top — playing=true scrub=209
+PASS  fog-c 0.5×: bar never fills while balls still roll, fills at the end — badSamples=0/64 end scrub=1000 playing=false
+VERIFY_GAMES_OK

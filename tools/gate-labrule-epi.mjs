@@ -14,6 +14,7 @@
  */
 
 import { chromium } from "playwright";
+import { launchGL } from "./gl-launch.mjs";
 import { mkdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -21,7 +22,7 @@ const base = process.argv[2] ?? "http://localhost:4173";
 const outDir = resolve("shots");
 mkdirSync(outDir, { recursive: true });
 
-const browser = await chromium.launch();
+const browser = await launchGL(chromium);
 const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
 page.on("pageerror", (err) => console.log("PAGEERROR:", err.message));
 
@@ -116,6 +117,39 @@ check("live: scene is labrule", (await page.evaluate(() => window.__wp1.scene())
   check("live: LAST — custom (42) behind Adam (8)", lsAdam?.steps === 8 && lsCustom?.steps === 42, `adam=${lsAdam?.steps} custom=${lsCustom?.steps}`);
   check("live: custom behind every machine on ls", machineSteps.every((s) => s < lsCustom.steps), `machines=${JSON.stringify(machineSteps)}`);
 
+  // The two new maps (2026-11-17): the archipelago scores the basins
+  // lesson — NOTHING converges from this start, the rule included; the
+  // canyon rewards the steady normalized stride (custom 25, momentum 38,
+  // Adam 160, GD never rounds the mouth). Locked in ruleLab.test.ts.
+  await page.click('#rule-levels button[data-level="archi"]');
+  await waitIdle();
+  const archi = await page.evaluate(() => window.__wp1.rule());
+  check("live: archipelago pill swaps terrain + re-runs", archi?.level === "archi" && archi?.built === "archi", JSON.stringify({ level: archi?.level, built: archi?.built }));
+  check("live: archipelago pill is the lit one", (await page.locator('#rule-levels button[data-level="archi"][data-on="true"]').count()) === 1);
+  check(
+    "live: archipelago — all four lanes DNF above the -4.5 threshold",
+    archi?.runs?.length === 4 && archi.runs.every((r) => r.steps === null),
+    JSON.stringify(archi?.runs?.map((r) => `${r.key}:${r.steps ?? "DNF"}@${r.finalLoss?.toFixed(2)}`)),
+  );
+  const archiVerdict = await page.evaluate(() => document.querySelector("#rule-verdict-b")?.textContent ?? "");
+  check("live: archipelago verdict says nothing converges", archiVerdict.includes("Nothing converges"), archiVerdict.slice(0, 90));
+  const archiLine = await page.evaluate(() => document.querySelector("#rule-landscape")?.textContent ?? "");
+  check("live: archipelago panel line names the threshold", archiLine.includes("archipelago") && archiLine.includes("-4.50"), archiLine);
+
+  await page.click('#rule-levels button[data-level="canyon"]');
+  await waitIdle();
+  const canyon = await page.evaluate(() => window.__wp1.rule());
+  const canyonCustom = canyon?.runs?.find((r) => r.key === "custom");
+  const canyonMom = canyon?.runs?.find((r) => r.key === "mom");
+  const canyonAdam = canyon?.runs?.find((r) => r.key === "adam");
+  const canyonGd = canyon?.runs?.find((r) => r.key === "gd");
+  check("live: canyon pill swaps terrain + re-runs", canyon?.level === "canyon" && canyon?.built === "canyon", JSON.stringify({ level: canyon?.level, built: canyon?.built }));
+  check(
+    "live: canyon — custom (25) beats momentum (38) and Adam (160); GD DNF",
+    canyonCustom?.steps === 25 && canyonMom?.steps === 38 && canyonAdam?.steps === 160 && canyonGd?.steps === null,
+    JSON.stringify(canyon?.runs?.map((r) => `${r.key}:${r.steps ?? "DNF"}`)),
+  );
+
   // A part move re-runs the benchmark live: kill normalize → custom DNFs.
   await page.evaluate(() => {
     const t = document.querySelector("#rule-norm");
@@ -127,6 +161,15 @@ check("live: scene is labrule", (await page.evaluate(() => window.__wp1.scene())
   const offCustom = off?.runs?.find((r) => r.key === "custom");
   check("live: normalize off re-runs the benchmark", offCustom?.config != null || offCustom != null, `custom=${JSON.stringify(offCustom)}`);
   check("live: config changed (normalize off)", off?.config?.normalize === false);
+  // QA S8-VERDICT-WRONG-CAUSE: a parts-only loss on an UNCHANGED landscape
+  // must not claim "a different landscape", and the scoreboard token "DNF"
+  // must never leak into the verdict prose.
+  const offVerdict = await page.evaluate(() => document.querySelector("#rule-verdict-b")?.textContent ?? "");
+  check(
+    "live: parts-change verdict names the right cause (no 'different landscape', no 'in DNF')",
+    !offVerdict.includes("different landscape") && !offVerdict.includes("in DNF"),
+    offVerdict.slice(0, 110),
+  );
   await page.evaluate(() => {
     const t = document.querySelector("#rule-norm");
     t.checked = true;

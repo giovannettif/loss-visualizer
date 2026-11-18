@@ -1,0 +1,71 @@
+{
+  "tourState": {
+    "running": true,
+    "phase": "active",
+    "id": "s4",
+    "label": "§4 · Adam",
+    "stepIndex": 0,
+    "count": 3,
+    "gate": false,
+    "gateKind": null,
+    "gateLabel": null,
+    "sentenceActive": true,
+    "overlayOn": true,
+    "lookKey": "adam-bars",
+    "auto": false,
+    "minimized": false,
+    "page": 11,
+    "sentenceText": "In the panel, each bar is one\n              coordinate’s\n              mˆᵢ/√vˆᵢ:\n              Adam measures each coordinate’s gradient in its own units."
+  },
+  "sentence": "In the panel, each bar is one\n              coordinate’s\n              mˆᵢ/√vˆᵢ:",
+  "dot": {
+    "x": 164,
+    "y": 124
+  },
+  "dotUnder": "ASIDE#adam-panel.hud panel",
+  "panelRect": {
+    "rect": [
+      14,
+      62,
+      300,
+      209
+    ],
+    "dotDist": 0,
+    "inside": true
+  },
+  "anchorFormula": {
+    "x": 140,
+    "y": 167
+  },
+  "barRow1": null,
+  "barRow2": {
+    "rect": [
+      31,
+      102,
+      266,
+      18
+    ],
+    "dotDist": 4,
+    "inside": false
+  },
+  "readout": {
+    "rect": [
+      31,
+      156,
+      266,
+      59
+    ],
+    "dotDist": 32,
+    "inside": false
+  },
+  "panelCaption": {
+    "rect": [
+      31,
+      224,
+      266,
+      32
+    ],
+    "dotDist": 100,
+    "inside": false
+  }
+}

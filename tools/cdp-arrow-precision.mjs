@@ -375,6 +375,46 @@ const start = { x: 0.2, y: 0.5 }; // FOG_LS start
   );
 }
 
+/* ===== F1: a read-only compass shows no readout and draws nothing ========= */
+// The director's onArrowPreview return value is the single gate: outside
+// gd-b / live fog-a/b (or when frozen / the fog game is done) a drag must
+// not start a draw, flash the |Δθ|/∠ readout, or store a tip.
+
+await send("Page.navigate", { url: `${base}/?step=6` }); // gd-c
+await sleep(4000);
+await waitIdle("gd-c boot");
+check("gd-c booted", (await evalJson(`__wp1.scene()`)) === "gd-c");
+{
+  const r = await rects();
+  const res = await minimapDrag(
+    r.canvas.left + 60, r.canvas.top + 70,
+    r.canvas.left + 90, r.canvas.top + 80,
+  );
+  const tip = await evalJson(`__wp1.gd().userTip`);
+  check(
+    "5. gd-c: a compass drag shows no readout and stores no userTip",
+    tip === null && (res.held === null || res.held.visible === false),
+    `userTip ${tip ? `(${tip.x.toFixed(3)}, ${tip.y.toFixed(3)})` : "null"}; held readout ${res.held ? (res.held.visible ? `visible "${res.held.text.trim()}"` : "hidden") : "absent"}`,
+  );
+}
+
+await send("Page.navigate", { url: `${base}/?step=17` }); // fog-c
+await sleep(4000);
+await waitIdle("fog-c boot");
+check("fog-c booted", (await evalJson(`__wp1.scene()`)) === "fog-c");
+{
+  const r = await rects();
+  const res = await minimapDrag(
+    r.canvas.left + 60, r.canvas.top + 70,
+    r.canvas.left + 90, r.canvas.top + 80,
+  );
+  check(
+    "6. fog-c: a compass drag shows no readout",
+    res.held === null || res.held.visible === false,
+    `held readout ${res.held ? (res.held.visible ? `visible "${res.held.text.trim()}"` : "hidden") : "absent"}`,
+  );
+}
+
 /* ---- done ---------------------------------------------------------------- */
 console.log(`\n${ran - failures}/${ran} checks passed`);
 ws.close();

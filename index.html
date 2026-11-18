@@ -90,7 +90,7 @@
           <aside id="fit-panel" class="hud panel" data-visible="false">
             <canvas id="fit-canvas"></canvas>
             <div class="hud-caption caption">
-              <span class="math">&#375; = w·x + b</span> &mdash; drag the line or its ends
+              <span class="math">&#375; = w·x + b</span> &mdash; <span id="fit-caption-act">drag the line or its ends</span>
             </div>
             <div class="hud-readout">
               <span><span class="math">w</span>&nbsp;=&nbsp;<span id="ro-w" class="mono">&mdash;</span></span>
@@ -122,29 +122,29 @@
             <span id="bar-y-val" class="mono">&mdash;</span>
           </div>
           <div class="inspector-readout mono">
-            <div>&ange;(−<span class="math">&#8711;f</span>, <span class="adam-y">&#916;adam</span>) = <span id="adam-angle">&mdash;</span></div>
-            <div>&Vert;<span class="math">&eta;&#8711;f</span>&Vert; = <span id="adam-gd-len">&mdash;</span></div>
+            <div>&ange;(−<span class="math">&#8711;L</span>, <span class="adam-y">&#916;adam</span>) = <span id="adam-angle">&mdash;</span></div>
+            <div>&Vert;<span class="math">&eta;&#8711;L</span>&Vert; = <span id="adam-gd-len">&mdash;</span></div>
             <div>&Vert;<span class="adam-y">&#916;adam</span>&Vert; = <span id="adam-adam-len">&mdash;</span></div>
           </div>
-          <div class="hud-caption caption">on-surface arrows drawn &times;30 &middot; lengths &prop; true steps</div>
+          <div class="hud-caption caption">On the surface the arrows are log-scaled to stay visible; the readouts report the true step lengths.</div>
         </aside>
 
         <!-- §5 loss curves: same top-left slot (lab never co-shows §1/§4). -->
         <aside id="curves-panel" class="hud panel" data-visible="false">
           <div class="hud-label caption">
-            loss curves &middot; <span class="mono">ℒ vs step</span>
+            loss curves &middot; <span class="mono">L vs step</span>
           </div>
           <canvas id="curves-canvas"></canvas>
           <label class="toggle caption">
             <input type="checkbox" id="curves-log" checked />
-            <span>log <span class="math">ℒ</span></span>
+            <span>log <span class="math">L</span></span>
           </label>
         </aside>
 
         <aside id="minimap-panel" class="hud panel" data-visible="false">
           <canvas id="minimap-canvas"></canvas>
           <div class="hud-caption caption">
-            <span class="math">w</span>&ndash;<span class="math">b</span> compass
+            <span id="mm-ax-x" class="math">w</span>&ndash;<span id="mm-ax-y" class="math">b</span> compass
             &middot; needle = &minus;<span class="math">&nabla;L</span>
           </div>
         </aside>
@@ -161,16 +161,13 @@
               <span id="fog-meas" class="mono">0 / 10</span>
             </div>
             <div class="fog-readout">
-              <span class="caption">loss &middot; <span class="math">ℒ(θ)</span></span>
+              <span class="caption">loss &middot; <span class="math">L(θ)</span></span>
               <span id="fog-loss" class="mono">&mdash;</span>
             </div>
           </div>
           <div class="fog-budget"><div id="fog-budget-fill"></div></div>
           <button id="fog-finish" type="button" class="btn" hidden>Finish run &middot; reveal</button>
-          <div class="hud-caption caption">
-            drag on the compass to step &mdash; each landing measures the loss
-            and gradient there
-          </div>
+          <div id="fog-caption" class="hud-caption caption">drag on the compass to step &mdash; each landing measures the loss and gradient there</div>
         </aside>
 
         <!-- §6 reveal annotation: pinned above the gold global-minimum marker. -->
@@ -182,8 +179,8 @@
           <div class="hud-label caption">
             tilt game &middot; <span id="tilt-level" class="mono">&mdash;</span>
           </div>
-          <div class="fog-readouts">
-            <div class="fog-readout">
+          <div id="tilt-readouts" class="fog-readouts">
+            <div id="tilt-input-row" class="fog-readout">
               <span class="caption">tilt <span class="mono">x / y</span></span>
               <span id="tilt-input" class="mono">&mdash;</span>
             </div>
@@ -196,7 +193,7 @@
               <span id="tilt-steps" class="mono">0</span>
             </div>
             <div class="fog-readout">
-              <span class="caption">loss &middot; <span class="math">ℒ(θ)</span></span>
+              <span class="caption">loss &middot; <span class="math">L(θ)</span></span>
               <span id="tilt-loss" class="mono">&mdash;</span>
             </div>
           </div>
@@ -224,15 +221,18 @@
             <button type="button" class="btn" data-level="valley" data-on="true">1 · valley</button>
             <button type="button" class="btn" data-level="rosen" data-on="false">2 · Rosenbrock</button>
             <button type="button" class="btn" data-level="rastr" data-on="false">3 · Rastrigin</button>
+            <button type="button" class="btn" data-level="archi" data-on="false">4 · Archipelago</button>
+            <button type="button" class="btn" data-level="canyon" data-on="false">5 · Canyon peaks</button>
           </div>
           <button id="tilt-finish" type="button" class="btn" hidden>Finish run &middot; score</button>
           <button id="tilt-restart" type="button" class="btn" hidden>&#8635; Restart run</button>
           <div id="tilt-score" hidden>
             <table class="scorecard">
               <thead>
-                <tr><th>run</th><th>steps</th><th>cells</th><th>final <span class="math">ℒ</span></th></tr>
+                <tr><th>run</th><th title="you: physics substeps, 120 per second · machines: update iterations">steps</th><th>cells</th><th>final <span class="math">L</span></th></tr>
               </thead>
               <tbody id="tilt-scorecard-body"></tbody>
+              <tfoot id="tilt-scorecard-min" hidden><tr><th scope="row">minimum</th><td colspan="3"></td></tr></tfoot>
             </table>
             <p id="tilt-verdict" class="caption"></p>
           </div>
@@ -249,17 +249,120 @@
               value="1000"
               aria-label="ghost replay scrubber"
             />
+            <div id="tilt-speed" role="group" aria-label="ghost replay speed">
+              <button type="button" data-speed="0.5">0.5&times;</button>
+              <button type="button" data-speed="1" data-on="true">1&times;</button>
+              <button type="button" data-speed="2">2&times;</button>
+            </div>
           </div>
           <div id="tilt-swarm-line" class="mono caption" hidden>&mdash;</div>
           <ul id="tilt-swarm-clusters" class="tilt-clusters" hidden></ul>
-          <div class="hud-caption caption">
-            <span class="mono">W A S D</span> / arrow keys tilt the board
-            &mdash; screen-relative; the physics runs in the parameter plane
+          <div id="tilt-keys-caption" class="hud-caption caption">
+            <span id="tilt-keys-message"><span class="mono">W A S D</span> (or <span class="mono">&larr; &rarr;</span>) tilt the board
+            relative to your screen &mdash; the physics runs in the parameter
+            plane, so with the camera swung around a &ldquo;down&rdquo; key
+            can raise the loss</span>
             <br />
-            <span class="mono">wheel / Space</span> still drive the reader
+            <span class="mono">wheel / Space / &uarr; / &darr;</span> still drive the reader
             &mdash; the tilt keys never capture them
           </div>
         </aside>
+
+        <!-- §7 swarm finale dock: mounted on the VISUALIZER (bottom-left of
+             the canvas pane, the .lv-controls docking pattern) — the finale's
+             controls never live in the reader text (user feedback
+             2026-11-13). Landscape picker pills, the blind toggle ("run
+             blind / show map", ON by default) and the replay + scrub
+             transport; the scorecard itself stays in the tilt panel. -->
+        <!-- TOUR-POINT-S7-BLINDTOGGLE-DOCK: the "panel" class joins the dock
+             to the shared spotlight machinery (.hud.panel[data-spot] glow +
+             non-spot recede). It is NOT a pan-clamp column — applyHudInsets
+             excludes it alongside #minimap-panel. -->
+        <div id="swarm-dock" class="hud panel" data-visible="false">
+          <div id="swarm-maps" class="tilt-levels">
+            <button type="button" class="btn" data-map="multi-well" data-on="true">multi-well</button>
+            <button type="button" class="btn" data-map="multi-well-large" data-on="false">multi-well large</button>
+            <button type="button" class="btn" data-map="himmelblau" data-on="false">himmelblau</button>
+            <button type="button" class="btn" data-map="archipelago" data-on="false">archipelago</button>
+          </div>
+          <label class="toggle caption">
+            <input type="checkbox" id="swarm-blind" checked />
+            <span><strong>run blind</strong> / show map</span>
+          </label>
+          <div id="swarm-replay" class="eta-row">
+            <button id="swarm-replay-play" type="button" class="btn">&#9654; replay</button>
+            <button id="swarm-replay-restart" type="button" class="btn" aria-label="restart the swarm flight">&#8635;</button>
+            <input
+              id="swarm-scrub"
+              class="knob scrub"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="0"
+              aria-label="swarm flight scrubber"
+            />
+          </div>
+        </div>
+
+        <!-- §5 disagreement-lab dock: mounted on the VISUALIZER (bottom-left
+             of the canvas pane, the #swarm-dock pattern — COPY-PLAN §2.10's
+             structural move). The λ₁/λ₂ + rotation sliders and the regime
+             checklist live HERE, on stage, for BOTH lab reader pages — the
+             step text says "the dock (bottom-left)" and lab-2 says "Drag
+             λ₁/λ₂ down to ×1", which is only self-contained (E1) once the
+             controls are on the canvas where every lab page can reach them.
+             Ids stay #lab-sliders / #lab-checklist so the lookRegistry rows
+             and the tour's labMoved gate keep their anchors (the
+             .eta-control[data-spot] / #lab-checklist[data-spot] glow rules
+             are position-independent). The compass re-docks top-right on lab
+             scenes (page.css, the loss/fog re-dock tiers). -->
+        <div id="lab-dock" class="hud panel" data-visible="false">
+          <div class="eta-control" id="lab-sliders">
+            <div class="eta-row">
+              <span class="math">λ₁/λ₂</span>
+              <input
+                id="elong-slider"
+                class="knob"
+                type="range"
+                min="0"
+                max="1000"
+                step="1"
+                value="1000"
+                aria-label="elongation"
+              />
+              <span id="elong-value" class="mono">&times;50</span>
+            </div>
+            <div class="eta-row">
+              <span class="math">φ</span>
+              <input
+                id="rot-slider"
+                class="knob"
+                type="range"
+                min="0"
+                max="1000"
+                step="1"
+                value="333"
+                aria-label="rotation"
+              />
+              <span id="rot-value" class="mono">30&deg;</span>
+            </div>
+          </div>
+          <ul class="regime-checklist" id="lab-checklist">
+            <li id="check-gd" data-lit="false">
+              <span class="dot"></span>steep walls &rarr;
+              <span class="gd-red">GD zigzags</span>
+            </li>
+            <li id="check-mom" data-lit="false">
+              <span class="dot"></span>strong elongation &rarr;
+              <span class="mom-blue">momentum overshoots</span>
+            </li>
+            <li id="check-adam" data-lit="false">
+              <span class="dot"></span>always &rarr;
+              <span class="adam-y">Adam&rsquo;s step is near-invariant</span>
+            </li>
+          </ul>
+        </div>
 
         <!-- §8 optimizer workbench: the four parts (rule assembly) + the
              landscape picker; the benchmark scoreboard lives in the reader
@@ -277,7 +380,7 @@
                 min="0"
                 max="1000"
                 step="1"
-                value="347"
+                value="818"
                 aria-label="custom rule learning rate"
               />
               <span id="rule-eta-value" class="mono">0.500</span>
@@ -312,13 +415,15 @@
             </div>
             <label class="toggle caption">
               <input type="checkbox" id="rule-norm" checked />
-              <span>per-coordinate normalize <span class="math">u &#8804; 1</span></span>
+              <span>per-coordinate normalize <span class="math">&divide;&thinsp;&radic;avg&thinsp;g&sup2;</span></span>
             </label>
           </div>
           <div id="rule-levels" class="tilt-levels">
             <button type="button" class="btn" data-level="bowl" data-on="false">valley</button>
             <button type="button" class="btn" data-level="rosen" data-on="true">Rosenbrock</button>
             <button type="button" class="btn" data-level="ls" data-on="false">least squares</button>
+            <button type="button" class="btn" data-level="archi" data-on="false">archipelago</button>
+            <button type="button" class="btn" data-level="canyon" data-on="false">canyon peaks</button>
           </div>
           <div class="hud-caption caption">
             the benchmark re-runs live &mdash; purple is <em>your</em> rule;
@@ -334,9 +439,30 @@
             L(w,&thinsp;b) = &Sigma;<sub>&#7522;</sub>&thinsp;(w·x&#7522; + b &minus; y&#7522;)²
           </div>
           <div class="epi-formula-arg mono">
-            w* = 0.9094 &middot; b* = 1.3064 &middot; &#8467;<sub>min</sub> = 1.4246
+            w* = 0.9094 &middot; b* = 1.3064 &middot; L* = 1.4246
           </div>
         </div>
+
+        <!-- The FUNCTION CARD: the fog-game reveal's "the actual function
+             with its parameters" pattern, docked as a compact chip on the
+             canvas pane (top-center — the one slot no instrument claims on
+             any scene; the tour chip owns bottom-center). Content is built
+             by src/view/functionCard.ts and synced by the director:
+               OPEN sections (§2 gd, §3 mom, §4 adam, §5 lab, §8 labrule)
+                 show it live — λ₁/λ₂/φ update as the sliders move;
+               HIDDEN contexts show it only at the reveal / run end:
+                 §6 fog (fogSt.done — the fog lift), §7 tilt (run done — the
+                 scorecard beat), §7 swarm (!swarmBlind — the "show map"
+                 toggle is that reveal). §9 keeps its own #epi-formula.
+             The .hud.panel classes join the shared show/hide + spotlight
+             machinery (and the fog reveal-note's obstacle scan); main.ts
+             excludes the chip from the pan-clamp insets alongside the
+             compass and the docks (a small chip, not a column). -->
+        <aside id="func-card" class="hud panel" data-visible="false">
+          <div id="func-card-title" class="hud-label caption">&mdash;</div>
+          <div id="func-card-math" class="math"></div>
+          <div id="func-card-vals" class="mono"></div>
+        </aside>
 
         <!-- §9 lattice caption: the dimension-honesty beat. -->
         <div id="epi-lattice-note" class="hud" data-visible="false">
@@ -371,31 +497,36 @@
             <p class="kicker">Overview</p>
             <h2>How this page works.</h2>
             <p>
-              Two panes. <em>Left:</em> a 3D loss surface rendered live, with
-              the camera, the instruments and the game panels &mdash; and, for
+              Two panes. <em>Left:</em> a live 3D loss surface &mdash; the
+              camera, the instruments and the game panels &mdash; and, for
               now, a looping race between the three optimizers this page
               contrasts: <span class="gd-red">GD</span>,
               <span class="mom-blue">momentum</span>,
-              <span class="adam-y">Adam</span>. The title overlay states the
-              premise. <em>Here:</em> the reader &mdash; one step of text at a
-              time; the counter above it tracks your position.
+              <span class="adam-y">Adam</span>. <em>Here:</em> this panel, one
+              step of text at a time; the counter above it tracks your
+              position.
             </p>
               <p>
-              Scroll <em>here</em> to advance (or press Space, or click);
-              <em>continue&nbsp;&darr;</em> appears when a step is ready and
-              <em>Skip animation</em> ends the current one early. The thin
-              bar on the reader&rsquo;s left edge fills while a step&rsquo;s
-              animation plays. Scroll over the landscape instead to zoom;
-              drag it to orbit; the <em>Isometric</em> / <em>Map view</em>
-              buttons restore the standard poses. The ticks on the right edge
-              jump to any step, and the footer&rsquo;s <em>Play</em> control
-              and speed switch replay the current scene&rsquo;s trajectory.
-              From the next step on, watch for dotted phrases &mdash; each
-              names something on stage: rest on one (or
+              Scroll <em>here</em> to move on &mdash; Space and the arrow keys
+              work too. Each step&rsquo;s animation plays on arrival;
+              <em>Skip animation</em> ends it early, and
+              <em>continue&nbsp;&darr;</em> lights up when you&rsquo;re free
+              to scroll on. Over the landscape: scroll to zoom, drag to pan,
+              right-drag to orbit, double-click to reset; the
+              <em>Isometric</em> / <em>Map view</em> buttons restore the
+              standard poses. From the next step on, watch for dotted phrases
+              &mdash; each names something on stage: rest on one (or
               <span class="mono">Tab</span> to it) and the scene shows you
               what it names.
               Scroll all the way back to the top and the reader slides away
               &mdash; the landscape takes the whole screen again.
+            </p>
+            <p class="caption">
+              Every section carries a &#9654; <em>Tour section</em> chip at
+              the bottom of the stage: it walks you through the text one
+              sentence at a time, spotlighting what each sentence names and
+              pausing wherever there&rsquo;s something to try.
+              <span class="mono">Esc</span> exits anytime.
             </p>
           </div>
         </div>
@@ -413,7 +544,7 @@
               <span class="look" tabindex="0" data-look="fit-inset">residual</span>,
               the miss at a single point.
             </p>
-            <p class="formula math">L(w, b) = &Sigma;&#7522; (w·x&#7522; + b &minus; y&#7522;)²</p>
+            <p class="formula math">L(w, b) = <span class="sum"><span class="sum-n">12</span><span class="sum-sym">&Sigma;</span><span class="sum-sub">i=1</span></span> (w·x<sub>i</sub> + b &minus; y<sub>i</sub>)²</p>
             <p class="caption">
               The <span class="look" tabindex="0" data-look="loss-readout">loss is one number for the whole fit: the sum of the squared residuals</span>.
               The <span class="math">w</span> and
@@ -433,18 +564,21 @@
               <em>any</em> pair (<span class="math">w</span>,
               <span class="math">b</span>) &mdash; even an absurd one &mdash;
               the loss is one formula away, and the
-              <span class="look" tabindex="0" data-look="loss-readout">readout answers as soon as the parameters move</span>.
+              <span class="look" tabindex="0" data-look="loss-readout">readout updates the instant the parameters move</span>.
             </p>
             <p>
               So picture the plane of all
-              (<span class="math">w</span>, <span class="math">b</span>) pairs,
-              every point carrying its loss. <span class="look" tabindex="0" data-look="compass">The inset in the corner is a
-              <em>compass</em></span> &mdash; a compass, not a map: it shows that
-              plane and, at the white dot, one arrow.
+              (<span class="math">w</span>, <span class="math">b</span>) pairs
+              &mdash; call the pair
+              <span class="math">θ = (w, b)</span> &mdash; every point carrying
+              its loss. <span class="look" tabindex="0" data-look="compass">The inset in the corner is a
+              <em>compass</em></span>: it shows that plane from above and, at
+              the white dot, one arrow.
               <span class="look" tabindex="0" data-look="needle">The purple needle points
               along &minus;<span class="math">&nabla;L</span>, the direction
-              that decreases the loss fastest</span>. It carries no information about
-              the rest of the surface.
+              that decreases the loss fastest</span>. The faint contour rings
+              are a gift to you alone &mdash; the optimizer receives the
+              needle, which says nothing about the rest of the surface.
             </p>
           </div>
         </div>
@@ -465,8 +599,8 @@
               measurements at the current point.
             </p>
             <p class="caption">
-              &sect;2 &middot; following the needle automatically &mdash;
-              gradient descent &mdash; is where the story goes next.
+              &sect;2 &middot; next, the machine follows the needle for you:
+              gradient descent.
             </p>
           </div>
         </div>
@@ -490,9 +624,15 @@
               descent makes follows from this single local measurement.
             </p>
             <p class="caption">
-              camera low over the bowl floor &middot; the compass shows the
-              whole parameter plane; the needle marks exactly one direction on
-              it
+              From here on, <span class="look" tabindex="0" data-look="func-card">the surfaces are test landscapes</span>:
+              their two
+              coordinates are <span class="math">x</span> and
+              <span class="math">y</span> &mdash; still
+              <span class="math">&theta; = (x, y)</span> &mdash; and the loss is
+              still <span class="math">L</span>. The camera rides low over the
+              bowl floor; the compass shows the whole parameter plane, faint
+              contours and all, and the needle &mdash; everything GD gets to
+              know &mdash; marks exactly one direction on it.
             </p>
           </div>
         </div>
@@ -509,8 +649,9 @@
             </p>
             <p>
               Most first arrows head <em>down the valley</em>, toward the low
-              ground. <span class="look" tabindex="0" data-look="gd-step">GD&rsquo;s step points straight <em>across</em> it, up
-              the wall</span>: the gradient is steepest across the valley, and
+              ground. <span class="look" tabindex="0" data-look="gd-step">GD&rsquo;s step points almost straight <em>across</em> it, down
+              the near wall toward the floor</span>: barely any of it goes
+              along the valley. The gradient is steepest across the valley, and
               steepest is not the same as most progress here. Draw again; the
               arrow is yours to redo.
             </p>
@@ -527,12 +668,14 @@
               size. Slide <span class="math">η</span> across three orders of
               magnitude; <span class="look" tabindex="0" data-look="ball">GD restarts from the same white point each time</span>.
               <span class="look" tabindex="0" data-look="trail-gd">Too
-              small and it <em>crawls</em>; moderate and it <em>descends</em>;
-              past <span class="math">1/(2λ&#8321;)</span> &mdash; half of
-              <span class="math">1/λ&#8321;</span>, where <span class="math">λ&#8321;</span>
-              is the largest curvature of the landscape &mdash; each step
-              overshoots the walls and it <em>oscillates</em>; past
-              <span class="math">1/λ&#8321;</span> it <em>diverges</em></span>.
+              small and it crawls. Moderate and it descends. Past
+              <span class="frac"><span class="num">1</span><span class="den">λ<sub>max</sub></span></span>,
+              where λ<sub>max</sub> is the steepest curvature the
+              landscape has, each step overshoots the walls and it oscillates;
+              past <span class="frac"><span class="num">2</span><span class="den">λ<sub>max</sub></span></span> it
+              diverges outright</span>. <span class="look" tabindex="0" data-look="func-card">On this landscape λ<sub>max</sub> = 2</span>,
+              so the thresholds sit at η = 0.5 and η = 1: slide past them and
+              watch.
             </p>
             <div class="eta-control">
               <div class="eta-row">
@@ -555,10 +698,10 @@
               </div>
             </div>
             <p class="caption">
-              same landscape, same start, same rule &mdash; only
+              Same landscape, same start, same rule &mdash; only
               <span class="math">η</span> changes. The <em>regime</em> readout
               names the current behavior. <em>Play</em> (footer) rolls the ball
-              along the current trail.
+              along the current trail, at the speed you pick beside it.
             </p>
           </div>
         </div>
@@ -590,8 +733,8 @@
             <p class="kicker">&sect;3 &middot; Momentum</p>
             <h2>GD zigzags. Momentum glides.</h2>
             <p>
-              Same steep valley, same start, same
-              <span class="math">η</span> for both. <span class="look" tabindex="0" data-look="trail-gd">Vanilla GD
+              <span class="look" tabindex="0" data-look="func-card">One steep valley</span>, one shared start, one
+              <span class="math">&eta;</span> for both. <span class="look" tabindex="0" data-look="trail-gd">Vanilla GD
               (<span class="gd-red">red</span>) zigzags</span>: each step crosses the
               whole valley and the next one cancels it.
               <span class="look" tabindex="0" data-look="trail-mom">Momentum
@@ -633,7 +776,7 @@
           <div class="rstep" data-scene="mom-b" data-active="false">
           <div class="step__body">
             <p class="kicker">&sect;3 &middot; Momentum</p>
-            <h2>Overshoot.</h2>
+            <h2>Too much memory overshoots.</h2>
             <p>
               Raise <span class="math">β</span> and the accumulated velocity
               carries the point past the valley floor and up the far wall
@@ -663,9 +806,11 @@
               </div>
             </div>
             <p class="caption">
-              here <span class="math">β</span> = 0.97 &mdash; the
-              across-valley oscillation survives dozens of steps before
-              damping out
+              The slider arrives at <span class="math">β</span> = 0.97, where
+              the across-valley oscillation survives dozens of steps before
+              damping out. Drag <span class="math">β</span> down and watch the
+              <em>regime</em> readout: below about 0.85 it glides; below about
+              0.25 it is back to GD&rsquo;s zigzag.
             </p>
           </div>
         </div>
@@ -706,15 +851,15 @@
             <p>
               On the surface, <span class="look" tabindex="0" data-look="adam-arrows">the <span class="adam-y">yellow arrow</span> is
               Adam&rsquo;s actual update; the white arrow is
-              &minus;<span class="math">&#8711;f</span> scaled by
+              &minus;<span class="math">&#8711;L</span> scaled by
               <span class="math">η</span></span>. The angle between them &mdash;
               computed in the parameter plane, never on screen &mdash; is the
               point: Adam&rsquo;s update does not align with the negative
               gradient.
             </p>
             <p class="caption">
-              the panel&rsquo;s <span class="look" tabindex="0" data-look="adam-bars">readouts report the angle and both step lengths</span>
-              (<span class="math">&eta;&#8711;f</span> vs
+              the panel&rsquo;s <span class="look" tabindex="0" data-look="adam-readout">readouts report the angle and both step lengths</span>
+              (<span class="math">&eta;&#8711;L</span> vs
               <span class="adam-y">&#916;adam</span>) &middot; <em>Play</em>
               (footer) rolls red GD and yellow Adam side by side from the
               inspected point
@@ -727,7 +872,7 @@
             <p class="kicker">&sect;4 &middot; Adam</p>
             <h2>Scale invariance.</h2>
             <p>
-              The steepness slider scales one curvature,
+              <span class="look" tabindex="0" data-look="func-card">The steepness slider scales one curvature</span>,
               <span class="math">λ&#8321;</span>, up to
               <span class="math">50&times;</span>, live.
               <span class="look" tabindex="0" data-look="adam-arrows">GD&rsquo;s step length
@@ -765,63 +910,26 @@
             <p class="kicker">&sect;5 &middot; The disagreement lab</p>
             <h2>Reshape the landscape.</h2>
             <p>
-              Two sliders rebuild the valley while the race re-runs.
-              <span class="math">λ₁/λ₂</span> sets the curvature ratio;
-              <em>rotation</em> reorients the bowl relative to the start
-              point. <span class="look" tabindex="0" data-look="trails-all">All three optimizers race from the same white point</span>,
+              Two sliders in the dock (bottom-left) <span class="look" tabindex="0" data-look="func-card">rebuild the valley</span> while
+              the race re-runs: <span class="math">λ₁/λ₂</span> sets the
+              curvature ratio; <em>rotation</em> reorients the bowl relative
+              to the start point.
+              <span class="look" tabindex="0" data-look="trails-all">All three optimizers race from the same white point</span>,
               each with its own fixed <span class="math">η</span> &mdash;
               where the landscape suits them they agree; where it does not,
               they split.
             </p>
-            <div class="eta-control">
-              <div class="eta-row">
-                <span class="math">λ₁/λ₂</span>
-                <input
-                  id="elong-slider"
-                  class="knob"
-                  type="range"
-                  min="0"
-                  max="1000"
-                  step="1"
-                  value="1000"
-                  aria-label="elongation"
-                />
-                <span id="elong-value" class="mono">&times;50</span>
-              </div>
-              <div class="eta-row">
-                <span class="math">θ</span>
-                <input
-                  id="rot-slider"
-                  class="knob"
-                  type="range"
-                  min="0"
-                  max="1000"
-                  step="1"
-                  value="333"
-                  aria-label="rotation"
-                />
-                <span id="rot-value" class="mono">30&deg;</span>
-              </div>
-            </div>
-            <ul class="regime-checklist" id="lab-checklist">
-              <li id="check-gd" data-lit="false">
-                <span class="dot"></span>steep walls &rarr;
-                <span class="gd-red">GD zigzags</span>
-              </li>
-              <li id="check-mom" data-lit="false">
-                <span class="dot"></span>strong elongation &rarr;
-                <span class="mom-blue">momentum overshoots</span>
-              </li>
-              <li id="check-adam" data-lit="false">
-                <span class="dot"></span>always &rarr;
-                <span class="adam-y">Adam&rsquo;s step is near-invariant</span>
-              </li>
-            </ul>
+            <!-- The sliders and the checklist live in the scene dock
+                 (#lab-dock, bottom-left of the canvas pane — COPY-PLAN
+                 §2.10's structural move); the ids anchor the tour's
+                 "lab-sliders" look and the labMoved gate's demanded controls
+                 (TOUR-POINT-S5-LAB-GATE-STAGE), and both lab pages read the
+                 dock from the stage. -->
             <p class="caption">
-              the <span class="look" tabindex="0" data-look="curves-panel">loss curves (top left) record every run</span>; toggle log
-              <span class="math">ℒ</span> there. The checklist lights each
-              claim as the race confirms it. <em>Play</em> (footer) replays
-              the whole race, ball by ball.
+              The <span class="look" tabindex="0" data-look="curves-panel">loss curves (top left) record every run</span>; toggle log
+              <span class="math">L</span> there. Each claim in the checklist
+              lights up when the race confirms it. <em>Play</em> (footer)
+              replays the whole race, ball by ball.
             </p>
           </div>
         </div>
@@ -839,15 +947,20 @@
               almost invariant to everything the two sliders do.
             </p>
             <p>
-              That invariance is why Adam wins here by default. The general
-              lesson of this lab: whether an optimizer&rsquo;s advantages
+              That invariance makes Adam steady, not fast: it never zigzags or
+              overshoots, yet at this setting it reaches the floor last. The
+              general lesson of this lab: whether an optimizer&rsquo;s advantages
               apply is a property of the <em>landscape</em>, not of the
-              optimizer alone. <span class="look" tabindex="0" data-look="trails-all">Drag the sliders until all three trails
-              coincide</span>.
+              optimizer alone. <span class="look" tabindex="0" data-look="trails-all">Drag
+              <span class="math">λ&#8321;/λ&#8322;</span> down to &times;1 &mdash; a round
+              bowl</span> &mdash; and GD and momentum fall onto one straight
+              line while the checklist&rsquo;s first two lights go dark; Adam&rsquo;s
+              trail still bends off it, because per-coordinate steps
+              don&rsquo;t follow the bowl&rsquo;s shape in either direction.
             </p>
             <p class="caption">
-              §6 &middot; the fog game &mdash; navigation with nothing but the
-              needle &mdash; is where the story goes next.
+              &sect;6 &middot; now try it with the surface hidden &mdash;
+              navigation with nothing but the needle.
             </p>
           </div>
         </div>
@@ -859,21 +972,26 @@
             <p>
               This is the §1 landscape again &mdash; the exact least-squares
               surface you fitted by hand &mdash; now invisible. Three things
-              remain: the fit inset, the compass needle, and whatever terrain
+              remain: the fit inset,
+              <span class="look" tabindex="0" data-look="needle">the compass needle</span>,
+              and whatever terrain
               you have already measured. That is the optimizer&rsquo;s entire
-              information state; here you work under it too.
+              information state &mdash; and for the next two levels, it&rsquo;s
+              yours too.
             </p>
             <p>
-              <em>Drag on the compass</em> to take a step. Each landing point
-              measures the loss and the gradient there, and the terrain you
-              crossed paints itself in. The budget is
+              <em><span class="look" tabindex="0" data-look="compass">Drag on the compass</span></em> to take a step. Each landing point
+              measures the loss and the gradient there, and
+              <span class="look" tabindex="0" data-look="ball">the terrain you crossed paints itself in</span>. The budget is
               <span class="mono">10</span> measurements; the bar in the panel
               tracks what you have spent. Find as low a point as you can.
             </p>
             <p class="caption">
-              the dashed ring on the compass is the maximum stride per step
-              &middot; the needle is still &minus;<span class="math">&nabla;L</span>
-              &mdash; local, and the only guidance available
+              The dashed ring on the compass is the maximum stride per step.
+              The needle is still &minus;<span class="math">&nabla;L</span>:
+              local, and the only guidance available. The ticks on the right
+              edge of the screen jump between steps &mdash; handy when a level
+              deserves a second attempt.
             </p>
           </div>
         </div>
@@ -883,13 +1001,14 @@
             <p class="kicker">&sect;6 &middot; The fog game</p>
             <h2>Level 2: a new landscape.</h2>
             <p>
-              Level 2 is <em>Rosenbrock</em> &mdash; a strongly curved valley
+              <span class="look" tabindex="0" data-look="func-card">Level 2 is <em>Rosenbrock</em></span> &mdash; a strongly curved valley
               whose floor is nearly flat. Fresh budget, same rules, same
               needle. The flat floor reads as a reasonable place to stop; the
               needle gives no warning about what lies around the bend.
             </p>
             <p>
-              Spend the budget or press <em>Finish run</em> &mdash; either way
+              Spend the budget or press
+              <em><span class="look" tabindex="0" data-look="fog-panel">Finish run</span></em> &mdash; either way
               the fog lifts and the run is scored. <em>Where you stop is your
               answer.</em>
             </p>
@@ -913,26 +1032,28 @@
               map, the same blindness you had.
             </p>
             <p id="fog-empty-lead" hidden>
-              You scrolled past the fog game without drawing a stride, so
-              there is no run of yours to replay &mdash; the stage runs the
-              three optimizers alone, blind from the shared start. Scroll back
-              to <em>Level&nbsp;2</em> and take at least one step; the reveal
-              will grade it against theirs.
+              <button id="fog-goto-l2" type="button" class="btn btn-inline">Take the Level 2 run &rarr;</button>
+              With no measurements spent on this level there is no run of
+              yours to replay &mdash; the stage runs the three optimizers
+              alone, blind from the shared start. Spend at least one
+              measurement there and this reveal will grade your run against
+              theirs.
             </p>
             <table class="scorecard">
               <thead>
-                <tr><th>run</th><th>measurements</th><th>final loss <span class="math">ℒ</span></th></tr>
+                <tr><th>run</th><th>measurements</th><th>final loss <span class="math">L</span></th></tr>
               </thead>
               <tbody id="fog-scorecard-body"></tbody>
             </table>
             <p id="fog-verdict" class="caption"></p>
             <p id="fog-trap-note">
-              <span class="look" tabindex="0" data-look="gold-marker">The gold marker is the true global minimum</span>. If you stopped on
-              Rosenbrock&rsquo;s curved valley floor, you stopped somewhere
-              that felt final &mdash; flat underfoot, progress crawl-slow &mdash;
-              while the global minimum sat a short distance away, across an
-              unvisited ridge. A point can read as done and still not be a
-              minimum at all. Local optimality is not global optimality.
+              <span class="look" tabindex="0" data-look="gold-marker">The gold marker is the true global minimum</span>.
+              If you stopped on <span class="look" tabindex="0" data-look="func-card">Rosenbrock&rsquo;s curved valley floor</span>, you
+              stopped somewhere that felt final &mdash; flat underfoot,
+              progress crawl-slow &mdash; while the global minimum sat a short
+              distance away, across an unvisited ridge. A point can read as
+              done and still not be a minimum at all: slow progress is not
+              arrival.
             </p>
             <p id="fog-empty-verdict-note" hidden>
               <span class="look" tabindex="0" data-look="gold-marker">The gold marker is the true global minimum</span>
@@ -940,9 +1061,11 @@
               your own there is no verdict to read; the machines&rsquo; race is
               the whole show.
             </p>
-            <p class="caption">
-              <em>Replay</em> (footer) re-runs all four ghosts &middot; no run
-              ever sees the whole surface &mdash; not even after the reveal
+            <p id="fog-replay-note" class="caption">
+              <em>Replay</em> (footer)
+              <span class="look" tabindex="0" data-look="ball">re-runs all four ghosts</span>.
+              No run ever sees the whole surface &mdash; not even after the
+              reveal.
             </p>
           </div>
         </div>
@@ -953,29 +1076,36 @@
             <h2>The update rule, as physics.</h2>
             <p>
               The board is the parameter plane and <em>you</em> tilt it:
-              <span class="mono">W A S D</span> or the arrow keys pitch and
+              <span class="mono">W A S D</span> (or <span class="mono">&larr; &rarr;</span>) pitch and
               roll the valley under the white ball. The physics is the
-              optimizer&rsquo;s own update in disguise &mdash;
-              <span class="math">v&ensp;+=&ensp;(&minus;&#8711;f·g&ensp;+&ensp;tilt&ensp;&minus;&ensp;c·v)·dt</span>
-              &mdash; so the ball carries <em>real</em> momentum: release the
-              keys and it coasts on.
+              optimizer&rsquo;s own update in disguise &mdash; gravity pulls
+              the ball down-slope, your keys tilt the board, damping bleeds
+              velocity:
+              <span class="math">v += (&minus;g·&nabla;L + a·tilt &minus; c·v)·dt</span>
+              &mdash; <span class="math">g</span> is the board&rsquo;s gravity,
+              <span class="math">a</span> how hard your keys tilt it,
+              <span class="math">c</span> the damping you dial below. So the
+              ball carries <em>real</em> momentum: release the keys and it
+              coasts on.
             </p>
             <p>
               The <span class="math">c</span> slider is the damping
               coefficient &mdash; <span class="math">&beta;</span>&rsquo;s
               role, made physical. Near zero, velocity persists for a long
-              time; raised, it decays within a few steps. The readout beside
+              time; raised, it dies away within a second or so. The readout beside
               the slider names the current regime &mdash; long memory, damped,
               over-damped. The panel&rsquo;s other readouts report the current
               tilt, the unique cells visited, the steps elapsed and the loss.
-              Every new cell the ball enters is one measurement &mdash; the
-              only information the physics ever receives.
+              Cells are how the scorecard counts measurements; the physics
+              itself reads the slope under the ball at every step.
             </p>
             <p class="caption">
-              level 1 &middot; the elongated valley: tilt <em>across</em> it
-              and the ball zigzags exactly the way vanilla GD does &mdash;
-              settle in a minimum, or press <em>Finish run</em>, to complete
-              the level
+              <span class="look" tabindex="0" data-look="func-card">Level 1 is the elongated valley</span>. Tilt <em>across</em> it and
+              the ball swings wall to wall &mdash; momentum&rsquo;s overshoot
+              from &sect;3, not GD&rsquo;s zigzag &mdash; and
+              <span class="math">c</span> sets how fast the swing dies. Let
+              the ball come to rest (the needle goes quiet) or press
+              <em>Finish run</em> to complete the level.
             </p>
           </div>
         </div>
@@ -983,25 +1113,40 @@
           <div class="rstep" data-scene="tilt-a" data-active="false">
           <div class="step__body">
             <p class="kicker">&sect;7 &middot; The tilt game, continued</p>
-            <h2>Two harder valleys.</h2>
+            <h2>Four harder maps.</h2>
             <p>
-              Level&nbsp;<span class="mono">2</span> is
-              <em>Rosenbrock</em>: a strongly curved valley whose floor is
+              <span class="look" tabindex="0" data-look="func-card">Level&nbsp;<span class="mono">2</span> is
+              <em>Rosenbrock</em></span>: a strongly curved valley whose floor is
               nearly flat, with the minimum around the bend. Level&nbsp;
               <span class="mono">3</span> is <em>Rastrigin</em>: a regular
               grid of local minima &mdash; there, <em>any</em> minimum you
               settle in counts, and the scorecard reports which one.
+              Level&nbsp;<span class="mono">4</span> is the
+              <em>archipelago</em>: eight island basins of different depths
+              on a map twice as wide, walled off from each other by true
+              ridges &mdash; reaching the deep atoll means steering around
+              them, and every optimizer that plays blind lands on the first
+              island it rolls onto. Level&nbsp;<span class="mono">5</span>
+              is <em>canyon peaks</em>: one long winding valley running
+              past two tall summits, downhill the whole way &mdash; if you
+              can keep the ball in the groove.
             </p>
             <p>
-              Pick levels with the buttons in the panel. Your score is the
-              same pair of numbers an optimizer is graded by &mdash;
-              <em>measurements spent</em> (unique cells visited) and
-              <em>steps elapsed</em> &mdash; plus the final loss where you
-              stopped.
+              Pick levels with the buttons in the panel. Your score is
+              <em>measurements spent</em> &mdash; the unique cells visited,
+              counted on the same grid as each optimizer&rsquo;s path &mdash;
+              plus <em>steps elapsed</em> and the final loss where you
+              stopped. Your steps are physics substeps (120 a second); the
+              optimizers&rsquo; rows count their update steps (400 each), a
+              different unit, so the scorecard compares cells and loss, not
+              steps.
             </p>
             <p class="caption">
-              keys are screen-relative &middot; the physics always runs in the
-              parameter plane &middot; finishing a level posts the scorecard
+              The keys tilt the board relative to your screen, but the
+              physics always runs in the parameter plane &mdash; with the
+              camera swung around, a key that points &ldquo;down&rdquo; can
+              roll the ball to a higher loss. Finishing a level posts the
+              scorecard; <em>&#8635; Restart run</em> rewinds the current one.
             </p>
           </div>
         </div>
@@ -1010,10 +1155,27 @@
           <div class="step__body">
             <p class="kicker">&sect;7 &middot; The scorecard</p>
             <h2>Replay your run; then the machines run theirs.</h2>
-            <p>
+            <p id="tilt-run-lead">
               Your run is recorded &mdash; drag the <em>scrubber</em> to move
               the white ghost through your own trajectory, step by step,
               or press <em>ghost</em> to play it back.
+            </p>
+            <p id="tilt-demo-lead" hidden>
+              You reached the scorecard without playing, so the white ghost is
+              a <em>guided demo</em> ride &mdash; a hand-steered route through
+              Rosenbrock&rsquo;s valley, not yours. Drag the <em>scrubber</em>
+              or press <em>ghost</em> to watch it.
+              <button id="tilt-goto-drive" type="button" class="btn btn-inline">Take the drive &rarr;</button>
+              &hellip;and this scorecard grades your own run.
+            </p>
+            <p id="tilt-empty-lead" hidden>
+              You haven&rsquo;t taken a drive yet, so there is no run of yours
+              on the scrubber &mdash; nothing there to replay.
+              <!-- VR6-1: unique id — the played-lead button keeps
+                   #tilt-goto-drive; this twin carried the same id, giving the
+                   document a duplicate id on every load. main.ts wires both. -->
+              <button id="tilt-goto-drive-empty" type="button" class="btn btn-inline">Take the drive &rarr;</button>
+              &hellip;and this scorecard will grade your own run.
             </p>
             <p>
               Then three optimizers start from your <em>same start</em>:
@@ -1021,15 +1183,15 @@
               <span class="mom-blue">momentum</span> and
               <span class="adam-y">Adam</span>, each with a hand-tuned
               learning rate. On Rosenbrock, GD crawls while momentum slides
-              along the floor; on Rastrigin, they typically settle in
-              different local minima than you did.
+              along the floor; on Rastrigin, the blind steppers never leave
+              the pit you all start in &mdash; the egg crate traps them.
+              Climb out of it, and your score beats theirs.
             </p>
             <p class="caption">
-              the scorecard (steps &middot; cells &middot; final
-              <span class="math">ℒ</span>) sits in the panel beside the
-              scrubber &middot; the ball&rsquo;s inertia <em>is</em>
-              momentum: the selective forgetting of &sect;3, under manual
-              control
+              The scorecard (steps &middot; cells &middot; final
+              <span class="math">L</span>) sits in the panel beside the
+              scrubber. The ball&rsquo;s inertia <em>is</em> momentum: the
+              selective forgetting of &sect;3, under manual control.
             </p>
           </div>
         </div>
@@ -1039,45 +1201,51 @@
             <p class="kicker">&sect;7 &middot; The swarm finale</p>
             <h2>Basins of attraction &mdash; and unequal outcomes.</h2>
             <p>
-              This country has <em>six</em> basins, all different: a deep
-              canyon (the true global minimum), a narrow spike nearly as
-              low, a round cellar, a long shallow trough, one broad shallow
-              bowl, and a barely-there dimple beside the canyon&rsquo;s rim.
-              One hundred balls are scattered across it and released; each
-              runs the same physics you just played &mdash; no tilt,
+              The pills on the dock (bottom-left) pick the terrain.
+              <em>Multi-well</em>: six named basins of different depths.
+              <em>Multi-well large</em>: nine, over a wider map &mdash; from a
+              deep rift to a barely-there scratch. <em>Himmelblau</em>: <span class="look" tabindex="0" data-look="func-card">the
+              classic polynomial</span> whose <em>four</em> pits are all global
+              minima. <em>Archipelago</em>: eight island basins of every
+              depth behind true ridges &mdash; the widest map, where the
+              straits decide who ever crosses. One hundred balls are
+              scattered across whichever terrain you picked and released;
+              each runs the same physics you just played &mdash; no tilt,
               mid-range damping &mdash; and settles into the first basin its
-              trajectory enters.
+              trajectory enters. A ball that ends on open ground is counted
+              as <em>stalled</em>, never as settled &mdash; the swarm line
+              in the panel reports both.
             </p>
             <p>
-              They do <em>not</em> agree &mdash; and they do <em>not</em>
-              end equal. The white streams split into clusters whose final
-              losses differ by whole units: the canyon&rsquo;s crowd bottoms
-              out far below the broad bowl&rsquo;s; the narrow spike catches
-              only the few balls that almost fall straight in. The
-              panel&rsquo;s scorecard keeps each cluster&rsquo;s count and
-              mean final loss &mdash; the same landscape, the same rule, and
-              a different answer from every starting point.
-            </p>
-            <div class="eta-control">
-              <label class="toggle">
-                <input type="checkbox" id="swarm-blind" />
-                <span><strong>run blind</strong> &mdash; hide the landscape;
-                each ball paints every cell it crosses</span>
-              </label>
-            </div>
-            <p class="caption">
-              ensembles and mini-batches cover ground faster &mdash; one
-              hundred balls paint the map about
-              <span class="mono">100&times;</span> faster than the single
-              ball of &sect;6 &mdash; but no ball ever sees the whole map:
-              the ensemble&rsquo;s information exceeds any member&rsquo;s
-              &mdash; and where a ball lands is a property of its
-              <em>basin</em>, not of how hard it tried
+              They do not always agree &mdash; and they rarely end equal.
+              On the multi-well terrains the white streams split into
+              clusters whose final losses differ by whole units &mdash; the
+              deep basin&rsquo;s crowd bottoms out far below the broad
+              shallow one&rsquo;s &mdash; while Himmelblau&rsquo;s four
+              clusters all reach the same floor. The archipelago is that
+              story at its sharpest: its ridges wall the basins off, so a
+              ball&rsquo;s outcome is decided almost entirely by where it
+              was scattered. The panel&rsquo;s scorecard
+              keeps each cluster&rsquo;s count and mean final loss; on a tall
+              panel it collapses to the gold global row behind a
+              &ldquo;+N more&rdquo; expander. The dock under the map carries the
+              finale&rsquo;s controls: the terrain pills, the
+              <strong>run blind / show map</strong> toggle &mdash; the swarm
+              enters fogged, and until you untick it the ensemble paints
+              every cell it crosses, building the map blind &mdash; and the
+              replay + scrub transport for re-running the flight.
             </p>
             <p class="caption">
-              &sect;8 &middot; the lab &mdash; assemble an optimizer from
-              parts and benchmark it against the three machines &mdash; is
-              where the story goes next
+              Ensembles cover ground faster: together the hundred balls paint
+              roughly <span class="mono">20&times;</span> the ground any one
+              of them crosses alone. But no ball ever sees the whole map
+              &mdash; the ensemble&rsquo;s information exceeds any
+              member&rsquo;s. And where a ball lands is decided by the basin
+              it enters, not by anything it did along the way.
+            </p>
+            <p class="caption">
+              &sect;8 &middot; your turn to build one: assemble an optimizer
+              from these four parts.
             </p>
           </div>
         </div>
@@ -1098,20 +1266,22 @@
               <em>per-coordinate normalize</em> &mdash; Adam&rsquo;s trick,
               scaling each coordinate by its own gradient magnitude; and
               <em>clip</em> &mdash; a hard cap on a single step&rsquo;s
-              length. The pills beneath the dials select the benchmark
-              landscape.
+              length. The pills beneath the dials select <span class="look" tabindex="0" data-look="func-card">the benchmark
+              landscape</span>.
             </p>
             <p>
               With the defaults assembled, your rule runs
-              <span class="rule-purple">purple</span> &mdash; and it is
-              currently <em>beating Adam</em>: the scoreboard below is live,
-              re-run on every part you move. Converged means the loss fell
-              below the landscape&rsquo;s threshold; the count is the steps
-              needed to get there.
+              <span class="rule-purple">purple</span> &mdash; and on the opening
+              landscape, Rosenbrock, it <em>beats Adam</em>. Don&rsquo;t take
+              that on faith: the scoreboard below is live, re-run on every part
+              you move and every landscape you pick, and the line under it says
+              who is winning right now. Converged means the loss fell below the
+              landscape&rsquo;s threshold; the count is the steps needed to get
+              there.
             </p>
             <table class="scorecard">
               <thead>
-                <tr><th>run</th><th>steps to converge</th><th>final <span class="math">ℒ</span></th></tr>
+                <tr><th>run</th><th>steps to converge</th><th>final <span class="math">L</span></th></tr>
               </thead>
               <tbody id="rule-score-body-a"></tbody>
             </table>
@@ -1122,7 +1292,12 @@
               at whatever <span class="math">&eta;</span> you have dialed. The
               machines run their own hand-tuned <span class="math">&eta;</span>
               per landscape, so their rows won&rsquo;t match a dials-off run
-              step-for-step
+              step-for-step. To check that, dial <span class="math">&eta;</span>
+              to a machine&rsquo;s tuned value. On least squares,
+              <span class="math">&eta;</span> &asymp; 0.008 lands on GD&rsquo;s
+              11 steps; on Rosenbrock, GD&rsquo;s tuned
+              <span class="math">&eta;</span> is the dial&rsquo;s left end
+              (0.001), where your rule crawls exactly like GD
             </p>
           </div>
         </div>
@@ -1149,7 +1324,7 @@
             </p>
             <table class="scorecard">
               <thead>
-                <tr><th>run</th><th>steps to converge</th><th>final <span class="math">ℒ</span></th></tr>
+                <tr><th>run</th><th>steps to converge</th><th>final <span class="math">L</span></th></tr>
               </thead>
               <tbody id="rule-score-body-b"></tbody>
             </table>
@@ -1166,26 +1341,27 @@
             <p class="kicker">&sect;9 &middot; Epilogue</p>
             <h2>The exact landscape.</h2>
             <p>
-              One debt to settle: §1 never named the landscape you were
-              optimizing. It was this surface &mdash; literally, no metaphor
-              left:
+              One debt to settle: §1 gave you the formula but never its
+              answer. This is the surface you were optimizing &mdash;
+              literally, no metaphor left:
             </p>
             <p class="formula formula-gold math">
-              L(w,&thinsp;b) = &Sigma;<sub>&#7522;</sub>&thinsp;(w·x&#7522; + b &minus; y&#7522;)²
+              L(w, b) = <span class="sum"><span class="sum-n">12</span><span class="sum-sym">&Sigma;</span><span class="sum-sub">i=1</span></span> (w·x<sub>i</sub> + b &minus; y<sub>i</sub>)²
             </p>
             <p>
               <span class="look" tabindex="0" data-look="epi-marker">The gold point on the surface is the normal equations&rsquo;
               exact answer</span>, <span class="mono">w* = 0.9094, b* = 1.3064</span>
               &mdash; the minimum you were approaching by hand when you
-              dragged the line, computed in one line of linear algebra. The
-              overlay reports it, with the loss at that minimum,
-              <span class="mono">&#8467;<sub>min</sub> = 1.4246</span>. For
+              dragged the line, computed in one line of linear algebra:
+              <span class="math formula-wstar">w*&nbsp;=&nbsp;(X<sup>T</sup>X)<sup>&minus;1</sup>X<sup>T</sup>y</span>.
+              The overlay reports it, with the loss at that minimum,
+              <span class="mono">L* = 1.4246</span>. For
               two parameters, the map was <em>literal truth</em>: height
               really was loss, and the whole surface really was there.
             </p>
             <p class="caption">
               the compass still reads that surface, one needle at a time
-              &mdash; every optimizer in this page saw exactly that, and
+              &mdash; every optimizer in this page saw exactly that needle, and
               nothing more
             </p>
           </div>
@@ -1255,7 +1431,7 @@
               <ul class="credits-list caption">
                 <li><a href="https://distill.pub/2017/momentum/" target="_blank" rel="noreferrer">Why Momentum Really Works</a> &mdash; Gabriel Goh, Distill</li>
                 <li><a href="https://playground.tensorflow.org" target="_blank" rel="noreferrer">TensorFlow Playground</a> &mdash; Smilkov, Carter et al.</li>
-                <li><a href="https://emiliendupont.github.io/2018/optimization-vis/" target="_blank" rel="noreferrer">Interactive Visualization of Optimizers</a> &mdash; Emilien Dupont</li>
+                <li><a href="https://emiliendupont.github.io/2018/01/24/optimization-visualization/" target="_blank" rel="noreferrer">Interactive Visualization of Optimization Algorithms in Deep Learning</a> &mdash; Emilien Dupont</li>
                 <li><a href="https://www.kudosai.com/Play-and-Learn/Gradient-Golf" target="_blank" rel="noreferrer">Gradient Golf</a> &mdash; play-your-way-downhill (its fully-visible flat map is the misconception this page fixes)</li>
                 <li><a href="https://openreview.net/forum?id=dojxn0hE8m" target="_blank" rel="noreferrer">Rolling Ball Optimizer</a> &mdash; Belgoumri et al., OpenReview 2025</li>
               </ul>

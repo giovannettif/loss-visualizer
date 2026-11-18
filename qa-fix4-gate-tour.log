@@ -1,0 +1,109 @@
+PASS  overview names tours for EVERY section + the chip + Esc — 
+            Overview
+            How this page works.
+            
+            
+PASS  hero step: the tour entry is absent/hidden (the intro is not a section) — {"exists":true,"hidden":true,"label":""}
+PASS  every non-empty paragraph segmented into sentence spans (27 pages, >150 sentences) — {"pages":27,"total":221,"bad":[]}
+PASS  controller bar exists and is hidden at rest — {"on":"false","min":"false","label":"","count":"","auto":"false","visible":false}
+PASS  FIX-4a: the intro park hides the entry — {"exists":true,"hidden":true,"label":"","tour":null,"pos":"fixed","cx":0,"paneCx":512,"bottomGap":900,"dockLift":false}
+PASS  FIX-4a: ?step=1 → s1 chip fixed bottom-center, "Tour section 1"
+PASS  FIX-4a: ?step=2 → s1 chip fixed bottom-center, "Tour section 1"
+PASS  FIX-4a: ?step=3 → s1 chip fixed bottom-center, "Tour section 1"
+PASS  FIX-4a: ?step=4 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=5 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=6 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=7 → s2 chip fixed bottom-center, "Tour section 2"
+PASS  FIX-4a: ?step=8 → s3 chip fixed bottom-center, "Tour section 3"
+PASS  FIX-4a: ?step=9 → s3 chip fixed bottom-center, "Tour section 3"
+PASS  FIX-4a: ?step=10 → s3 chip fixed bottom-center, "Tour section 3"
+PASS  FIX-4a: ?step=11 → s4 chip fixed bottom-center, "Tour section 4"
+PASS  FIX-4a: ?step=12 → s4 chip fixed bottom-center, "Tour section 4"
+PASS  FIX-4a: ?step=13 → s5 chip fixed bottom-center, "Tour section 5"
+PASS  FIX-4a: ?step=14 → s5 chip fixed bottom-center, "Tour section 5"
+PASS  FIX-4a: ?step=15 → s6 chip fixed bottom-center, "Tour section 6"
+PASS  FIX-4a: ?step=16 → s6 chip fixed bottom-center, "Tour section 6"
+PASS  FIX-4a: ?step=17 → s6 chip fixed bottom-center, "Tour section 6"
+PASS  FIX-4a: ?step=18 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=19 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=20 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=21 → s7 chip fixed bottom-center, "Tour section 7"
+PASS  FIX-4a: ?step=22 → s8 chip fixed bottom-center, "Tour section 8"
+PASS  FIX-4a: ?step=23 → s8 chip fixed bottom-center, "Tour section 8"
+PASS  FIX-4a: ?step=24 → s9 chip fixed bottom-center, "Tour section 9"
+PASS  FIX-4a: ?step=25 → s9 chip fixed bottom-center, "Tour section 9"
+PASS  FIX-4a: ?step=26 → s9 chip fixed bottom-center, "Tour section 9"
+PASS  FIX-4a: sweep exercised all 26 section steps — swept=26
+PASS  nine tours present — s1,s2,s3,s4,s5,s6,s7,s8,s9
+PASS  every tour sentence resolves + matches expect (45 steps) — all ok
+PASS  boot: landed on task-a — {"scene":"task-a","step":1,"count":27,"locked":false,"animating":false}
+PASS  §1 tour starts on chip click — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+PASS  §1 first sentence is the inset gate — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+PASS  §1 controller visible: label + i/n + Auto off + Back disabled — {"on":"true","min":"false","label":"§1 · The task","count":"1 / 4","backDisabled":"true","auto":"false","visible":true}
+PASS  §1 exactly one SENTENCE span marked (bright + underline) — {"count":1,"isSentenceSpan":true,"text":"Drag the line or its ends in the inset — each red segment is one residual, the miss at a single point.","dim":true,"sibOpacity":0.35,"underline":true}
+PASS  §1 page dimmed to 0.35 around the active sentence — sibOpacity=0.35
+PASS  §1 spotlight on the fit inset — {"id":"fit-inset","label":"the fit-preview inset","active":true,"sceneDim":true,"ring":false,"spotPanels":["fit-panel"],"minimapSpot":false,"keptTrails":0,"ballOpacity":0.4}
+PASS  §1 leader overlay draws — {"on":"true","d":"M 1024 394.46875 C 694.7832 394.46875, 486.8568 223, 157.64 223"}
+PASS  §1 gate waits (no auto-advance while Auto is off) — {"running":true,"phase":"active","id":"s1","label":"§1 · The task","stepIndex":0,"count":4,"gate":true,"gateKind":"fitMoved","gateLabel":"drag the line in the inset","sentenceActive":true,"overlayOn":true,"lookKey":"fit-inset","auto":false,"minimized":false,"page":1,"sentenceText":"Drag the line or\n              its ends in the inset\n              — each red segment is one\n              residual,\n              the miss at a single point."}
+node:internal/modules/run_main:122
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#tour-back')[22m
+[2m    - locator resolved to <button type="button" id="tour-back" data-disabled="true" title="Back one sentence (ArrowUp)">◀ Back</button>[22m
+[2m  - attempting click action[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div id="tour-bar-full">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m    - waiting 20ms[22m
+[2m    2 × waiting for element to be visible, enabled and stable[22m
+[2m      - element is visible, enabled and stable[22m
+[2m      - scrolling into view if needed[22m
+[2m      - done scrolling[22m
+[2m      - <div id="tour-bar-full">…</div> intercepts pointer events[22m
+[2m    - retrying click action[22m
+[2m      - waiting 100ms[22m
+[2m    55 × waiting for element to be visible, enabled and stable[22m
+[2m       - element is visible, enabled and stable[22m
+[2m       - scrolling into view if needed[22m
+[2m       - done scrolling[22m
+[2m       - <div id="tour-bar-full">…</div> intercepts pointer events[22m
+[2m     - retrying click action[22m
+[2m       - waiting 500ms[22m
+
+    at C:\Users\Franco\Desktop\Projects\NJIT-CS375-ProjectPart4\tools\gate-tour.mjs:505:36 {
+  log: [
+    "  - waiting for locator('#tour-back')",
+    '    - locator resolved to <button type="button" id="tour-back" data-disabled="true" title="Back one sentence (ArrowUp)">◀ Back</button>',
+    '  - attempting click action',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is visible, enabled and stable',
+    '      - scrolling into view if needed',
+    '      - done scrolling',
+    '      - <div id="tour-bar-full">…</div> intercepts pointer events',
+    '    - retrying click action',
+    '    - waiting 20ms',
+    '    2 × waiting for element to be visible, enabled and stable',
+    '      - element is visible, enabled and stable',
+    '      - scrolling into view if needed',
+    '      - done scrolling',
+    '      - <div id="tour-bar-full">…</div> intercepts pointer events',
+    '    - retrying click action',
+    '      - waiting 100ms',
+    '    55 × waiting for element to be visible, enabled and stable',
+    '       - element is visible, enabled and stable',
+    '       - scrolling into view if needed',
+    '       - done scrolling',
+    '       - <div id="tour-bar-full">…</div> intercepts pointer events',
+    '     - retrying click action',
+    '       - waiting 500ms'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v22.14.0

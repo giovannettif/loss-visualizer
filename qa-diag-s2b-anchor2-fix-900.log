@@ -1,0 +1,117 @@
+[
+ {
+  "at": "step 4/6 (epi-b)",
+  "scene": "epi-b",
+  "note": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "bar": {
+   "x": 13,
+   "y": 643,
+   "w": 407,
+   "h": 41
+  },
+  "pill": {
+   "x": 203,
+   "y": 618,
+   "w": 26,
+   "h": 10
+  },
+  "pillOn": "false",
+  "noteAndBar": null,
+  "noteAndPill": null,
+  "noteAndMinChip": null,
+  "gapNoteBottomToPillTop": 48
+ },
+ {
+  "at": "step 6/6 (epi-c)",
+  "scene": "epi-c",
+  "note": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "bar": {
+   "x": 12,
+   "y": 643,
+   "w": 408,
+   "h": 41
+  },
+  "pill": {
+   "x": 203,
+   "y": 618,
+   "w": 26,
+   "h": 10
+  },
+  "pillOn": "false",
+  "noteAndBar": null,
+  "noteAndPill": null,
+  "noteAndMinChip": null,
+  "gapNoteBottomToPillTop": 48
+ },
+ {
+  "at": "closing pill",
+  "scene": "epi-c",
+  "note": {
+   "x": 14,
+   "y": 441,
+   "w": 404,
+   "h": 129
+  },
+  "bar": {
+   "x": 12,
+   "y": 643,
+   "w": 408,
+   "h": 41
+  },
+  "pill": {
+   "x": 95,
+   "y": 602,
+   "w": 243,
+   "h": 26
+  },
+  "pillOn": "true",
+  "noteAndBar": null,
+  "noteAndPill": null,
+  "noteAndMinChip": null,
+  "gapNoteBottomToPillTop": 32
+ },
+ {
+  "at": "minimized chip",
+  "scene": "epi-c",
+  "note": {
+   "x": 14,
+   "y": 553,
+   "w": 404,
+   "h": 129
+  },
+  "bar": {
+   "x": 12,
+   "y": 643,
+   "w": 408,
+   "h": 41
+  },
+  "pill": {
+   "x": 95,
+   "y": 602,
+   "w": 243,
+   "h": 26
+  },
+  "pillOn": "false",
+  "noteAndBar": {
+   "w": 404,
+   "h": 39
+  },
+  "noteAndPill": {
+   "w": 243,
+   "h": 26
+  },
+  "noteAndMinChip": null,
+  "gapNoteBottomToPillTop": 0
+ }
+]
+DONE

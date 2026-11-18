@@ -14,7 +14,10 @@
 
 :root {
   --bg: #0b0d10;
-  --panel: rgba(13, 16, 20, 0.88);
+  /* Opaque (QA JUDGE-PANEL): the 0.88 alpha let 12% of the viridis terrain
+     behind #fit-panel/#loss-panel bleed into their interiors. Flat fill
+     matches the header rule (flat panels, hairline borders). */
+  --panel: #0d1014;
   --hairline: rgba(255, 255, 255, 0.08);
   --text: #dfe5ec;
   --text-dim: #9aa4b2;
@@ -136,7 +139,10 @@ input[type="range"].knob:hover::-moz-range-thumb,
 #app {
   position: fixed;
   inset: 0;
-  overflow: hidden;
+  /* clip, not hidden: #app must not be a scroll container, or focusing an
+     off-screen control (the slid-off intro reader) scrolls the whole layout
+     sideways (QA KW2-INTRO-TAB-SHIFTS-LAYOUT). */
+  overflow: clip;
 }
 
 /* LEFT pane: full-viewport landscape canvas + HUD. */
@@ -161,13 +167,20 @@ input[type="range"].knob:hover::-moz-range-thumb,
 .hud {
   transition:
     opacity var(--dur) var(--ease),
-    transform var(--dur) var(--ease);
+    transform var(--dur) var(--ease),
+    /* visibility flips only after the fade-out plays (delay via the custom
+       property below, so id-specificity transitions need no overrides). */
+    visibility 0s linear var(--hud-hide-delay, 0s);
 }
 
 .hud[data-visible="false"] {
   opacity: 0;
   transform: translateY(8px);
   pointer-events: none;
+  /* Removes hidden panels' controls from the Tab/focus order (QA KW-3):
+     opacity:0 alone left them focusable and keyboard-live. */
+  visibility: hidden;
+  --hud-hide-delay: var(--dur);
 }
 
 .hud[data-visible="true"] {
@@ -193,9 +206,14 @@ input[type="range"].knob:hover::-moz-range-thumb,
 
 #hero-overlay .kicker {
   margin: 0 0 18px;
-  /* Raised from the caption grey: the eyebrow must read over bright terrain. */
+  /* Dark pill: the eyebrow sits over bright terrain at the boot attitude;
+     a halo alone measured ~1.5:1. Alpha .7 keeps it >= 7.5:1 on the
+     brightest sampled terrain (QA S2-HERO-EYEBROW-CONTRAST). */
+  padding: 5px 12px 5px calc(12px + 0.22em); /* + letter-spacing: balances the trailing tracking */
+  border-radius: 999px;
+  background: rgba(11, 13, 16, 0.7);
   color: #dfe5ec;
-  text-shadow: 0 1px 14px rgba(11, 13, 16, 0.95);
+  text-shadow: none;
 }
 
 #hero-overlay h1 {
@@ -213,6 +231,8 @@ input[type="range"].knob:hover::-moz-range-thumb,
   line-height: 1.5;
   color: #c7cfd8;
   text-shadow: 0 1px 14px rgba(11, 13, 16, 0.95);
+  /* R5T-2: balance the wrap so no one-word orphan line ("it."). */
+  text-wrap: balance;
 }
 
 /* Left HUD stack: fit-preview inset above the loss readout. */
@@ -225,7 +245,11 @@ input[type="range"].knob:hover::-moz-range-thumb,
   flex-direction: column;
   align-items: stretch;
   gap: 10px;
+  /* layout-only stack: let canvas input pass through its empty and
+     hidden-panel area (QA S2-HERO-HUDLEFT-DEADZONE). */
+  pointer-events: none;
 }
+#hud-left > .hud[data-visible="true"] { pointer-events: auto; }
 
 #fit-canvas {
   display: block;
@@ -273,6 +297,34 @@ input[type="range"].knob:hover::-moz-range-thumb,
    stays clearly visible and grabbable at common laptop sizes. */
 @media (max-height: 820px) {
   #stage-wrap:has(#fog-panel[data-visible="true"]) #minimap-panel {
+    bottom: auto;
+    top: 62px;
+    left: auto;
+    right: calc(var(--reader-w) + 14px);
+  }
+}
+
+/* QA S1-HUD-STACK-1280x720: in §1 the compass (bottom-left, ~277px tall)
+   slides over the loss readout (ends at y=474) below ~765px of height.
+   While the loss panel is up on short viewports, dock the compass to the
+   canvas pane's top-right (the fog/§7 pattern). */
+@media (max-height: 800px) {
+  #stage-wrap:has(#loss-panel[data-visible="true"]) #minimap-panel {
+    bottom: auto;
+    top: 62px;
+    left: auto;
+    right: calc(var(--reader-w) + 14px);
+  }
+}
+
+/* STUDENT-720-GDC-BALL-UNDER-COMPASS: the §2 scenes carry no fit/loss HUD
+   column, so the tier above never fires there — and at 1280×720 the gd-c
+   ball (the very "white point" the step's copy names as GD's restart) sat
+   ~60% under the bottom-left compass. Dock the compass to the pane's
+   top-right for the §2 scenes at short heights, the same re-dock the fog
+   (≤820) and §1 (≤800) tiers already use; wide viewports are untouched. */
+@media (max-height: 800px) {
+  #app:has(.rstep[data-active="true"][data-scene^="gd"]) #minimap-panel {
     bottom: auto;
     top: 62px;
     left: auto;
@@ -328,17 +380,27 @@ input[type="range"].knob:hover::-moz-range-thumb,
 
 /* Step progress rail: a slim tick strip floating on the RIGHT EDGE of the
    screen, over everything (outside the panel). Hover reveals the step
-   name; click jumps (the app respects the step lock). */
+   name; click jumps (the app respects the step lock).
+
+   FIX-RAIL (user feedback: clicks between ticks did nothing / missed the
+   small targets): the strip now spans ~3/4 of the reader panel's height,
+   the 28 tick cells flex to EQUAL, CONTIGUOUS shares of that span (no
+   gaps — no dead zones), each cell is the hit area (min 14px tall) while
+   the visible dash stays a slim 3px pseudo-element, and the rail surface
+   itself routes clicks/hovers through nearest-tick math (main.ts), so a
+   click anywhere — including between ticks and on the strip's padding —
+   lands on the nearest step and hovering transiently highlights it
+   ([data-near]). */
 #rail {
   position: fixed;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
+  height: 75vh;
   z-index: 40;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
+  align-items: stretch;
   padding: 10px 7px;
   background: rgba(11, 13, 16, 0.35);
   border: 1px solid var(--hairline);
@@ -349,22 +411,41 @@ input[type="range"].knob:hover::-moz-range-thumb,
   appearance: none;
   position: relative;
   border: none;
-  background: rgba(255, 255, 255, 0.22);
-  height: 3px;
-  width: 18px;
-  border-radius: 2px;
+  background: transparent;
+  flex: 1 1 0;
+  min-height: 14px;
+  width: 30px;
   padding: 0;
   cursor: pointer;
+}
+
+/* The visible dash: a slim pseudo-element centered in the (much larger)
+   hit cell, right-aligned like the old strip. */
+#rail button::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.22);
   transition:
     background var(--dur) var(--ease),
     width var(--dur) var(--ease);
 }
 
-#rail button:hover { background: rgba(255, 255, 255, 0.55); }
+#rail button:hover::before,
+#rail button[data-near="true"]::before {
+  background: rgba(255, 255, 255, 0.55);
+}
 
-#rail button[data-visited="true"] { background: rgba(255, 255, 255, 0.4); }
+#rail button[data-visited="true"]::before {
+  background: rgba(255, 255, 255, 0.4);
+}
 
-#rail button[data-current="true"] {
+#rail button[data-current="true"]::before {
   background: var(--accent);
   width: 30px;
   box-shadow: 0 0 8px rgba(88, 196, 221, 0.55);
@@ -414,7 +495,12 @@ input[type="range"].knob:hover::-moz-range-thumb,
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  padding: 30px 56px 84px 30px; /* right clears the floating rail; bottom clears the footer overlay */
+  /* Right clears the floating rail; bottom clears the footer overlay. The
+     bottom pad is max()'d with the MEASURED footer height (--foot-clear,
+     set on #reader-body by fitLabrule — QA RF-2: the footer wraps at narrow
+     widths, and a taller foot must never sit under a step's tail; at the
+     canonical widths it stays 48px < 84px, so nothing moves). */
+  padding: 30px 56px max(84px, var(--foot-clear, 84px)) 30px;
   pointer-events: none;
 }
 
@@ -471,6 +557,73 @@ input[type="range"].knob:hover::-moz-range-thumb,
   border-radius: 0 8px 8px 0;
 }
 
+/* Inside reader steps the generic .rstep p rule (class+element, higher
+   specificity) shadows the formula box's display size, color and margin —
+   re-assert them, or every .formula renders as a 15px body paragraph. */
+.rstep p.formula {
+  margin: 6px 0 12px;
+  font-size: 19px;
+  color: var(--text);
+}
+
+/* Hand-styled formula primitives (COPY-PLAN §3, Option B — no KaTeX):
+   a stacked fraction and a Σ with limits above/below, both inline so a
+   formula line never changes the paragraph's flow structure.
+   MATH-1/MATH-2: the stack must STRADDLE the text line (the plan's
+   "limits above/below" display-math intent), not hang below it. An
+   inline-flex box's baseline is its FIRST row's baseline, so the plan's
+   literal vertical-align:-0.5em/-0.55em parked the "12"/numerator rows
+   under the line and dragged following lines down (47px pitch in gd-c).
+   vertical-align:middle centers the whole stack on the line instead;
+   .frac rows drop to 0.7em with line-height 1.05 so inline fracs no
+   longer grow the paragraph's line box. */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1.05;
+  margin: 0 0.18em;
+}
+.frac > .num { font-size: 0.7em; }
+.frac > .den { font-size: 0.7em; border-top: 1px solid currentColor; padding: 0 0.25em; }
+
+.sum {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1;
+  margin: 0 0.25em;
+  font-style: normal;
+}
+.sum > .sum-n { font-size: 0.62em; }   /* upper limit */
+.sum > .sum-sym { font-size: 1.4em; }  /* ∑ */
+.sum > .sum-sub { font-size: 0.62em; } /* i = 1 */
+
+/* Inline jump controls inside reader copy (COPY-PLAN §2.15/§2.19): the
+   empty-run reveal and the ghost scorecard ship their own action, so the
+   step never instructs scrolling to a control on another page (E1). */
+button.btn-inline {
+  display: inline-block;
+  font: 500 12.5px/1.4 var(--sans);
+  color: var(--accent);
+  background: rgba(88, 196, 221, 0.07);
+  border: 1px solid rgba(88, 196, 221, 0.45);
+  border-radius: 999px;
+  padding: 3px 12px;
+  margin: 3px 0;
+  cursor: pointer;
+  transition:
+    color 0.7s cubic-bezier(0.65, 0, 0.35, 1),
+    border-color 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+button.btn-inline:hover {
+  color: #8fdcef;
+  border-color: rgba(88, 196, 221, 0.75);
+}
+
 /* Footer: edge progress hint + skip + continue + play transport.
    Overlays the panel bottom so the step text owns the full height. */
 #reader-foot {
@@ -483,7 +636,13 @@ input[type="range"].knob:hover::-moz-range-thumb,
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 46px;
+  /* One stable layout locked or idle (QA S2-FOOTER-REFLOW-WRAP): the foot
+     may wrap at any width, and the skip/continue slot below has a fixed
+     size, so the wrap decision cannot change on lock/unlock. 48 = 31px
+     slot + 16px padding + 1px border. */
+  flex-wrap: wrap;
+  row-gap: 4px;
+  min-height: 48px;
   padding: 8px 20px;
   background: #0b0c0f;
   border-top: 1px solid var(--hairline);
@@ -509,6 +668,17 @@ input[type="range"].knob:hover::-moz-range-thumb,
 #skip-btn[hidden],
 #continue-hint[hidden] { display: none; }
 
+/* Shared fixed-size slot for Skip and continue (QA S2-FOOTER-REFLOW-WRAP):
+   116px is Skip's unwrapped width; margin-left:auto keeps the slot
+   right-aligned on row 1 or on a wrapped row 2. */
+#skip-btn,
+#continue-hint {
+  flex: 0 0 116px;
+  height: 31px;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
 #continue-hint {
   /* A real button (click-to-advance, Interaction model v2) stripped back to
      the hint's look, with the pointer affordance. */
@@ -520,6 +690,7 @@ input[type="range"].knob:hover::-moz-range-thumb,
   font-size: 13px;
   letter-spacing: 0.08em;
   color: var(--text-dim);
+  text-align: right;
 }
 
 #continue-hint:hover { color: var(--text); }
@@ -541,11 +712,14 @@ input[type="range"].knob:hover::-moz-range-thumb,
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 #play-btn { min-width: 96px; text-align: left; }
 
-#speed-wrap {
+#speed-wrap,
+#tilt-speed {
   display: flex;
   border: 1px solid var(--hairline);
   border-radius: 6px;
@@ -556,7 +730,8 @@ input[type="range"].knob:hover::-moz-range-thumb,
    no transport (hero, §1, §6 fog-a/b) must actually hide it. */
 #speed-wrap[hidden] { display: none; }
 
-#speed-wrap button {
+#speed-wrap button,
+#tilt-speed button {
   appearance: none;
   border: none;
   background: rgba(255, 255, 255, 0.03);
@@ -569,11 +744,13 @@ input[type="range"].knob:hover::-moz-range-thumb,
     background 0.35s var(--ease);
 }
 
-#speed-wrap button + button {
+#speed-wrap button + button,
+#tilt-speed button + button {
   border-left: 1px solid var(--hairline);
 }
 
-#speed-wrap button[data-on="true"] {
+#speed-wrap button[data-on="true"],
+#tilt-speed button[data-on="true"] {
   color: var(--accent);
   background: rgba(88, 196, 221, 0.12);
 }
@@ -652,7 +829,10 @@ input[type="range"].knob:hover::-moz-range-thumb,
   color: var(--text-dim);
 }
 
-#eta-regime,
+/* :where() keeps this base rule at zero specificity — the [data-regime]
+   palette rules below (0-1-0) must win, or #eta-regime stays dim grey in
+   every regime (QA finder-sec2-eta). */
+:where(#eta-regime),
 .beta-regime {
   font-size: 13px;
   letter-spacing: 0.06em;
@@ -888,6 +1068,13 @@ input[type="range"].knob::-moz-range-track {
   white-space: nowrap;
 }
 
+/* Safety-net placement below the marker (the director flips to it when the
+   space above the marker is occupied by a HUD panel — QA
+   L900-FOG-REVEAL-NOTE-OVER-HUD). */
+#fog-reveal-note[data-place="below"] {
+  transform: translate(-50%, 30px);
+}
+
 .fog-you { color: #ffffff; }
 
 /* Reveal scorecard: hairline table, monospace numbers, best-per-column lit. */
@@ -941,19 +1128,39 @@ input[type="range"].knob::-moz-range-track {
   padding: 5px 5px;
 }
 #tilt-score .scorecard th:nth-child(1),
-#tilt-score .scorecard td:nth-child(1) { width: 34%; }
+#tilt-score .scorecard td:nth-child(1) { width: 32%; }
 #tilt-score .scorecard th:nth-child(2),
-#tilt-score .scorecard td:nth-child(2) { width: 22%; }
+#tilt-score .scorecard td:nth-child(2) { width: 19%; }
 #tilt-score .scorecard th:nth-child(3),
-#tilt-score .scorecard td:nth-child(3) { width: 14%; }
+#tilt-score .scorecard td:nth-child(3) { width: 16%; }
 #tilt-score .scorecard th:nth-child(4),
-#tilt-score .scorecard td:nth-child(4) { width: 30%; }
+#tilt-score .scorecard td:nth-child(4) { width: 33%; }
+/* QA L900-TILT-SCORECARD-TRUNC: "CELLS" and 8-char losses + ▸ fit. */
+#tilt-score .scorecard th { letter-spacing: 0.04em; }
+#tilt-score .scorecard td.tc-demo { font-size: 0.9em; }
+
+/* "Which minimum" footer row (QA copy-tilt-which-minimum round 2): the
+   fixed 4-column layout has no room for a fifth column, so the basins live
+   in a full-width tfoot that wraps. The (1,1,2) selector beats the nowrap
+   rule above. */
+#tilt-score .scorecard tfoot th,
+#tilt-score .scorecard tfoot td {
+  white-space: normal;
+  overflow: visible;
+  vertical-align: top;
+  border-top: 1px solid var(--hairline);
+  border-bottom: none;
+  padding-top: 6px;
+}
+#tilt-score .scorecard tfoot td {
+  line-height: 1.35;
+  text-align: left;
+}
 
 /* QA V2: the §8 scoreboard's last row slid under the transport footer
    (~26px overflow at 1600×900) — trim the labrule step's vertical chrome
    by just over that so the 4-row table clears the fold. */
 .rstep[data-scene="labrule"] { padding-top: 16px; }
-.rstep[data-scene="labrule"] { padding-bottom: 12px; }
 .rstep[data-scene="labrule"] .kicker { margin-bottom: 8px; }
 .rstep[data-scene="labrule"] h2 { margin-bottom: 8px; }
 .rstep[data-scene="labrule"] .scorecard td { padding: 5px 8px; }
@@ -1040,27 +1247,43 @@ input[type="range"].knob::-moz-range-track {
 
 /* ---------------- §7 tilt game ---------------- */
 
-/* Tilt panel: same canvas-pane top-left slot as the §6 fog instrument. */
+/* Tilt panel: same canvas-pane top-left slot as the §6 fog instrument.
+   The revealed scorecard + replay row make it taller than short viewports
+   (QA L900-TILTB-PANEL-OFFSCREEN): cap it to the viewport (62 top + 14
+   bottom inset) and scroll inside — the page itself is overflow:hidden.
+   overflow-x stays hidden so a shrink-safe range can never push a
+   horizontal scrollbar. */
 #tilt-panel {
   position: absolute;
   top: 62px;
   left: 14px;
   z-index: 6;
   width: 300px;
+  max-height: calc(100vh - 76px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-/* Level picker: three flat pills; the live level is teal-lit. */
+/* Level picker: flat pills; the live level is teal-lit. Five tilt levels /
+   four swarm maps share the row shape, so the row wraps and each pill
+   keeps its label on one line (2026-11-17 new-map round). */
 .tilt-levels {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: 12px;
 }
 
 .tilt-levels .btn {
-  flex: 1;
+  /* basis auto: the row wraps on each pill's one-line content width, then
+     the pills stretch to fill their row (basis-0 would force equal shares
+     and the nowrap labels would overflow). */
+  flex: 1 1 auto;
   padding: 7px 4px;
   font-size: 11.5px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .tilt-levels .btn[data-on="true"] {
@@ -1083,9 +1306,35 @@ input[type="range"].knob::-moz-range-track {
 
 #tilt-replay[hidden] { display: none; }
 
-#tilt-replay-play { min-width: 84px; }
+#tilt-replay-play { min-width: 84px; flex: none; }
 
-#tilt-replay .knob { flex: 1; }
+/* ↻ replay must stay one line and never shrink: a wrapped label pushed the
+   129px-min range past the panel (QA tilt-replay-row-overflow). */
+#tilt-replay-restart { white-space: nowrap; flex: none; }
+
+/* min-width:0 lifts the flex automatic minimum (the range's ~129px
+   intrinsic width) so the input shrinks to the leftover row space — at 240px
+   it otherwise overflowed the panel and poked under the compass (QA
+   L900-TILT-SCRUB-OVERFLOW). */
+#tilt-replay .knob { flex: 1 1 0; min-width: 0; width: auto; }
+
+/* QA TP2-TILT-NO-SPEED: the ghost ride's own 0.5x/1x/2x cluster. The row
+   wraps: ghost + replay on line 1, scrub + speed on line 2 (the scrub's
+   120px floor forces the wrap at the 300px panel). */
+#tilt-replay { flex-wrap: wrap; row-gap: 8px; }
+
+/* QA S2-SWARM-PANEL-OCCLUDES-CANYON fallback: when no framing nudge clears
+   the canyon, the cluster list collapses to the gold global row. */
+#tilt-panel[data-clusters="collapsed"] .tilt-clusters li:not([data-global="true"]):not(.tc-more) { display: none; }
+.tilt-clusters li.tc-more { border: none; padding: 4px 0 0; }
+.tilt-clusters li.tc-more .btn { font-size: 11px; padding: 3px 8px; }
+#tilt-replay .knob { min-width: 120px; }
+#tilt-speed { flex: none; order: 4; }
+
+/* Every range knob in the panel (the damping slider too) must be able to
+   shrink: min-width:auto kept the browser's ~129px intrinsic width and ran
+   the controls past the panel edge (QA L900-TILTB-PANEL-OFFSCREEN). */
+#tilt-panel input[type="range"].knob { min-width: 0; }
 
 /* Swarm finale counter (swarm scene reuses the tilt panel). */
 #tilt-swarm-line {
@@ -1141,9 +1390,24 @@ input[type="range"].knob::-moz-range-track {
 
 .tilt-clusters .tc-loss { color: var(--text); }
 
-/* Swarm mode: the play controls (damping, level picker) would be dead. */
+/* Swarm mode and the tilt-b reveal: the play controls (damping, level
+   picker) would be dead — no live run to damp, no level to switch. */
 #tilt-panel[data-mode="swarm"] .eta-control,
-#tilt-panel[data-mode="swarm"] #tilt-levels {
+#tilt-panel[data-mode="swarm"] #tilt-levels,
+#tilt-panel[data-mode="reveal"] .eta-control,
+#tilt-panel[data-mode="reveal"] #tilt-levels {
+  display: none;
+}
+
+/* QA F2: the keys only move the board on a LIVE tilt-a run (wantsTiltKeys),
+   so the WASD caption is dead on the reveal and the swarm. The swarm has no
+   per-run readouts at all (its own line + clusters carry its state); the
+   reveal keeps cells/steps/loss (they describe the run being revealed) but
+   drops the dead tilt x/y row. */
+#tilt-panel[data-mode="swarm"] #tilt-readouts,
+#tilt-panel[data-mode="swarm"] #tilt-keys-caption,
+#tilt-panel[data-mode="reveal"] #tilt-keys-caption,
+#tilt-panel[data-mode="reveal"] #tilt-input-row {
   display: none;
 }
 
@@ -1166,6 +1430,130 @@ input[type="range"].knob::-moz-range-track {
 
 @media (prefers-reduced-motion: reduce) {
   #tilt-finish[data-cue="pulse"] { animation: none; }
+}
+
+/* ---------------- §7 swarm dock (on the visualizer) ----------------
+   The finale's controls live on the CANVAS PANE, bottom-left (the
+   .lv-controls docking pattern — the camera presets own the top-left),
+   never in the reader text (user feedback 2026-11-13): landscape pills +
+   "run blind / show map" + the replay/scrub transport. Show/hide rides the
+   .hud data-visible machinery (director syncs it on the swarm scene). */
+#swarm-dock {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 6;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(13, 16, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+
+#swarm-dock .tilt-levels { margin-top: 0; }
+
+/* The replay row: the #tilt-replay pattern — shrink-safe range, one-line
+   buttons, fill gradient via --scrub-progress (input.scrub's shared rule). */
+#swarm-replay {
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#swarm-replay[hidden] { display: none; }
+
+#swarm-replay-play { min-width: 84px; flex: none; white-space: nowrap; }
+
+#swarm-replay-restart { white-space: nowrap; flex: none; padding-inline: 10px; }
+
+#swarm-replay .knob {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+}
+
+@media (max-width: 1100px) {
+  #swarm-dock { width: 240px; }
+  #swarm-maps .btn { font-size: 10.5px; letter-spacing: 0; padding: 7px 2px; }
+}
+
+/* ---------------- §5 disagreement-lab dock (on the visualizer) ----------------
+   The reshape sliders + regime checklist live on the CANVAS PANE,
+   bottom-left (the #swarm-dock pattern — COPY-PLAN §2.10's structural
+   move): both lab reader pages reference "the dock (bottom-left)", so the
+   controls must be on stage for either page (E1 self-containment). The
+   compass re-docks top-right on lab scenes (tier below, the standing
+   loss/fog re-dock form). Show/hide rides the .hud data-visible machinery
+   (director syncs it on the lab scene); the .panel class joins the shared
+   spotlight machinery, and applyHudInsets excludes the dock alongside
+   #minimap-panel / #swarm-dock (main.ts). */
+#lab-dock {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 6;
+  width: 336px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(13, 16, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  backdrop-filter: blur(4px);
+}
+
+/* The inner control blocks keep their reader-side look; only the outer
+   margins drop (the dock's flex gap owns the spacing). */
+#lab-dock .eta-control,
+#lab-dock .regime-checklist {
+  margin: 0;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+@media (max-width: 1100px) {
+  #lab-dock { width: 240px; }
+  #lab-dock .eta-row .knob { min-width: 0; }
+  #lab-dock .regime-checklist li { font-size: 12px; }
+}
+
+/* The lab compass moves out of the dock's corner: the loss/fog/gd re-dock
+   tiers move the compass to the pane's top-right when a top-left panel owns
+   that corner — the lab's curves panel owns the top-left, and the dock owns
+   the bottom-left, so the compass joins them at the top-right. Wide tier
+   only: at ≤1100px the narrow-tier override BELOW re-corners the compass. */
+#app:has(.rstep[data-active="true"][data-scene="lab"]) #minimap-panel {
+  bottom: auto;
+  top: 62px;
+  left: auto;
+  right: calc(var(--reader-w) + 14px);
+}
+
+/* RF-6 narrow tier — AFTER the base tier (equal specificity: source order
+   decides). At the ~432px pane the top-right compass collides with the
+   300px curves panel (10304px² at 900×700 AND 900×900 — the tour-tier note
+   above measured the same 300px-panel vs re-docked-compass class), so the
+   compass re-corners to BOTTOM-RIGHT (§7's data-dock="right" position, pure
+   CSS here) while the dock narrows to 240 above: dock [14, 254] and compass
+   [272, 418] split the bottom band with 18px to spare, and the curves panel
+   keeps its full 300px. This rule's specificity — (2,3,0) — also beats the
+   tour tiers ((1,1,1)), so the s5 walk at ≤1100px inherits the same
+   collision-free layout; the s5 controller lift (:268/:323) was sized for a
+   bottom-band compass and still clears it. */
+@media (max-width: 1100px) {
+  #app:has(.rstep[data-active="true"][data-scene="lab"]) #minimap-panel {
+    top: auto;
+    bottom: 14px;
+    left: auto;
+    right: calc(var(--reader-w) + 14px);
+  }
 }
 
 /* ---------------- §8 optimizer workbench ---------------- */
@@ -1202,6 +1590,76 @@ input[type="range"].knob::-moz-range-track {
 }
 
 .rule-purple { color: #9a72ac; }
+
+/* ---------------- the function card (all sections but §9) ----------------
+   The fog-game reveal's "the actual function with its parameters" pattern,
+   docked as a compact chip TOP-CENTER of the canvas pane — the one slot no
+   other instrument claims on any scene (top-left = camera presets + the
+   per-section instrument column; bottom-left = compass / lab-dock /
+   swarm-dock; bottom-center = the tour chip + controller). Centered over
+   the terrain it describes: the formula and the landscape visibly agree.
+   The ID transform overrides .hud[data-visible="false"]'s translateY (ID
+   specificity wins), so both states restate the centered transform and the
+   rise animation survives. Live policy (director.syncFuncCard):
+     OPEN scenes (§2 gd, §3 mom, §4 adam, §5 lab, §8 labrule) — always on,
+       live λ₁/λ₂/φ updating as the sliders move;
+     HIDDEN contexts — show-after only: §6 fog at the reveal (fogSt.done),
+       §7 tilt with the scorecard (run done), §7 swarm when the "show map"
+       toggle lifts the blind. §9 keeps its own pinned #epi-formula. */
+#func-card {
+  position: absolute;
+  top: 14px;
+  /* Pane-center (the #tour-entry formula): (100% − reader)/2 inside
+     #stage-wrap, which spans the full viewport. */
+  left: calc((100% - var(--reader-w)) / 2);
+  transform: translate(-50%, 8px);
+  z-index: 6;
+  width: max-content;
+  max-width: min(560px, calc(100vw - var(--reader-w) - 300px));
+  text-align: center;
+  padding: 9px 16px 10px;
+}
+
+#func-card[data-visible="true"] {
+  transform: translate(-50%, 0);
+}
+
+#func-card-title {
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+/* The formula itself: the reader .formula box's serif voice at chip scale,
+   with the shared .sum / .frac primitives already sized off this font. */
+#func-card-math {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+#func-card-math sub { font-size: 0.62em; }
+#func-card-math sup { font-size: 0.62em; }
+
+#func-card-vals {
+  margin-top: 5px;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+}
+
+/* The pane can get very narrow below ~1100px: the chip drops to the small
+   tier the docks use — narrower cap, smaller math — and never crosses into
+   the reader (the max-width calc above already pins the right edge). */
+@media (max-width: 1100px) {
+  #func-card {
+    max-width: min(420px, calc(100vw - var(--reader-w) - 230px));
+    padding: 7px 12px 8px;
+  }
+  #func-card-math { font-size: 13px; }
+  #func-card-vals { font-size: 10.5px; }
+}
 
 /* ---------------- §9 epilogue ---------------- */
 
@@ -1246,6 +1704,9 @@ input[type="range"].knob::-moz-range-track {
   display: flex;
   justify-content: center;
   pointer-events: none;
+  /* S2B-ANCHOR-2: the one-time §9-tour lift/exit settle (body[tour-live="s9"]
+     → 130px) animates like #tour-bar's U6 settle. */
+  transition: bottom 0.35s var(--ease);
 }
 
 #epi-lattice-note .caption {
@@ -1260,8 +1721,10 @@ input[type="range"].knob::-moz-range-track {
   text-align: center;
 }
 
-/* The gold formula block in the reader (§9's reveal beat). */
-.formula-gold {
+/* The gold formula block in the reader (§9's reveal beat). Qualified with
+   .rstep p so the gold TEXT color beats .rstep p's body color (the bare
+   class lost the specificity fight and only its border/background showed). */
+.rstep p.formula-gold {
   color: #f0ac5f;
   border-left-color: rgba(240, 172, 95, 0.55);
   background: rgba(240, 172, 95, 0.05);
@@ -1339,6 +1802,39 @@ input[type="range"].knob::-moz-range-track {
 .rstep[data-scene="epi-c"] .credits-list li { line-height: 1.4; }
 .rstep[data-scene="epi-c"] p.caption { margin-bottom: 8px; }
 
+/* QA RF-1: epi-c is the LAST step and the wheel hard-refuses past the last
+   park (v5-LAST — the dead-zone rule), so a page taller than the pane can
+   never scroll its own tail: at 900×700 the credits sentence ended
+   mid-line and the tour chip was unreachable. Two moves: the step's bottom
+   pad rides the live footer with a 60px floor (it is the last page —
+   nothing below it needs the full 84px clearance), and a ≤1100px tier with
+   the labrule/swarm fit-2 type scale (the project's 900px-pane precedent)
+   brings the whole step inside the park. */
+.rstep[data-scene="epi-c"] { padding-bottom: max(60px, var(--foot-clear, 60px)); }
+
+@media (max-width: 1100px) {
+  .rstep[data-scene="epi-c"] h2 { font-size: 19px; margin-bottom: 4px; }
+  .rstep[data-scene="epi-c"] .kicker { margin-bottom: 3px; }
+  .rstep[data-scene="epi-c"] .limits-list { margin: 3px 0 6px; gap: 4px; }
+  .rstep[data-scene="epi-c"] .limits-list li { font-size: 11.5px; line-height: 1.38; }
+  .rstep[data-scene="epi-c"] .credits { margin: 6px 0 2px; padding-top: 6px; }
+  .rstep[data-scene="epi-c"] .credits-head { margin-bottom: 4px; }
+  .rstep[data-scene="epi-c"] .credits-list { gap: 2px; }
+  .rstep[data-scene="epi-c"] .credits-list li { font-size: 11px; line-height: 1.35; }
+  .rstep[data-scene="epi-c"] p.caption { font-size: 11px; line-height: 1.45; margin-bottom: 3px; }
+}
+
+/* QA RF-2: the docked hero's caption tail ('Esc exits anytime.') sat behind
+   the footer transport at 900×700 — the step's centered content ran ~7px
+   past the pane above the footer. The ≤1100px tier trades one type step of
+   air for the clearance (the footer itself stays tracked via --foot-clear,
+   so a wrapped foot never bites either). */
+@media (max-width: 1100px) {
+  .step--hero h2 { font-size: 22px; margin-bottom: 10px; }
+  .step--hero .step__body p { font-size: 14px; line-height: 1.55; }
+  .step--hero p.caption { font-size: 12.5px; }
+}
+
 /* Screenshot mode: snap every state — no transitions, no animations. */
 html.shot .hud,
 html.shot .rstep,
@@ -1350,21 +1846,39 @@ html.shot * {
 
 @media (max-width: 1100px) {
   :root { --reader-w: min(34rem, 52vw); }
+  /* The fog reveal note is ~178px nowrap at 17px — wider than the free strip
+     beside the HUD column. Let it wrap narrower so the reveal-nudge grid
+     search has room (QA L900-FOG-REVEAL-NOTE-OVER-HUD). */
+  #fog-reveal-note {
+    white-space: normal;
+    max-width: 170px;
+    text-align: center;
+    font-size: 15px;
+  }
   /* QA layout-foot-hint-clipped: at 900–1100px the transport's minimum
      contents plus the continue hint exceed the reader's width, pushing the
      hint (the primary ready affordance) past the right edge. Let the foot
-     wrap so the hint drops to its own row instead of clipping. */
-  #reader-foot { flex-wrap: wrap; row-gap: 4px; }
+     wrap so the hint drops to its own row instead of clipping. The wrap now
+  lives on the base #reader-foot rule at every width (QA
+  S2-FOOTER-REFLOW-WRAP). */
   /* QA layout-panel-overlaps-narrow: the canvas pane here is ~430–550px
      wide while the fog/fit/tilt panels (300–340px) and the right-docked
      compass (~185px) cannot share it — panels physically overlapped the
      compass and its canvas swallowed the fit inset's drag handle. Narrow
      the left column and the compass together (the canvas resize keeps the
-     plane fit + angle truthfulness; CompassMinimap re-measures on window
-     resize) so the column and the docked instrument sit side by side. */
+     plane fit + angle truthfulness; CompassMinimap and FitPreview re-measure
+     on window resize) so the column and the docked instrument sit side by side. */
   #fit-canvas { width: min(208px, 24vw); height: auto; aspect-ratio: 308 / 236; }
   #fog-panel,
   #tilt-panel { width: 240px; }
+  /* The replay row (play + restart + scrub) is tight at 240px: even with
+     min-width:0 the scrub would keep only ~20px, so it gets its own
+     full-width row and the buttons share the first (QA
+     tilt-replay-row-overflow / L900-TILTB-PANEL-OFFSCREEN). */
+  #tilt-replay { gap: 8px; flex-wrap: wrap; row-gap: 8px; }
+  #tilt-replay .btn { flex: 1; }
+  #tilt-replay .knob { flex: 1 0 100%; }
+  #tilt-replay-restart { padding-inline: 8px; }
   /* The fit inset lost ~77px of height (308→208 canvas); keep the same
      ~18px gap above the stacked fog panel. */
   #fog-panel[data-below="true"] { top: 325px; }
@@ -1379,8 +1893,13 @@ html.shot * {
   /* The level pills and scorecard were built for a 300px panel. */
   .tilt-levels .btn { font-size: 10.5px; letter-spacing: 0; }
   #tilt-score .scorecard { font-size: 12px; }
-  #tilt-score .scorecard th { font-size: 10px; letter-spacing: 0.04em; padding: 6px 3px; }
-  #tilt-score .scorecard td { padding: 7px 3px; }
+  #tilt-score .scorecard th { font-size: 10px; letter-spacing: 0; padding: 6px 2px; }
+  #tilt-score .scorecard td { padding: 7px 2px; }
+  #tilt-score .scorecard td.mono { font-size: 11px; }
+  #tilt-score .scorecard td.mono[data-best="true"]::after { font-size: 9.5px; }
+  #tilt-score .scorecard th:nth-child(1), #tilt-score .scorecard td:nth-child(1) { width: 34%; }
+  #tilt-score .scorecard th:nth-child(2), #tilt-score .scorecard td:nth-child(2) { width: 18%; }
+  #tilt-score .scorecard th:nth-child(3), #tilt-score .scorecard td:nth-child(3) { width: 15%; }
   /* QA RL-1: below ~1100px the corner title chip (top 12–42px) lands on the
      first line of top-anchored step content (labrule's kicker collided at
      900×700) — give every step a top inset that clears the chip. The
@@ -1390,38 +1909,175 @@ html.shot * {
   .rstep[data-scene] { padding-top: 52px; }
 }
 
-/* QA cycle B (critic-labrule-scorecard-footer-clip): at short viewport
-   heights the §8 scoreboard's lower rows slid UNDER the transport footer —
-   #reader-body is overflow:hidden, so nothing could scroll them back
-   (1280×720: 22px over; 1100×700: ~67px over, with the ≤1100px width trim
-   stacking padding-top 52px on top). Trim the labrule step's vertical
-   chrome harder at short heights so the 4-row table + verdict clear the
-   fold; the 1600×900 pattern above stays untouched. */
-@media (max-height: 820px) {
-  .rstep[data-scene="labrule"] { padding-top: 12px; padding-bottom: 6px; }
-  .rstep[data-scene="labrule"] .kicker { margin-bottom: 3px; }
-  .rstep[data-scene="labrule"] h2 { font-size: 17px; margin-bottom: 4px; }
-  .rstep[data-scene="labrule"] .step__body p {
-    font-size: 12px;
-    line-height: 1.4;
-    margin-bottom: 5px;
-  }
-  .rstep[data-scene="labrule"] .scorecard { margin: 2px 0 2px; }
-  .rstep[data-scene="labrule"] .scorecard th { padding: 3px 6px; }
-  .rstep[data-scene="labrule"] .scorecard td { padding: 2px 6px; }
-  .rstep[data-scene="labrule"] p.caption { font-size: 11px; margin-bottom: 4px; }
-  /* The "next section" trailer is the expendable line at short heights. */
-  .rstep[data-scene="labrule"] p.caption:last-of-type { display: none; }
+/* §8 labrule fit levels (QA L900-LABRULE-STEP22-UNDERFOLD, replacing the
+   height-only media tiers of QA cycle B / LW24-LABRULE-SHRUNK-AT-800): the
+   step's height depends on the reader WIDTH and on the live scoreboard /
+   verdict text as much as on viewport height, so main.ts measures it
+   (fitLabrule) and picks the lightest level whose page fits. Level 0 is the
+   base rules above; 1 = the old light tier, 2 = light + deep. The bottom
+   padding tracks the live footer height (--foot-clear, measured). */
+.rstep[data-scene="labrule"] { padding-bottom: var(--foot-clear, 58px); }
+.rstep[data-scene="labrule"][data-fit="1"],
+.rstep[data-scene="labrule"][data-fit="2"] { padding-top: 12px; }
+.rstep[data-scene="labrule"][data-fit="1"] .kicker,
+.rstep[data-scene="labrule"][data-fit="2"] .kicker { margin-bottom: 6px; }
+.rstep[data-scene="labrule"][data-fit="1"] h2,
+.rstep[data-scene="labrule"][data-fit="2"] h2 { font-size: 22px; margin-bottom: 6px; }
+.rstep[data-scene="labrule"][data-fit="1"] .step__body p,
+.rstep[data-scene="labrule"][data-fit="2"] .step__body p {
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.rstep[data-scene="labrule"][data-fit="1"] .scorecard,
+.rstep[data-scene="labrule"][data-fit="2"] .scorecard { margin: 2px 0 2px; }
+.rstep[data-scene="labrule"][data-fit="1"] .scorecard th,
+.rstep[data-scene="labrule"][data-fit="2"] .scorecard th { padding: 3px 6px; }
+.rstep[data-scene="labrule"][data-fit="1"] .scorecard td,
+.rstep[data-scene="labrule"][data-fit="2"] .scorecard td { padding: 2px 6px; }
+.rstep[data-scene="labrule"][data-fit="1"] p.caption,
+.rstep[data-scene="labrule"][data-fit="2"] p.caption { font-size: 12.5px; margin-bottom: 4px; }
+
+.rstep[data-scene="labrule"][data-fit="2"] { padding-top: 8px; }
+.rstep[data-scene="labrule"][data-fit="2"] .kicker { margin-bottom: 3px; }
+.rstep[data-scene="labrule"][data-fit="2"] h2 { font-size: 19px; margin-bottom: 4px; }
+.rstep[data-scene="labrule"][data-fit="2"] .step__body p {
+  font-size: 12.5px;
+  line-height: 1.42;
+  margin-bottom: 5px;
+}
+.rstep[data-scene="labrule"][data-fit="2"] p.caption { font-size: 11.5px; margin-bottom: 3px; }
+
+/* A1 (900×700 park underfold): the fog-c reveal and the two tilt-a steps
+   join the measured fit-tier pattern. At a 700px park their content
+   (fog-c 778px, tilt-a 757px with the live scorecard) overflowed past the
+   max(84px, --foot-clear) reserve and parked behind the opaque footer —
+   fog-c's trap-note was sliced mid-glyph and its replay note sat fully in
+   the footer band; tilt-a's last paragraph lost ~22px. Tiers are chosen by
+   fitLabrule (lightest whose page fits the park), never by a media query —
+   the same width+live-text dependence that moved labrule to measurement.
+   Level 0 is the base rules; the scale mirrors labrule's ladder. */
+.rstep[data-scene="fog-c"][data-fit="1"],
+.rstep[data-scene="fog-c"][data-fit="2"],
+.rstep[data-scene="tilt-a"][data-fit="1"],
+.rstep[data-scene="tilt-a"][data-fit="2"] { padding-top: 12px; }
+.rstep[data-scene="fog-c"][data-fit="1"] .kicker,
+.rstep[data-scene="fog-c"][data-fit="2"] .kicker,
+.rstep[data-scene="tilt-a"][data-fit="1"] .kicker,
+.rstep[data-scene="tilt-a"][data-fit="2"] .kicker { margin-bottom: 6px; }
+.rstep[data-scene="fog-c"][data-fit="1"] h2,
+.rstep[data-scene="fog-c"][data-fit="2"] h2,
+.rstep[data-scene="tilt-a"][data-fit="1"] h2,
+.rstep[data-scene="tilt-a"][data-fit="2"] h2 { font-size: 22px; margin-bottom: 6px; }
+.rstep[data-scene="fog-c"][data-fit="1"] .step__body p,
+.rstep[data-scene="fog-c"][data-fit="2"] .step__body p,
+.rstep[data-scene="tilt-a"][data-fit="1"] .step__body p,
+.rstep[data-scene="tilt-a"][data-fit="2"] .step__body p {
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+.rstep[data-scene="fog-c"][data-fit="1"] .scorecard,
+.rstep[data-scene="fog-c"][data-fit="2"] .scorecard,
+.rstep[data-scene="tilt-a"][data-fit="1"] .scorecard,
+.rstep[data-scene="tilt-a"][data-fit="2"] .scorecard { margin: 2px 0 2px; }
+.rstep[data-scene="fog-c"][data-fit="1"] .scorecard th,
+.rstep[data-scene="fog-c"][data-fit="2"] .scorecard th,
+.rstep[data-scene="tilt-a"][data-fit="1"] .scorecard th,
+.rstep[data-scene="tilt-a"][data-fit="2"] .scorecard th { padding: 3px 6px; }
+.rstep[data-scene="fog-c"][data-fit="1"] .scorecard td,
+.rstep[data-scene="fog-c"][data-fit="2"] .scorecard td,
+.rstep[data-scene="tilt-a"][data-fit="1"] .scorecard td,
+.rstep[data-scene="tilt-a"][data-fit="2"] .scorecard td { padding: 2px 6px; }
+.rstep[data-scene="fog-c"][data-fit="1"] p.caption,
+.rstep[data-scene="fog-c"][data-fit="2"] p.caption,
+.rstep[data-scene="tilt-a"][data-fit="1"] p.caption,
+.rstep[data-scene="tilt-a"][data-fit="2"] p.caption { font-size: 12.5px; margin-bottom: 4px; }
+
+.rstep[data-scene="fog-c"][data-fit="2"] { padding-top: 8px; }
+.rstep[data-scene="fog-c"][data-fit="2"] .kicker { margin-bottom: 3px; }
+.rstep[data-scene="fog-c"][data-fit="2"] h2 { font-size: 19px; margin-bottom: 4px; }
+.rstep[data-scene="fog-c"][data-fit="2"] .step__body p {
+  font-size: 12.5px;
+  line-height: 1.42;
+  margin-bottom: 5px;
+}
+.rstep[data-scene="fog-c"][data-fit="2"] p.caption { font-size: 11.5px; margin-bottom: 3px; }
+
+.rstep[data-scene="tilt-a"][data-fit="2"] { padding-top: 8px; }
+.rstep[data-scene="tilt-a"][data-fit="2"] .kicker { margin-bottom: 3px; }
+.rstep[data-scene="tilt-a"][data-fit="2"] h2 { font-size: 19px; margin-bottom: 4px; }
+.rstep[data-scene="tilt-a"][data-fit="2"] .step__body p {
+  font-size: 12.5px;
+  line-height: 1.42;
+  margin-bottom: 5px;
+}
+.rstep[data-scene="tilt-a"][data-fit="2"] p.caption { font-size: 11.5px; margin-bottom: 3px; }
+.rstep[data-scene="tilt-a"][data-fit="2"] .math { font-size: 0.92em; }
+
+/* A1: labrule's ladder gains a deepest tier — even fit-2 overflowed a
+   700px park by ~28px at the 900px pane (the final paragraph sat behind
+   the wrapped footer). fit-3 is the floor: lightest type the scorecard
+   stays legible at, below which the height media tiers must grow the
+   park instead. */
+.rstep[data-scene="labrule"][data-fit="3"] { padding-top: 8px; }
+.rstep[data-scene="labrule"][data-fit="3"] .kicker { margin-bottom: 3px; }
+.rstep[data-scene="labrule"][data-fit="3"] h2 { font-size: 17px; margin-bottom: 3px; }
+.rstep[data-scene="labrule"][data-fit="3"] .step__body p {
+  font-size: 11.5px;
+  line-height: 1.32;
+  margin-bottom: 4px;
+}
+.rstep[data-scene="labrule"][data-fit="3"] .scorecard { margin: 2px 0 2px; }
+.rstep[data-scene="labrule"][data-fit="3"] .scorecard th { padding: 2px 5px; }
+.rstep[data-scene="labrule"][data-fit="3"] .scorecard td { padding: 1px 5px; }
+.rstep[data-scene="labrule"][data-fit="3"] p.caption { font-size: 11px; margin-bottom: 2px; }
+
+/* Narrow reader (52vw pane): keep the title-chip clearance at every level
+   (QA RL-1 — the old ≤1100 ∩ ≤820 tier's 8px top padding reintroduced the
+   kicker/chip collision) and shave the table / prose further. */
+@media (max-width: 1100px) {
+  .rstep[data-scene="labrule"][data-fit] { padding-top: 52px; }
+  /* A1: the fog-c/tilt-a tiers re-assert the chip clearance too (RL-1). */
+  .rstep[data-scene="fog-c"][data-fit],
+  .rstep[data-scene="tilt-a"][data-fit] { padding-top: 52px; }
+  .rstep[data-scene="labrule"][data-fit="1"] .scorecard th,
+  .rstep[data-scene="labrule"][data-fit="2"] .scorecard th { padding: 3px 4px; }
+  .rstep[data-scene="labrule"][data-fit="1"] .scorecard td,
+  .rstep[data-scene="labrule"][data-fit="2"] .scorecard td { padding: 2px 4px; }
+  .rstep[data-scene="labrule"][data-fit="2"] .step__body p { font-size: 11.5px; line-height: 1.38; margin-bottom: 4px; }
+  .rstep[data-scene="labrule"][data-fit="2"] p.caption { margin-bottom: 2px; }
 }
 
-/* Narrow AND short (1100×700): the reader loses another 30px of width to
-   the 52vw pane, wrapping the prose tighter — shave the intersection too. */
-@media (max-width: 1100px) and (max-height: 820px) {
-  .rstep[data-scene="labrule"] { padding-top: 8px; }
-  .rstep[data-scene="labrule"] .step__body p { font-size: 11.5px; line-height: 1.38; margin-bottom: 4px; }
-  .rstep[data-scene="labrule"] .scorecard th { padding: 3px 4px; }
-  .rstep[data-scene="labrule"] .scorecard td { padding: 2px 4px; }
-  .rstep[data-scene="labrule"] p.caption { margin-bottom: 2px; }
+/* RESP-SWARM-STEP-900: the §7 swarm finale's step is the page's longest
+   pure-prose step and had no narrow fit tier — at 900px it stood 1063px in
+   a 900px pane, leaving the closing captions and the tour chip below the
+   fold on arrival. The labrule fit-2 type scale (the project's precedent
+   for a 900px pane) brings the step inside the pane at the narrowest
+   supported width; wider tiers are untouched. */
+@media (max-width: 1100px) {
+  .rstep[data-scene="swarm"] h2 { font-size: 19px; margin-bottom: 4px; }
+  .rstep[data-scene="swarm"] .kicker { margin-bottom: 3px; }
+  .rstep[data-scene="swarm"] .step__body p {
+    font-size: 12.5px;
+    line-height: 1.42;
+    margin-bottom: 5px;
+  }
+  .rstep[data-scene="swarm"] p.caption { font-size: 11.5px; margin-bottom: 3px; }
+}
+
+/* QA KW1: the same chip clearance ABOVE 1100px. The corner title chip owns
+   viewport rows 12–42 at every width, but the wide tier's trims (QA V2's
+   16px, the fit levels' 12px/8px) pin the top-anchored §8 page's eyebrow
+   inside those rows — in the frozen ?shot=labrule pose the eyebrow's text
+   line ends at x≈1382 against the chip's left border at x≈1381 (~0px gap;
+   the labrule kicker is the longest eyebrow, so it alone reaches the chip).
+   Mirroring RL-1 above 1100px: start the top-anchored page 56px down —
+   14px below the chip's bottom border — at every fit level; fitLabrule
+   re-picks the lightest fitting level, so this costs chrome, not overflow. */
+@media (min-width: 1101px) {
+  .rstep[data-scene="labrule"],
+  .rstep[data-scene="labrule"][data-fit] { padding-top: 56px; }
 }
 
 /* ---------------- debug page layout ---------------- */
@@ -1510,7 +2166,8 @@ body > #stage {
     opacity var(--dur) var(--ease),
     transform var(--dur) var(--ease),
     box-shadow var(--dur) var(--ease),
-    border-color var(--dur) var(--ease);
+    border-color var(--dur) var(--ease),
+    visibility 0s linear var(--hud-hide-delay, 0s);
 }
 
 #stage-wrap[data-scene-focus="true"] .hud.panel[data-visible="true"]:not([data-spot="true"]) {
@@ -1524,6 +2181,42 @@ body > #stage {
     0 0 3px rgba(88, 196, 221, 0.55);
 }
 
+/* U1-POINT-ETA: reader-side DOM controls can be look targets too — the §2
+   tour's η-slider step points at #eta-slider IN the reader panel (the gate
+   demands sliding it). Same accent edge + glow the spotlit HUD panels get;
+   clearLookNow strips data-spot generically, so no new cleanup. */
+.eta-control[data-spot="true"] {
+  border-color: rgba(88, 196, 221, 0.55);
+  box-shadow:
+    0 0 18px rgba(88, 196, 221, 0.28),
+    0 0 3px rgba(88, 196, 221, 0.55);
+}
+
+/* U5-POINT-LEVELS: the §7 level-pill row is itself a look target
+   ("tilt-levels") — the tilt panel is spotlit AND the pills glow, so the
+   spotlight singles out the level row the sentence names. */
+#tilt-levels[data-spot="true"] .btn {
+  border-color: rgba(88, 196, 221, 0.55);
+  box-shadow: 0 0 10px rgba(88, 196, 221, 0.3);
+}
+
+/* TOUR-POINT-S5-CHECKLIST-LOOK: the §5 regime checklist glows when the
+   tour's "checklist lights" sentence points at it (the generic data-spot
+   rules are scoped to #stage-wrap .hud.panel — this is reader DOM). */
+#lab-checklist[data-spot="true"] {
+  border-color: rgba(88, 196, 221, 0.55);
+  box-shadow:
+    0 0 18px rgba(88, 196, 221, 0.28),
+    0 0 3px rgba(88, 196, 221, 0.55);
+}
+
+/* TOUR-POINT-S6-FOOTER-REPLAY-STAGE: the footer Replay button glows when
+   the §6 final step's look ("replay-btn") points at it. */
+#replay-btn[data-spot="true"] {
+  border-color: rgba(88, 196, 221, 0.55);
+  box-shadow: 0 0 18px rgba(88, 196, 221, 0.28), 0 0 3px rgba(88, 196, 221, 0.55);
+}
+
 /* Screenshot mode is hover-free: the dim must never leak into ?shot= PNGs. */
 html.shot #stage-wrap[data-scene-focus] .hud.panel:not([data-spot="true"]) {
   opacity: 1;
@@ -1531,8 +2224,9 @@ html.shot #stage-wrap[data-scene-focus] .hud.panel:not([data-spot="true"]) {
 
 /* ================= universal play transport (v2) =================
    ▶/❚❚ toggle + ↻ Replay + scrub bar + 0.5×/1×/2×. Playback progress is
-   visible on the controls themselves: --replay-progress fills the scrub bar
-   AND a thin underline on the ▶/❚❚ button. */
+   visible on the controls themselves: --replay-progress fills the scrub
+   input's --scrub-progress (mirrored by the director on every write) AND a
+   thin underline on the ▶/❚❚ button. */
 
 #transport button.btn[hidden],
 #replay-scrub[hidden] { display: none; }
@@ -1557,7 +2251,10 @@ html.shot #stage-wrap[data-scene-focus] .hud.panel:not([data-spot="true"]) {
 
 #replay-scrub {
   flex: 1;
-  min-width: 90px;
+  /* width:0 drops the range input's intrinsic width from the transport's
+     minimum so the footer row can fit (QA S2-FOOTER-REFLOW-WRAP). */
+  width: 0;
+  min-width: 72px;
 }
 
 /* Scrub bars show their fill: accent up to the playhead, hairline after. */
@@ -1600,7 +2297,8 @@ input[type="range"].scrub {
   transition:
     opacity var(--dur) var(--ease),
     transform var(--dur) var(--ease),
-    right var(--dur) var(--ease);
+    right var(--dur) var(--ease),
+    visibility 0s linear var(--hud-hide-delay, 0s);
 }
 
 #app[data-intro="true"] #hero-overlay { right: 0; }
@@ -1625,3 +2323,551 @@ input[type="range"].scrub {
 }
 
 #app[data-intro="false"] #hero-overlay .intro-hint { opacity: 0; }
+
+/* ================= guided tour (pilot: §1 §2 §6) =================
+   The tour is a lens over the existing machinery: the sentence highlight
+   (bright active, dimmed page-mates) rides .step__body; the spotlight reuses
+   hover-to-look's [data-spot]/dim; the leader line + pulse live in a fixed,
+   pointer-transparent SVG; the status + "try it" chips hover over the canvas
+   pane. Tour accent = Manim TEAL #5CD0B3 (the tour's voice, distinct from
+   the hover accent blue). Screenshot mode never shows tour artifacts. */
+
+/* FIX-4 (chip relocation): the tour ENTRY is ONE fixed "▶ Tour section N"
+   chip at the bottom-center of the CANVAS pane — the exact slot the
+   controller bar takes while a tour runs, so free-play chrome and tour
+   chrome hand off in place. The old per-step chips lived at the tail of
+   the step prose and had to be hunted (user session 2026-11-17). The chip
+   is visible exactly while a section's steps are parked: main.ts sets
+   [hidden] on the hero step / in the intro park / while a tour runs, the
+   html.shot rule above drops it from screenshots, and [data-lift] mirrors
+   BRK-3's sanctioned 166px lift over the §7 swarm dock's transport row. */
+#tour-entry {
+  position: fixed;
+  bottom: 16px;
+  left: calc((100% - var(--reader-w)) / 2);
+  transform: translateX(-50%);
+  z-index: 31;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  color: #5cd0b3;
+  background: rgba(92, 208, 179, 0.07);
+  border: 1px solid rgba(92, 208, 179, 0.38);
+  border-radius: 999px;
+  cursor: pointer;
+  transition:
+    color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+#tour-entry[data-lift="true"] {
+  bottom: 166px;
+}
+
+/* BRK-1 discipline: [hidden] must stop hit-testing outright (display:none,
+   not opacity) — a parked-but-invisible chip must never eat drags at the
+   bottom-center of the stage. */
+#tour-entry[hidden] {
+  display: none;
+}
+
+#tour-entry:hover,
+#tour-entry:focus-visible {
+  color: #d9f4ec;
+  background: rgba(92, 208, 179, 0.16);
+  border-color: rgba(92, 208, 179, 0.75);
+  box-shadow: 0 0 14px rgba(92, 208, 179, 0.3);
+  outline: none;
+}
+
+/* Sentence choreography (v2 — sentence precision): the ACTIVE SENTENCE
+   stays bright with a subtle teal underline; its sibling sentences dim
+   inside the kept paragraph, and every other flow child of the page recedes
+   to 0.35 (active 1). The engine marks the container [data-tour-dim] and
+   the active sentence's paragraph .tour-keep. */
+.step__body > * {
+  transition: opacity 0.45s var(--ease);
+}
+
+.step__body .sent {
+  transition: opacity 0.45s var(--ease);
+}
+
+.step__body[data-tour-dim="true"] > *:not(.tour-keep) {
+  opacity: 0.35;
+}
+
+.step__body[data-tour-dim="true"] > .tour-keep .sent:not([data-tour-active]) {
+  opacity: 0.35;
+}
+
+[data-tour-active] {
+  color: #f5f9fc;
+  text-shadow: 0 0 18px rgba(88, 196, 221, 0.3);
+}
+
+span.sent[data-tour-active] {
+  text-decoration: underline;
+  text-decoration-color: rgba(92, 208, 179, 0.55);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+span.look[data-tour-active],
+em.look[data-tour-active],
+[data-tour-active] .look {
+  border-bottom-color: rgba(92, 208, 179, 0.85);
+  text-shadow: 0 0 14px rgba(92, 208, 179, 0.45);
+}
+
+/* Free-play sentence hover (the graduation): a registered sentence lights
+   under the pointer exactly like its span ancestors did — bright + teal
+   underline — while the pointing overlay spotlights its target. */
+span.sent[data-slook-hover] {
+  color: #eef4f8;
+  text-decoration: underline;
+  text-decoration-color: rgba(92, 208, 179, 0.6);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+
+span.sent[data-slook-hover] .look {
+  border-bottom-color: rgba(92, 208, 179, 0.7);
+  color: inherit;
+}
+
+/* The leader line: teal hairline arc, solid arrowhead, pulsing anchor dot.
+   [data-on="false"] fades the whole overlay without disposing it. */
+#tour-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.35s var(--ease);
+}
+
+#tour-overlay[data-on="false"] { opacity: 0; }
+
+#tour-lead {
+  stroke: #5cd0b3;
+  stroke-width: 1.8;
+  fill: none;
+  opacity: 0.85;
+  filter: drop-shadow(0 0 4px rgba(92, 208, 179, 0.55));
+}
+
+#tour-arrow {
+  fill: #5cd0b3;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 5px rgba(92, 208, 179, 0.6));
+}
+
+#tour-dot {
+  fill: #5cd0b3;
+  opacity: 0.95;
+}
+
+#tour-pulse {
+  fill: none;
+  stroke: #5cd0b3;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tour-pulse 1.7s var(--ease) infinite;
+}
+
+@keyframes tour-pulse {
+  0% { transform: scale(0.35); opacity: 0.9; }
+  100% { transform: scale(2.3); opacity: 0; }
+}
+
+/* The CENTRAL CONTROLLER (v2): one flat bar centered at the bottom of the
+   CANVAS pane — [Back] [sentence i / n] [Next] [Auto] [minimize] [Exit].
+   Unlike the pilot's narrate-only chips, the bar is LIVE (its own pointer
+   events): it is the tour's only click affordance. */
+#tour-bar {
+  position: fixed;
+  bottom: 16px;
+  left: calc((100% - var(--reader-w)) / 2);
+  transform: translateX(-50%);
+  z-index: 31;
+  pointer-events: none;
+  opacity: 1;
+  /* U6-LAYOUT-SHIFT: bottom joins the transition so the one-time tour
+     start/exit settle animates under the opacity fade (the bar's height
+     only changes then — mid-tour it is held fixed by data-tour-live). */
+  transition:
+    opacity 0.35s var(--ease),
+    bottom 0.35s var(--ease);
+}
+
+#tour-bar[data-on="false"] { opacity: 0; }
+
+/* BRK-1: opacity alone does not stop hit-testing, and #tour-bar-full
+   re-enables pointer-events:auto — so the NEVER-STARTED / exited controller
+   was an invisible input-eating strip over the canvas pane's bottom-center
+   from page load: it intercepted the §7 swarm dock's restart/scrub clicks
+   (mouse-dead at ~900px AND 1280px), canvas wheel zoom and left-drag pan
+   inside the strip, and clicking the invisible minimize button resurrected
+   a ghost "▲ tour" chip with no tour running. An off-state controller must
+   not intercept anything (and must not be resuscitable). */
+#tour-bar[data-on="false"] #tour-bar-full { pointer-events: none; }
+#tour-bar[data-on="false"] #tour-bar-chip { display: none; }
+
+/* BRK-3 / U6-LAYOUT-SHIFT: during a RUNNING §7 tour the controller bar
+   (bottom-center of the canvas pane) would sit exactly over the swarm
+   dock's replay + scrub transport row — the dock's buttons intercepted
+   nothing because the BAR won every hit test there (measured:
+   #swarm-replay-play → tour-bar-label, #swarm-replay-restart → tour-back,
+   #swarm-scrub → tour-count at 900×620 and 1280×800), yet the s7 copy
+   directs the reader to that dock. The dock is ~137px tall in the
+   bottom-left corner, so while a §7 tour is live the bar holds 166px —
+   an 8px+ gap under it at the 620/800/900 heights measured (dock top ≈
+   viewport−137). Off-tour the bar is invisible and non-interceptive
+   (BRK-1), so free-play chrome never moves.
+   S2B-ANCHOR-1 (superseding U6-LAYOUT-SHIFT's one-height rule): the
+   tour-scoped lift is keyed to body[data-tour-live="s7"] PLUS the published
+   parked page (data-tour-page, set in TourEngine.start/gotoStep/page-sync,
+   cleared in exit). On the tilt pages the stack holds the FREE-PLAY heights
+   (16px / 72px) — measured clearing the tilt panel's LIVE bottom edge at
+   every sampled height (43.6px headroom at 700, 106px at 800; the panel is
+   capped at calc(100vh − 76px), so they clear unconditionally for normal
+   runs); the old whole-tour 166px lift collided with the tilt panel's
+   run-dependent replay transport on those pages. Exactly ONE sanctioned
+   mid-tour move remains — the page-21 (swarm) boundary, where the BRK-3
+   dock lift applies — animated by the 0.35s bottom transition above. */
+body[data-tour-live="s7"] #tour-bar[data-on="true"] {
+  bottom: 16px;
+}
+
+body[data-tour-live="s7"] #tour-gate-chip[data-on="true"],
+body[data-tour-live="s7"] #tour-status[data-on="true"] {
+  bottom: 72px;
+}
+
+/* BRK-3, re-keyed to the swarm page (S2B-ANCHOR-1): on the §7 swarm page
+   the controller would sit exactly over the dock's replay + scrub transport
+   (measured hit-test wins at 900×620 and 1280×800), so the stack lifts
+   THERE ONLY: bar 166px, chip/closing pill 221px (a 31px chip at 221 leaves
+   a 14px gap under the bar and clears the dock, top ≈ vh−143). The bar
+   anchors by its bottom edge and the 0.35s transition animates the one
+   boundary move; TOUR5-1's chip cap keeps long gate pills inside the pane
+   at both heights. */
+body[data-tour-live="s7"][data-tour-page="21"] #tour-bar[data-on="true"] {
+  bottom: 166px;
+}
+
+body[data-tour-live="s7"][data-tour-page="21"] #tour-gate-chip[data-on="true"],
+body[data-tour-live="s7"][data-tour-page="21"] #tour-status[data-on="true"] {
+  bottom: 221px;
+}
+
+/* S2B-ANCHOR-4: while the §7 tour is live on its TILT pages the compass
+   docks bottom-RIGHT (data-dock="right"), whose band always vertically
+   contains the bar's — the centered bar overlapped the compass's top-left
+   whenever the canvas pane was <~893px wide (measured 87.9×41 at 1280×800,
+   with #tour-exit winning the hit test and mouse-killing the compass
+   corner). Move the COMPASS, not the bar (U6 forbids per-page bar moves):
+   the tilt panel owns only the top-left, so the pane's top-right is free —
+   the same declarations the standing fog/loss/gd re-dock tiers use. NOT
+   gated on max-height: the overlap is pane-WIDTH-driven (measured at
+   1440×900 and 1280×1024 too). BRK-3 cannot regress: on the swarm page the
+   dock flips to "left" and the compass is hidden. Free play never fires it
+   (requires data-tour-live). */
+body[data-tour-live="s7"] #minimap-panel[data-dock="right"] {
+  bottom: auto;
+  top: 62px;
+}
+
+/* S2B-ANCHOR-2: while the §9 tour is live, lift the dimension-lattice note
+   above the chrome stack (the bar occupies bottom 16..~57px and the closing
+   pill 72..~98px — viewport-independent — so a 130px note bottom clears the
+   pill by ~32px at every width; the note grows upward, its wrap height is
+   width-dependent). Lifting the NOTE beats co-lifting the bar+chip+pill:
+   no width tiers, no chrome moves on s9 steps where the note is hidden, no
+   three-element lockstep. Free play untouched (keys on data-tour-live);
+   html.shot unaffected (tour chrome display:none there). */
+body[data-tour-live="s9"] #epi-lattice-note {
+  bottom: 130px;
+}
+
+/* S2B-ANCHOR-3: the tour bar's y-band always lies inside the bottom-left
+   compass's band, so the two collide whenever the bar's width reaches the
+   compass's right edge — on every scene without a standing compass re-dock
+   from ~1440px down (mom/adam/lab/labrule/epi-a at all heights, everything
+   at >800px heights). While a tour is live, re-dock the compass to the
+   pane's top-right — the slot the standing ≤800/820 rules already use
+   (body[data-tour-live] #minimap-panel beats the data-dock="right" base by
+   specificity, so they compose). Wide tier only: at ≤1100px the 300px
+   adam/curves/rule panels reach x=314 and WOULD collide with the re-docked
+   compass (measured 42×209). Accepted residuals: s6 fog at ≤1100px with
+   height >820 keeps today's ~146×41 overlap (top-right blocked by the fog
+   panel; a lifted bar hits its below-fit variant); the pre-existing
+   minimap∩bar overlap at 900px is sibling-finding territory and is
+   identical before/after. */
+@media (min-width: 1101px) {
+  body[data-tour-live] #minimap-panel {
+    bottom: auto;
+    top: 62px;
+    left: auto;
+    right: calc(var(--reader-w) + 14px);
+  }
+}
+
+/* S2B-ANCHOR-3, narrow tier: split by scene. s1/s2/s3/s7/s9 re-dock the
+   compass to the top-right (their top-left HUD is free or ≤256px wide at
+   this tier — fit/loss 256px, tilt 254px); s4/s5/s8 keep the compass put
+   (the re-dock collides with their 300px panels) and lift the controller
+   stack above it instead (268 = compass 245 + 14 dock + 9 gap; 323 = 268 +
+   bar 41 + 14). Do NOT extend the lift to s7: the s7 166px page-21 lift is
+   sized for the dock, and on the tilt pages a 268px lift drove the bar INTO
+   the visible tilt panel (measured 240×41). Accepted residuals: on s8 the
+   lifted chip clips the dimmed workbench caption and below ~660px heights
+   the lifted bar clips the workbench bottom — chosen over today's compass
+   cover because the compass is the protected surface and the panel content
+   is spotlight-dimmed 0.35 during a tour. */
+@media (max-width: 1100px) {
+  body[data-tour-live="s1"] #minimap-panel,
+  body[data-tour-live="s2"] #minimap-panel,
+  body[data-tour-live="s3"] #minimap-panel,
+  body[data-tour-live="s7"] #minimap-panel,
+  body[data-tour-live="s9"] #minimap-panel {
+    bottom: auto;
+    top: 62px;
+    left: auto;
+    right: calc(var(--reader-w) + 14px);
+  }
+
+  body[data-tour-live="s4"] #tour-bar[data-on="true"],
+  body[data-tour-live="s5"] #tour-bar[data-on="true"],
+  body[data-tour-live="s8"] #tour-bar[data-on="true"] {
+    bottom: 268px;
+  }
+
+  body[data-tour-live="s4"] #tour-gate-chip[data-on="true"],
+  body[data-tour-live="s5"] #tour-gate-chip[data-on="true"],
+  body[data-tour-live="s8"] #tour-gate-chip[data-on="true"],
+  body[data-tour-live="s4"] #tour-status[data-on="true"],
+  body[data-tour-live="s5"] #tour-status[data-on="true"],
+  body[data-tour-live="s8"] #tour-status[data-on="true"] {
+    bottom: 323px;
+  }
+}
+
+#tour-bar-full {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: calc(100vw - var(--reader-w) - 24px);
+  padding: 7px 12px;
+  background: rgba(13, 16, 20, 0.92);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  box-shadow: 0 2px 18px rgba(11, 13, 16, 0.55);
+}
+
+/* Minimized: the full controls collapse to a small restore chip. */
+#tour-bar[data-min="true"] #tour-bar-full { display: none; }
+
+#tour-bar-chip {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #5cd0b3;
+  background: rgba(13, 16, 20, 0.92);
+  border: 1px solid rgba(92, 208, 179, 0.45);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+}
+
+#tour-bar[data-min="false"] #tour-bar-chip { display: none; }
+
+#tour-bar button {
+  appearance: none;
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  padding: 6px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color 0.35s var(--ease),
+    border-color 0.35s var(--ease),
+    background 0.35s var(--ease);
+}
+
+#tour-bar button:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+#tour-bar button:focus-visible {
+  outline: 2px solid rgba(88, 196, 221, 0.75);
+  outline-offset: 1px;
+}
+
+#tour-next {
+  color: #d9f4ec;
+  border-color: rgba(92, 208, 179, 0.5);
+}
+
+#tour-next:hover {
+  color: #ffffff;
+  border-color: rgba(92, 208, 179, 0.85);
+}
+
+#tour-auto[data-auto="true"] {
+  color: #5cd0b3;
+  background: rgba(92, 208, 179, 0.12);
+  border-color: rgba(92, 208, 179, 0.6);
+}
+
+#tour-back[data-disabled="true"] {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+#tour-exit:hover {
+  color: #fc6255;
+  border-color: rgba(252, 98, 85, 0.55);
+}
+
+#tour-bar-label {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  white-space: nowrap;
+  /* The pill caps at the canvas pane's width (max-width on #tour-bar-full);
+     when the cap binds, the LABEL shrinks (ellipsis) instead of pushing the
+     trailing Auto/minimize/Exit controls out of the pill chrome and over
+     the reader pane (RESP-TOURBAR-900: at 900px the §5 label alone made
+     Exit stick ~117px past the pane edge, overlapping the reader's ▶ Play).
+     flex-shrink only bites when the cap actually binds — wide layouts keep
+     the full label. */
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#tour-count {
+  font: 500 11.5px/1 var(--mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  white-space: nowrap;
+  padding: 0 2px;
+}
+
+/* RESP-TOURBAR-900: in the ≤1100px tier the pill cap (calc(100vw −
+   --reader-w − 24px)) cannot fit the full control row — the §5 label alone
+   pushed Auto/–/Exit ~117px out of the pill and over the reader pane. The
+   label now absorbs the shortfall via ellipsis; the Auto toggle (a
+   convenience, OFF by default) is the one control the narrow tier drops.
+   Esc/Back/Next/minimize/Exit — and the gate chip — remain. */
+@media (max-width: 1100px) {
+  #tour-auto { display: none; }
+}
+
+/* Closing pill + "try it" chip, centered above the controller. Purely
+   informational: pointer-events none so they never block a compass drag. */
+#tour-status {
+  position: fixed;
+  bottom: 72px;
+  left: calc((100% - var(--reader-w)) / 2);
+  transform: translateX(-50%);
+  z-index: 31;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #5cd0b3;
+  background: rgba(11, 13, 16, 0.78);
+  border: 1px solid rgba(92, 208, 179, 0.4);
+  border-radius: 999px;
+  padding: 4px 12px;
+  /* TOUR5-1: the controller pill's width cap + wrap — long copy must stay
+     inside the canvas pane (the old nowrap/no-cap pattern spilled wide pills
+     off-screen left and into the reader at a 900px pane). Wrap, not
+     ellipsis: pill copy is information, never truncated; short copy stays
+     one line (the cap only binds when it bites); a wrapped line grows
+     upward (bottom-anchored). */
+  max-width: calc(100vw - var(--reader-w) - 24px);
+  white-space: normal;
+  text-align: center;
+  line-height: 1.45;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.35s var(--ease);
+}
+
+#tour-status[data-on="false"] { opacity: 0; }
+
+#tour-gate-chip {
+  position: fixed;
+  bottom: 72px;
+  left: calc((100% - var(--reader-w)) / 2);
+  transform: translateX(-50%);
+  z-index: 31;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: #d9f4ec;
+  background: rgba(13, 16, 20, 0.92);
+  border: 1px solid rgba(92, 208, 179, 0.6);
+  border-radius: 999px;
+  padding: 7px 16px;
+  /* TOUR5-1: the controller pill's width cap (#tour-bar-full's) — the §7
+     blind-gate label rendered 511px, ~40px past the 900px pane's left edge
+     and into the reader. WRAP, not ellipsis: the gate instruction is the
+     only way through a gate and must stay readable; short labels stay one
+     line since the cap only binds when it bites. The chip anchors by its
+     bottom edge, so a wrapped second line grows upward, away from the dock
+     below. */
+  max-width: calc(100vw - var(--reader-w) - 24px);
+  white-space: normal;
+  text-align: center;
+  line-height: 1.45;
+  pointer-events: none;
+  box-shadow:
+    0 0 18px rgba(92, 208, 179, 0.22),
+    0 0 3px rgba(92, 208, 179, 0.45);
+  animation: tour-gate-breathe 2.4s var(--ease) infinite;
+}
+
+#tour-gate-chip[data-on="false"] { display: none; }
+
+#tour-gate-chip::before {
+  content: "\25B8  ";
+  color: #5cd0b3;
+}
+
+@keyframes tour-gate-breathe {
+  0%, 100% { box-shadow: 0 0 12px rgba(92, 208, 179, 0.16), 0 0 3px rgba(92, 208, 179, 0.35); }
+  50% { box-shadow: 0 0 22px rgba(92, 208, 179, 0.34), 0 0 4px rgba(92, 208, 179, 0.6); }
+}
+
+/* Screenshot mode is tour-free: chips never fire in a ?shot= run, and the
+   fixed overlays must never leak into a canonical PNG. */
+html.shot #tour-overlay,
+html.shot #tour-bar,
+html.shot #tour-status,
+html.shot #tour-gate-chip,
+html.shot #tour-entry { display: none; }

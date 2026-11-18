@@ -13,10 +13,14 @@ import {
   ruleBenchmark,
   ruleBestSteps,
   ruleClipFromKnob,
+  ruleDisplayPath,
   ruleEtaFromKnob,
+  ruleFormatLoss,
   ruleKnobFromClip,
   ruleKnobFromEta,
   ruleLevelById,
+  ruleVerdictKey,
+  ruleVerdictSentence,
 } from "./ruleLab";
 
 const CFG = RULE_CONFIG_DEFAULT;
@@ -111,11 +115,13 @@ describe("customRule: the parts reproduce the whole cast", () => {
 
 describe("§8 slider mappings round-trip", () => {
   it("η knob ↔ η (log sweep, within one integer-knob tick ≈ 0.7%)", () => {
-    for (const eta of [0.002, 0.05, 0.5, 2]) {
+    for (const eta of [0.001, 0.002, 0.05, 0.5, 2]) {
       const back = ruleEtaFromKnob(ruleKnobFromEta(eta));
       expect(Math.abs(back - eta) / eta).toBeLessThan(0.007);
     }
-    expect(ruleEtaFromKnob(0)).toBeCloseTo(0.002, 9);
+    // The floor is Rosenbrock's tuned GD η — the §8 proof recipe needs to
+    // reach it (QA GP-3).
+    expect(ruleEtaFromKnob(0)).toBeCloseTo(0.001, 9);
     expect(ruleEtaFromKnob(1000)).toBeCloseTo(2, 9);
   });
 
@@ -167,8 +173,45 @@ describe("§8 benchmark: one rule, three verdicts (the flip)", () => {
     expect(customRank).toBe(all.length); // nobody converged slower
   });
 
+  it("archipelago: NOTHING converges — every blind rule ends in the skerry's shadow", () => {
+    // The basins lesson, scored: from this start the whole cast funnels
+    // into the shallow skerry (f ≈ −0.5) or crawls on the plain, miles
+    // above the −4.5 threshold only the blue hole (−5.33) or the deep
+    // atoll (−8.03) could meet. WHERE you start beats HOW you step.
+    const b = ruleBenchmark("archi", CFG);
+    expect(b.custom.steps).toBeNull();
+    expect(ruleBestSteps(b)).toBeNull();
+    for (const m of b.machines) {
+      expect(m.steps, m.label).toBeNull(); // every machine DNFs too
+      expect(m.finalLoss, m.label).toBeLessThan(1); // ...after real progress
+    }
+    // momentum and Adam share the skerry's funnel; GD never leaves the plain.
+    const byKey = new Map(b.machines.map((m) => [m.key, m]));
+    expect(byKey.get("mom")!.finalLoss).toBeCloseTo(-0.495, 2);
+    expect(byKey.get("adam")!.finalLoss).toBeCloseTo(-0.495, 2);
+    expect(byKey.get("gd")!.finalLoss).toBeGreaterThan(0);
+    // The verdict names the shared outcome, not a winner.
+    expect(ruleVerdictSentence(b, "level", true)).toContain("Nothing converges");
+  });
+
+  it("canyon peaks: the curated rule wins in 25; momentum 38, Adam 160, GD never", () => {
+    // Tuned with tools/tune-newmaps*.mjs and LOCKED here: the winding
+    // groove guides a steady normalized stride (clip 0.35) down the whole
+    // S-curve to the sea gate; the machines' ηs are honest per landscape.
+    const b = ruleBenchmark("canyon", CFG);
+    expect(b.custom.steps).toBe(25);
+    const mom = b.machines.find((m) => m.key === "mom");
+    const adamRun = b.machines.find((m) => m.key === "adam");
+    const gdRun = b.machines.find((m) => m.key === "gd");
+    expect(mom?.steps).toBe(38);
+    expect(adamRun?.steps).toBe(160);
+    expect(gdRun?.steps).toBeNull(); // GD never rounds the west mouth: DNF
+    expect(ruleBestSteps(b)).toBe(25);
+    expect(b.custom.finalLoss).toBeLessThan(2); // under the threshold
+  });
+
   it("every run's recorded losses match the landscape (and start at f(start))", () => {
-    for (const id of ["bowl", "rosen", "ls"] as const) {
+    for (const id of ["bowl", "rosen", "ls", "archi", "canyon"] as const) {
       const level = ruleLevelById(id);
       const b = ruleBenchmark(id, CFG);
       for (const run of [b.custom, ...b.machines]) {
@@ -207,5 +250,126 @@ describe("§8 benchmark: one rule, three verdicts (the flip)", () => {
     const w = (n * sxy - sx * sy) / det;
     const bInt = (sy - w * sx) / n;
     expect(level.threshold).toBeGreaterThan(leastSquares.f({ x: w, y: bInt }));
+  });
+});
+
+describe("diverged-run display paths (QA S8-DIVERGE-STREAKS)", () => {
+  // The documented blow-up rule: η 2, β 0.99, raw, unclipped.
+  const DIVERGE = { lr: 2, beta: 0.99, normalize: false, clip: null };
+
+  it("trims diverged custom runs to the extent, cutting at the mesh edge (QA S8SW2-DIVERGE-NEEDLE-PAST-EXTENT)", () => {
+    const configs = [DIVERGE, { lr: 2, beta: 0, normalize: false, clip: null }];
+    for (const cfg of configs) {
+      for (const id of ["rosen", "bowl", "ls"] as const) {
+        const level = ruleLevelById(id);
+        const b = ruleBenchmark(id, cfg);
+        const shown = ruleDisplayPath(level, b.custom.path);
+        // Never empty, all finite, inside the extent, finite loss values.
+        expect(shown.length).toBeGreaterThan(0);
+        const e = level.landscape.extent;
+        const eps = 1e-9;
+        for (const p of shown) {
+          expect(Number.isFinite(p.x) && Number.isFinite(p.y)).toBe(true);
+          expect(p.x).toBeGreaterThanOrEqual(e.xMin - eps);
+          expect(p.x).toBeLessThanOrEqual(e.xMax + eps);
+          expect(p.y).toBeGreaterThanOrEqual(e.yMin - eps);
+          expect(p.y).toBeLessThanOrEqual(e.yMax + eps);
+          expect(Number.isFinite(level.landscape.f(p))).toBe(true);
+        }
+        expect(shown.length).toBeLessThan(b.custom.path.length);
+        // The trail ends ON the terrain rim, not past it.
+        const last = shown[shown.length - 1];
+        const onEdge =
+          Math.abs(last.x - e.xMin) < eps || Math.abs(last.x - e.xMax) < eps ||
+          Math.abs(last.y - e.yMin) < eps || Math.abs(last.y - e.yMax) < eps;
+        expect(onEdge).toBe(true);
+      }
+    }
+  });
+
+  it("bowl raw run keeps 401 points but its display path is short", () => {
+    const level = ruleLevelById("bowl");
+    const b = ruleBenchmark("bowl", DIVERGE);
+    expect(b.custom.path.length).toBe(401);
+    const shown = ruleDisplayPath(level, b.custom.path);
+    expect(shown.length).toBeLessThan(20);
+  });
+
+  it("well-behaved runs are NEVER trimmed (machines + default config)", () => {
+    const level = ruleLevelById("rosen");
+    const b = ruleBenchmark("rosen", RULE_CONFIG_DEFAULT);
+    for (const run of [b.custom, ...b.machines]) {
+      expect(ruleDisplayPath(level, run.path)).toEqual(run.path);
+    }
+    for (const id of ["bowl", "ls"] as const) {
+      const bm = ruleBenchmark(id, RULE_CONFIG_DEFAULT);
+      const lv = ruleLevelById(id);
+      for (const run of [bm.custom, ...bm.machines]) {
+        expect(ruleDisplayPath(lv, run.path)).toEqual(run.path);
+      }
+    }
+  });
+});
+
+describe("verdict sentences name the right cause (QA S8-VERDICT-WRONG-CAUSE)", () => {
+  const DIVERGE = { lr: 2, beta: 0.99, normalize: false, clip: null };
+
+  it("a part change with a DNF rule never says 'different landscape' or 'in DNF'", () => {
+    const b = ruleBenchmark("rosen", DIVERGE);
+    const s = ruleVerdictSentence(b, "part", false);
+    expect(s).toContain("did not converge");
+    expect(s).not.toContain("different landscape");
+    expect(s).not.toContain("in DNF");
+    expect(s).not.toContain("Same rule");
+    expect(s).toContain("Same landscape");
+  });
+
+  it("a level change where the rule WAS winning says 'flips'", () => {
+    const bowl = ruleBenchmark("bowl", RULE_CONFIG_DEFAULT);
+    expect(ruleVerdictSentence(bowl, "level", true)).toContain("flips");
+    // ...and one where the rule was already losing does NOT claim a flip.
+    const s = ruleVerdictSentence(bowl, "level", false);
+    expect(s).not.toContain("flips");
+    expect(s).toContain("Same rule — a different landscape");
+  });
+
+  it("a winning rule gets the win sentence regardless of cause", () => {
+    const rosen = ruleBenchmark("rosen", RULE_CONFIG_DEFAULT);
+    const s = ruleVerdictSentence(rosen, "part", true);
+    expect(s).toContain("Your rule wins Rosenbrock");
+    expect(s).not.toContain("did not converge");
+  });
+});
+
+describe("loss formatting stays compact (QA S8-HUGE-LOSS-FORMAT)", () => {
+  it("formats huge finite losses as short exponentials, keeps the rest", () => {
+    expect(ruleFormatLoss(4.131888183639686e50)).toBe("4.1e+50");
+    expect(ruleFormatLoss(1e20)).toBe("1.0e+20");
+    expect(ruleFormatLoss(1e5)).toBe("1.0e+5");
+    expect(ruleFormatLoss(12345.6)).toBe("12345.6");
+    expect(ruleFormatLoss(Infinity)).toBe("diverged");
+    expect(ruleFormatLoss(NaN)).toBe("diverged");
+    expect(ruleFormatLoss(0.499)).toBe("0.499");
+    expect(ruleFormatLoss(5e-4)).toBe("5.00e-4");
+  });
+
+  it("the valley blow-up (η 2 · β 0.99 · raw · unclipped) renders in ≤ 8 characters", () => {
+    const b = ruleBenchmark("bowl", { lr: 2, beta: 0.99, normalize: false, clip: null });
+    expect(Number.isFinite(b.custom.finalLoss)).toBe(true);
+    expect(ruleFormatLoss(b.custom.finalLoss).length).toBeLessThanOrEqual(8);
+  });
+});
+
+describe("verdict cache key is the exact config (QA S8SW2-VERDICT-CACHE-STALE)", () => {
+  it("label-colliding configs get different keys", () => {
+    const d = RULE_CONFIG_DEFAULT;
+    expect(ruleVerdictKey("ls", { ...d, lr: ruleEtaFromKnob(822) })).not.toBe(
+      ruleVerdictKey("ls", { ...d, lr: ruleEtaFromKnob(823) }),
+    );
+    expect(ruleVerdictKey("ls", { ...d, lr: ruleEtaFromKnob(724) })).not.toBe(
+      ruleVerdictKey("ls", { ...d, lr: ruleEtaFromKnob(725) }),
+    );
+    expect(ruleVerdictKey("bowl", { ...d, beta: 0.9 })).not.toBe(ruleVerdictKey("bowl", { ...d, beta: 0.899 }));
+    expect(ruleVerdictKey("ls", d)).toBe(ruleVerdictKey("ls", { ...d }));
   });
 });

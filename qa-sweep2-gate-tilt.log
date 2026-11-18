@@ -1,0 +1,77 @@
+PASS  tilt-a: scene booted
+PASS  tilt-a: mid-run (not done) — {"x":-0.26090542824879087,"y":-0.337216886683268}
+PASS  tilt-a: on the valley level
+PASS  tilt-a: measurements stamped — cells=11 stamps=11
+PASS  tilt-a: recorded ghost exists — steps=323
+PASS  tilt-a: screenshot captured — 183.1 KB
+PASS  tilt-b: on the Rosenbrock level
+PASS  tilt-b: run finished — settled=true
+PASS  tilt-b: ghost on stage
+PASS  tilt-b: scorecard has 3 machine runs (+ you = 4 DOM rows) — ["GD","momentum","Adam"]
+PASS  tilt-b: scrubber parked at 35% — scrub=0.35
+PASS  tilt-b: scorecard DOM rows = 4 — rows=4
+PASS  tilt-b: screenshot captured — 269.2 KB
+PASS  swarm: 100 balls simulated — balls=100
+PASS  swarm: settled most balls — settled=100
+PASS  swarm: ≥5 distinct basins occupied — ["the deep canyon","the narrow spike","the round cellar","the long trough","the broad bowl","the dimple"]
+PASS  swarm: the global canyon cluster ends lowest — globalMean=-5.81
+PASS  swarm: cluster outcomes UNEQUAL (loss spread > 2.5) — spread=4.73
+PASS  swarm: BLIND by default — blind=true
+PASS  swarm: blind toggle starts checked on the dock
+PASS  swarm: dock visible on the canvas pane
+PASS  swarm: picker pill multi-well is lit
+PASS  swarm: screenshot captured — 404.4 KB
+PASS  fogswarm: scene booted
+PASS  fogswarm: blind mode on — blind=true
+PASS  fogswarm: mid-flight pose — time=0
+PASS  fogswarm: terrain partially painted (QA S7-SWARM-3) — painted=119 stamps=119 total=126
+PASS  fogswarm: painted is a PARTIAL map — painted=119 total=126
+PASS  fogswarm: ensemble ledger is large — total=126
+PASS  fogswarm: screenshot captured — 371.3 KB
+PASS  live: scene is tilt-a
+PASS  live: holding D moves the ball (tilt response) — moved=5.79 input={"x":1,"y":0}
+PASS  live: stamps track cells during play (QA S7-1) — stamps=6 cells=6
+PASS  live: ball coasts after release (inertia) — coasted=3.402
+PASS  live: damping slider live (high c kills speed) — |v|=1.531
+PASS  live: damping regime label updates — over-damped
+PASS  live: level 2 swaps terrain + fresh run — level=rosen steps=0 cells=1 pos={"x":-1.2,"y":1.44}
+PASS  live: level 3 swaps terrain + fresh run — level=rastr steps=0 cells=1
+PASS  live: Finish ends the run
+PASS  live: stamps track cells when done (QA S7-1) — stamps=3 cells=3
+PASS  live: scorecard renders 4 rows — rows=4
+PASS  live: scorecard block visible
+PASS  live: advance reaches tilt-b reveal — scene=tilt-b
+PASS  live: tilt-b reveal mode hides dead play controls — mode=reveal #tilt-levels=none .eta-control=none
+PASS  live: ghost + machines on the reveal — ghost=true machines=3
+PASS  live: scrubber spans the recording (0 = start, 1 = end, mid between) — start={"x":-0.999,"y":1.986} end={"x":-1.092498677975926,"y":1.0990125319849935} mid={"x":-0.7631295597774956,"y":1.5213845278141713}
+PASS  live: swarm flies on the finale scene — {"nudge":{"x":0,"y":0},"clustersCollapsed":false,"canyonScreenBox":{"l":339.6259003686971,"t":442.87731294553856,"r":390.3125165063285,"b":517.7953393203373},"panelRect":{"l":14,"t":62,"r":314,"b":166},"arrived":0,"minimaFound":0,"balls":100,"settled":100,"minima":6,"time":0.44989999999999974,"total":8.43,"scrub":0.053368920521945404,"playing":true,"blind":true,"painted":23,"paintedTotal":126,"stamps":23,"clusters":[],"map":"multi-well"}
+PASS  live: swarm boots BLIND (the dock toggle reflects it) — blind=true
+PASS  live: early flight shows no spoiler (0 arrived, cluster list hidden) — {"arrived":0,"clusters":0,"listHidden":true}
+PASS  live: final screenshot captured — 243.9 KB
+PASS  live: scrub parks the flight at 90% — scrub=0.9 playing=false
+PASS  live: scrubbed-forward flight has arrived balls + cluster rows — arrived=100 rows=6
+PASS  live: backward scrub rewinds + empties the paint ledger — scrub=0 painted=0 arrived=0
+PASS  live: ▶ resumes a parked flight — playing=true t=0.72
+PASS  live: ❚❚ pauses the flight — playing=false
+PASS  live: ↻ restarts the flight from t=0 — t=0.00 scrub=0
+PASS  live: flight ends on its own (parked at 1.0) — scrub=1 playing=false
+PASS  live: backward blind scrub parks at the dragged fraction (0.9, not 0) — scrub=0.9 arrived=100 painted=126
+PASS  live: the parked backward pose re-paints the blind prefix — painted=126/126
+PASS  live: backward blind scrub to 0.4 parks mid-flight with a partial paint — scrub=0.4 arrived=0 painted=121
+PASS  live: pill 2 picks multi-well large + restarts the flight — map=multi-well-large t=1.02 playing=true
+PASS  live: large pill is the lit one
+PASS  live: large country ends with ≥7 basin rows, unequal losses — rows=9 spread=7.08 arrived=100
+PASS  live: pill 3 picks himmelblau + restarts the flight — map=himmelblau t=1.03
+PASS  live: himmelblau ends with 4 GLOBAL rows at the same floor — rows=[["the (3, 2) pit",true,0.0000534486296828572],["the (−2.8, 3.1) pit",true,0.00004779947909106476],["the (−3.8, −3.3) pit",true,0.00004001144559762977],["the (3.6, −1.8) pit",true,0.00004853802745431847]]
+PASS  live: pill 1 returns to multi-well + restarts the flight — map=multi-well t=1.03
+PASS  live: default country restored — flight ends with all 100 in 6 basin rows — map=multi-well playing=false arrived=100 rows=6 sum=100
+PASS  live: minima found = 6 wells (QA S2-SWARM-SEVEN-MINIMA) — minimaFound=6 minima=6
+PASS  live: untick restores the visible swarm + re-runs — blind=false t=0.00
+PASS  live: dock toggle unchecked after untick
+PASS  live: visible swarm flies after unticking — t=2.00
+PASS  live: tick re-fogs + rewinds dark (no start-cell bulk reveal) — blind=true painted=0 t=0.00
+PASS  live: swarm paints cells while flying blind — painted=120 stamps=120 t=2.5
+PASS  live: painted count is live (partial of total) — painted=120/126
+PASS  live: blind line counts painted cells + minima found — line=100 balls blind · 120 cells painted · 0 minima found
+PASS  live: blind screenshot captured — 374.8 KB
+GATE_TILT_OK

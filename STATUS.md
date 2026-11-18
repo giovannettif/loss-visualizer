@@ -1,31 +1,59 @@
 # STATUS — "You Can't See the Loss"
 
-Last updated: 2026-11-05 (at the `BackupPlan1` snapshot).
+Last updated: 2026-11-18 — FUNC-CARD round (the function card: the fog-reveal's "actual function with its parameters" pattern docked on every other section, with the show-first vs show-after policy; probe `qa-func-card.mjs` 19 PASS + 720p collision probe clean, gates below). 2026-11-17 was FIX-4 + FIX-RAIL; 2026-11-15 the content+polish final (docs/COPY-PLAN.md, QA rounds 1–2 + visual round 1).
 
-## Section status vs the original plan (P3-proposal.md / PLAN.md)
+## QA record — 2026-11-18 FUNC-CARD round (user request: the fog-reveal formula pattern everywhere)
+- **The card** (`#func-card`, top-center of the canvas pane): `src/view/functionCard.ts` builds {title, math, values} per landscape — every constant is the math core's own literal (CANYON_* / CANYON_PEAKS newly exported from functions.ts for exactly that contract; `functionCard.test.ts` pins it). `director.syncFuncCard` syncs visibility + content on change; `layoutFuncCard` (frame tick, sig-guarded) centers the chip in the top band's MEASURED free interval, so the §1–§8 instrument column, the compass re-dock tiers and the camera presets can never be overlapped at any viewport (the 1280×720 probe proves zero overlap on gd/lab/adam/fog-c/labrule).
+- **Policy**: OPEN §2 gd / §3 mom / §4 adam / §5 lab / §8 labrule show it live — λ₁/λ₂/φ track the sliders per input event (`setSteepness`/`setLab`), §8 swaps per pill; the scene-entry sync runs AFTER `enterSceneState` so curated pins (adam-b ×50) never read stale values. SHOW-AFTER: §6 fog-a/b hidden, fog-c at the reveal (fogSt.done); §7 tilt only WITH the scorecard (run done); §7 swarm only when "run blind / show map" lifts the fog (the toggle IS the reveal — the flight's end leaves the fog on). §9 keeps its own #epi-formula; hero/§1 carry no card.
+- **Hover-to-look**: registry row `func-card` (PanelId `funcCard` + director panelEl case); the chip joins `.hud.panel` (spotlight + the fog reveal-note's obstacle scan) and is excluded from the pan-clamp insets alongside the compass/docks. New `data-look="func-card"` spans on the function sentences (gd-a caption, gd-c λmax, mom-a, adam-b steepness, lab rebuild, fog-b/fog-c Rosenbrock, tilt-a level 1 + level 2, swarm Himmelblau, §8 benchmark) — inline spans only, no sentence renumbering (E3), gate-tour ALL_PASS unchanged.
+- Gates after the round: `run-build` 0 · vitest **154/154** (11 files) · `gate-tour` ALL_PASS (311 checks; one unrelated `page.goto` boot-timeout flake in a back-to-back sweep re-ran clean) · `gate-fog` ALL_PASS · `gate-tilt` GATE_TILT_OK · `gate-labrule-epi` GATE_LABRULE_EPI_OK · `cdp-responsive` 103/103 (the w900 lab catch: a ~108px top band could underhang the narrow-reader tier — below-column mode fixed it) · `verify-copy-layout` VERIFY_COPY_LAYOUT_OK (own :4185 server — run-gate serves :4173 and forwards no args) · `tools/shots.mjs` ALL_OK (canonical set refreshed with the card) · probes `qa-func-card.mjs` FUNC_CARD_ALL_OK (19) + `qa-func-card-720.mjs` CARD_720_OK (5) + `qa-func-w900.mjs`.
+
+
+## Section status vs PLAN.md
 
 | § | Section | Status |
 |---|---------|--------|
-| — | Hero (full-screen intro, looping 3-optimizer race) | ✅ Built, gated |
-| §1 | The task — fit y=wx+b, residuals, loss surface materialization | ✅ Built, gated |
-| §2 | GD intro — needle, draw-your-arrow, η slider regimes | ✅ Built, gated |
+| — | Hero (full-screen intro, looping 3-optimizer race) | ✅ Built, gated, rewritten |
+| §1 | The task — fit y=wx+b, residuals, styled formula, loss surface materialization | ✅ Built, gated, rewritten |
+| §2 | GD intro — needle, draw-your-arrow, η regimes (plain-English λ_max) | ✅ Built, gated, rewritten |
 | §3 | Momentum — zigzag vs glide, β slider, overshoot markers | ✅ Built, gated |
-| §4 | Adam — update inspector (arrows, angle, m̂/√v̂ bars, steepness) | ✅ Built, gated |
-| §5 | Disagreement lab — live elongation/rotation, 3-way race, loss curves, checklist | ✅ Built, gated |
-| §6 | Fog game — hidden landscape, measurement painting, reveal, ghost replays | ✅ Built, gated |
-| §7 | Tilt game — physics, 3 levels, replay, scorecard, multi-well swarm + blind mode | ✅ Built, gated |
-| §8 | Optimizer lab — custom rule from parts, steps-to-converge, no-free-lunch flip | ✅ Built, gated |
-| §9 | Epilogue — exact formula reveal, parameter lattice, limitations, credits | ✅ Built, gated |
+| §4 | Adam — inspector (arrows, angle, m̂/√v̂ bars), steepness invariance | ✅ Built, gated |
+| §5 | Disagreement lab — sliders + checklist on the #lab-dock, 3-way race, loss curves | ✅ Built, gated, rewritten + docked |
+| §6 | Fog game — hidden landscape, measurement painting, reveal, ghost replays | ✅ Built, gated, rewritten |
+| §7 | Tilt game — physics, 3 levels, replay, scorecard, run-scoped fog; swarm finale (3 maps, blind default + scrub) | ✅ Built, gated |
+| §8 | Optimizer lab — custom rule, steps-to-converge, no-free-lunch flip | ✅ Built, gated |
+| §9 | Epilogue — formula reveal, lattice, limitations, credits | ✅ Built, gated, rewritten |
 
-Interaction shell: reader panel v4 (continuous scroll, snap, lock+skip, reverse, right-edge rail), universal ▶ Play transports (pause/replay/scrub/speed), hover-to-look (34 wired spans), full-screen intro choreography, clean loading state, camera (orbit/zoom/presets — **pan pending, this round**).
+## Content pass (docs/COPY-PLAN.md) — COMPLETE
+All 27 reader steps + HUD captions rewritten per §2 (rules R1–R8, flags COPY-1…9); dynamic strings D1–D11. Formulas: hand-styled `.frac`/`.sum` (§3 Option B, no KaTeX), centered display-math stacks (MATH-1/2). §4.1 labeled axis frame: solid hairline "L" + tick notches + sprite labels (LINES-1 pairing fix + border-isoline margin). §4.2 tilt fog. E1 inline jump controls (#fog-goto-l2, #tilt-goto-drive / -empty — unique ids, VR6-1). Sentence-level hover (`data-slook`); guided tour v2 on all nine sections.
 
-**Verification:** build green · 76-test vitest suite · 8 browser automation gates · 37 canonical screenshots (`bash tools/run-gate.sh tools/shots.mjs`).
+## Interaction shell (v4)
+Reader v4 continuous scroll with snap/lock+skip; wheel / Space / ↓ / ↑ one-per-press (repeat-guarded), continue hint, Skip, rail; camera pan left-drag / orbit right-drag / wheel zoom with presets + double-click reset; universal ▶ Play transports; intro choreography; clean loading state. Tours are data in `src/view/tourEngine.ts`.
 
-## ⚠️ Standing reminder
-**The guided tour is a PILOT on §1, §2, §6 only.** If you like it, the remaining sections (§3, §4, §5, §7, §8, §9) still need tours built. This is tracked here so it doesn't get lost.
+## Verification (final state, 2026-11-17)
+Build green · vitest **125/125** (10 files) · serial browser gates: `gate-tour` ALL_PASS (311 checks, incl. the FIX-4 regressions) · `gate-tilt` GATE_TILT_OK (91 PASS, incl. the V4-F1 fog round-trip + pixel proof) · `gate-fog` ALL_PASS (56) · `gate-labrule-epi` OK (47) · `cdp-responsive` 103/103 · `verify-copy-layout` OK · `verify-cycleb` VERIFY_CYCLEB_OK (26; blind round-trip de-staled) · `tools/shots.mjs` ALL_OK (64 PNGs, canonical set current; re-run after the FIX-4 round to refresh the chip/needle pixels).
+
+## QA record — 2026-11-17 FIX-4 round (3 user-session defects, each verified by gates + an independent CDP drive, `probe-fix4.mjs`)
+- **FIX-1 (stray purple arrow on the §2 compass, gd-b):** NOT a stray — a probe scan (`qa-fix4-minimap-probe.mjs`) found the minimap draws exactly three arrows (needle + white user arrow + red GD step, no stale state, no leaking trail), and the needle's hex was byte-identical to §8's custom-rule purple `#9A72AC` (`palette.ts:16/35/44`), so it read as a §8-colored arrow nobody placed. Fix: needle recolored lavender `#C9A6DD` (spotlight `#EBD9F7`, halo in lavender too) — purple stays exclusive to §8; "purple needle" copy + the TOURS `expect:"purple needle"` pin stay true. Regression: gate-tour §5d scans `#minimap-canvas` for `#9A72AC ±12` before/after a committed draw → must be ZERO.
+- **FIX-2 (tour chip + start-where-you-are):** the per-step chips lived at the tail of the step prose, and `TourEngine.start` forced the playlist head (old U4-START-TRAVEL). Now: ONE fixed `#tour-entry` chip bottom-center of the canvas pane (the controller bar's slot; `html.shot` rule keeps screenshots clean; `data-lift` mirrors BRK-3's 166px over the §7 swarm dock's transport), relabeled per parked scene ("▶ Tour section 2"), hidden on the hero/intro; `start` seeds at the FIRST tour step on/after the parked page — mid-section starts run forward, never scroll up. Gate-tour: the 26-step per-section chip sweep (0b) + the reversed 5c pins (start at "4 / 6" on ?step=16, "5 / 6" on ?step=17, scroll target unchanged).
+- **FIX-3 (gate navigation trap):** gates used to swallow Back/Next/Space while waiting ("waiting for me to do something but I can't go back"). Now Back ALWAYS works during a gate (`backNow` unguarded; `gotoStep` disarms), Next/Space POLITELY SKIP the gate (disarm + advance; the chip says so), and keyboard Back also works with the controller focused (the bar branch used to blanket-swallow ArrowUp — dead exactly after clicking Next/Back). Only the visitor's own action releases a gate by itself (and advances). Gate-tour: §1 gate matrix (waits → Next skips → Back re-enters + re-arms → inset drag releases; Back during the ball gate), §2 ArrowUp-during-gate, clean-exit chip-back assert; `cdp-interact-apa1` TOUR-V2 fully re-synced to the new semantics (start-at-parked-step beats, ArrowUp-during-gate ×2 with the wheel-sync beat repositioned upstream, snapshot taken at the reversal) — suite green: exit 0, 93 PASS / 0 FAIL.
+- **FIX-RAIL (user feedback: clicks between rail ticks did nothing / missed the small targets):** the old strip was ~half the panel with 8px dead gaps + unclickable padding. Rebuilt: `#rail` spans 75vh (measured 675/900 = 0.750), the 27 tick cells flex to equal CONTIGUOUS shares (24px each — the cell is the hit area, the visible dash a slim 3px `::before`), and main.ts routes rail clicks/hovers through nearest-tick math (`goToStep`/`nearestTick`, `[data-near]` transient highlight cleared on leave) — a click ANYWHERE lands on the nearest step; lock respected exactly as before (locked jumps ignored, not queued). Regression: `cdp-interact-apa1` section 9b (real CDP clicks at 30%/70%/exact-midpoint between dash centers 11|12 → 11/12/no-dead-zone; structural 0.72–0.78 height + contiguous-cells pins; `[data-near]` hover + clear). Independent drive: `probe-rail.mjs` (fractions 15/40/50/60/85% all land on the nearer step) — ALL_PASS.
+- **FIX-BALLS (user feedback: the tilt-b scorecard/replay raced LINES only — no balls — while §6's reveal correctly rolled balls):** `buildTiltReveal` gave the player ghost a ball but the machines only `AnimatedTrail`s. Now each machine lane also rolls a BALL along its replayed path (§6's ghost-ball approach: `SphereGeometry` + `MeshBasicMaterial` at the player ghost's size/lift, identity colors — player WHITE, GD RED, momentum BLUE, Adam YELLOW), positioned per scrub fraction in `applyTiltGhost` (shared ghost clock — playback AND scrub move them), with per-ball contact shadows in `updateShadows`; teardowns via `clearTiltReveal` / `dropTiltRefs`. Diagnostics: `tiltState.revealBalls` / `revealBallPos`. Regression: `gate-tilt` frozen pose (4 balls on stage at scrub 35%) + live (4 balls; every ball MOVES as the scrub advances 100 → 900 — measured per-lane displacements).
+- Gates after the round: `run-build` 0 · vitest 125/125 · `gate-tour` ALL_PASS (311 checks) · `cdp-interact-apa1` (the stepper gate) 101 PASS / 0 FAIL · `gate-tilt` GATE_TILT_OK (105 PASS, incl. the ball-reveal regressions). The ask's "?step=4 (gd-b)" URL note: gd-b is `?step=5` (hero is step 0); both were verified.
+
+## QA record — 2026-11-15 visual round 1 (8 findings, each verified by live probes + gates)
+- **V4-F1:** show-map untick never lifted the fog (`setSwarmBlind`'s rewind arm was guarded by the flipped flag); the OFF path now applies the fog mode — gate-tilt asserts `fogOn` both ways + pixel lift (blind void [11,13,16] → shown [207,217,48]).
+- **LINES-1:** the edge hairline dashed because the polyline rode a LineSegments (pairwise rasterization — every other micro-segment); segments now explicit pairs + ½-cell border-isoline margin. Solid in isometric AND map view.
+- **MATH-1/2:** `.sum`/`.frac` centered on the text line (`vertical-align:middle`; `.frac` 0.7em / lh 1.05) — straddle verified, no 47px line-pitch growth.
+- **A1:** 900×700 park underfold (fog-c 778 / tilt-a 757 / labrule 740 vs park 700) — measured fit tiers extended to fog-c + tilt-a, labrule gained fit-3; parked tails clear the footer.
+- **R5T-1 / R5T-2 / VR6-1:** Adam HUD caption per COPY-PLAN:553; `.subtitle` text-wrap:balance (no orphan); unique `#tilt-goto-drive-empty` id + widened wiring.
+- Prior rounds (2026-11-14/15): §5 lab dock, lock-draining jumps, fog restore-back, tilt-fog compass/contour gating, map-view fit + corner ticks, epi-c/hero ≤1100px tiers, `--foot-clear`, RF-6 dock/compass split, apa1 TOUR-V2 re-sync — details in git history, `qa-fix1/`, `qa/align3/`, `qa/lines-fix/`.
+
+## Still open
+None.
+
+## Watch (non-gating notes)
+The ~10fps replay path on software GL is unmeasured (the scrub motion tier helps); user-reported animation artifacts were never reproduced by a gate.
 
 ## Parked (explicitly out of scope, from the original plan)
 GAN shifting-landscape demo · Manim/ManimGX intro clip · mobile device-tilt · perspective camera mode.
-
-## Known-open findings at snapshot time
-The "Final QA report" run (2026-11-04) left 19 persisted findings (5 high: tilt auto-settle never fires, §2 curvature-gloss math error, §6 false "local minimum" sentence, §8 "momentum slowest" contradiction, ~10fps replay path; 14 medium incl. hover-to-look undocumented, continue-↓ overflow at ~900px, HUD overlap at ~900px, fog game skippable-then-graded-empty, tilt drift graded as the player's run, swarm never reaches a finished state) plus user-reported animation artifacts (vanishing circle near the ball, grid/line glitches, lines off-screen, leftover lines) and camera panning missing. The "Sweep & Clear" round addresses these.

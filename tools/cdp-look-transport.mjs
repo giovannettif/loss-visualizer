@@ -220,10 +220,39 @@ await unhover();
 /* ==================== 3. ring spotlight on gd-b's red step ==================== */
 
 await gotoStep(5); // gd-b
+// Pre-commit: GD's step is the bet's payoff — no reveal before the learner
+// draws an arrow (QA S2A-GDSTEP-LOOK-PRECOMMIT).
 await hover("gd-step");
 st = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.look())`));
-check("hover gd-step: spotlight ring ON", st.id === "gd-step" && st.ring === true, st);
-check("hover gd-step: scene dims", st.sceneDim === true, st);
+check("pre-commit: hover gd-step reveals nothing", st.id === "gd-step" && st.ring === false && st.sceneDim === false, JSON.stringify(st));
+await unhover();
+{
+  // Commit an arrow with a real drag on the compass.
+  const r = await evalJson(`(() => { const b = document.querySelector("#minimap-canvas").getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; })()`);
+  const mouse = (type, x, y) =>
+    send("Input.dispatchMouseEvent", {
+      type, x: Math.round(x), y: Math.round(y),
+      button: "left", buttons: type === "mouseReleased" ? 0 : 1,
+      clickCount: 1, pointerType: "mouse",
+    });
+  await mouse("mousePressed", r.x, r.y);
+  for (let i = 1; i <= 8; i++) {
+    await mouse("mouseMoved", r.x + (30 * i) / 8, r.y + (25 * i) / 8);
+    await sleep(16);
+  }
+  await mouse("mouseReleased", r.x + 30, r.y + 25);
+  const t0 = Date.now();
+  while (Date.now() - t0 < 4000) {
+    const tip = await evalJson(`JSON.stringify(window.__wp1.gd().gdTip)`);
+    if (tip !== "null") break;
+    await sleep(150);
+  }
+  await sleep(1200);
+}
+await hover("gd-step");
+st = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.look())`));
+check("hover gd-step (after commit): spotlight ring ON", st.id === "gd-step" && st.ring === true, JSON.stringify(st));
+check("hover gd-step (after commit): scene dims", st.sceneDim === true, JSON.stringify(st));
 await unhover();
 st = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.look())`));
 check("gd-step unhover: ring off", st.ring === false && st.id === null, st);
@@ -247,7 +276,7 @@ await unhover();
 
 /* ==================== 5b. §5 lab trails spotlight ==================== */
 
-await gotoStep(14); // §5 second lab step: "all three trails coincide"
+await gotoStep(14); // §5 second lab step: the trails-all look (round bowl: GD+momentum on one line)
 await hover("trails-all");
 st = JSON.parse(await evalJson(`JSON.stringify(window.__wp1.look())`));
 check("hover trails-all: three trails kept bright", st.id === "trails-all" && st.keptTrails === 3, st);

@@ -1,0 +1,25 @@
+PASS  RIGHT-drag orbits (right drag decreases azimuth, down raises pitch) — azim -60 -> -94.4, elev 35 -> 46.5
+PASS  an orbit drag never pans — {"x":0,"y":0}
+PASS  right-drag flick keeps carrying after release (inertia) — azim -64.7 @+100ms -> -59.5 @+400ms
+PASS  inertia decays to rest (exponential damping) — deltas 5.20 then 1.10 deg (ratio 0.21)
+PASS  wheel zoom eases (target approached over frames, then settled) — zoom 74.75 -> 48.41 @60ms -> 42.02 settled 42.02
+PASS  sensitivity scales with zoom (same right-drag rotates less when zoomed in) — delta @wide 28.7deg vs @zoomed-in 17.4deg
+PASS  LEFT-drag pans: attitude and zoom untouched — {"azim":-0.2,"elev":47.8,"zoom":4.21} -> {"azim":-0.2,"elev":47.8,"zoom":4.21}
+PASS  LEFT-drag pans: the terrain follows the cursor 1:1 in screen space — box Δ(140.0, 60.0) pan px {"x":-139.99999999999994,"y":60.000000000000014}
+PASS  pan rests where it was released (no glide) — {"x":-139.99999999999994,"y":60.000000000000014} -> {"x":-139.99999999999994,"y":60.000000000000014}
+PASS  pan clamp (zoomed in): extreme drags never push the terrain out of the pane — [{"d":[3000,0],"ov":[1600,900],"over":true,"vis":0.997},{"d":[-3000,0],"ov":[1600,900],"over":true,"vis":0.996},{"d":[0,3000],"ov":[1600,900],"over":true,"vis":0.635},{"d":[0,-3000],"ov":[1600,900],"over":true,"vis":0.633},{"d":[2500,2500],"ov":[1600,900],"over":true,"vis":0.633}]
+PASS  pan clamp (zoomed out): zooming out re-clamps — the whole terrain box stays in the pane — box {"minX":710.8010751051637,"maxX":892.0277550541998,"minY":366.0986634197416,"maxY":536.7634153055487} pane {"left":0,"right":1600,"top":0,"bottom":900}
+PASS  pan clamp (zoomed out): an extreme drag still cannot push the box out of frame — box {"minX":0,"maxX":181.2266799490361,"minY":0,"maxY":170.66475188580708}
+PASS  pan clamp holds through an orbit (box stays in the pane) — box {"minX":1137.4036739108285,"maxX":1386.03358827307,"minY":171.65253118447438,"maxY":392.2586158269072}
+PASS  Map view preset is top-down and re-centres any pan — elev 90 pan {"x":0,"y":0}
+PASS  Map view: LEFT-drag pans (stays exactly top-down, terrain follows the cursor) — elev 90 box Δ(-160.0, 90.0)
+PASS  Map view: pan is clamped (the terrain never leaves the pane) — [{"d":[4000,0],"ov":[1600,900],"over":true,"vis":1},{"d":[-4000,0],"ov":[1600,900],"over":true,"vis":1},{"d":[0,4000],"ov":[1600,900],"over":true,"vis":1},{"d":[0,-4000],"ov":[1600,900],"over":true,"vis":1}]
+PASS  Isometric preset restores the standard pose and re-centres the pan — {"azim":-60,"elev":35,"zoom":23.36} pan {"x":0,"y":0}
+PASS  double-click resets attitude to the Isometric default — -39.6,42.7 -> -60,35
+PASS  double-click reset re-centres the pan — {"x":-120.00000000000001,"y":-80.00000000000001} -> {"x":0,"y":0}
+PASS  double-click reset restores the scene-default zoom (QA B-3-0: no unrescuable deep zoom) — zoom 10.19 -> 23.36 (fit 23.36, pre-wheel 23.36)
+PASS  the canvas suppresses the context menu (right-drag is free to orbit)
+PASS  a right-drag orbit's off-canvas release menu is swallowed, and only then — right after release: prevented=true; 600ms later elsewhere: prevented=false
+PASS  two-pointer pinch still zooms (spread = zoom in) — zoom 74.75 -> 18.69
+PASS  right-drag flick clamps at the 90 degree pitch cap and stops cleanly — elev 90, azim -91.1, zoom 18.69
+ALL_PASS

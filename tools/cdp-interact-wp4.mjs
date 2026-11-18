@@ -143,7 +143,10 @@ for (const raw of [1000, 750, 500, 250, 0, 250, 500, 1000, 500, 0, 500, 1000]) {
     s.value = String(${raw});
     s.dispatchEvent(new Event('input', { bubbles: true }));
   })()`);
-  await sleep(40);
+  // The slider input coalesces the terrain rebuild + checklist refresh onto
+  // the NEXT animation frame (~25ms measured): a 40ms read raced it and
+  // sampled the PREVIOUS state's lit flags. Settle before reading.
+  await sleep(700);
   sweepStates.push(
     JSON.parse(
       await evalJson(`JSON.stringify({

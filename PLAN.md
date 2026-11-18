@@ -23,7 +23,7 @@ The landscape is a genuine 3D surface: height field `f(x, y) → loss` with vall
 
 **Input policy:**
 - Wheel over CANVAS = camera zoom (kept). Left-drag = orbit. Right-drag/pinch = also zoom. No auto-zoom breathing anywhere; the hero drifts without zooming.
-- Wheel over the READER PANEL = hijacked for step progression: advances to the next step; the incoming text snaps into place; the step's core animation plays; scrolling is LOCKED until it completes (Skip button unlocks immediately); then a "continue ↓" affordance shows. Same for keyboard (↓/↑, Space) and a click-to-advance.
+- Wheel over the READER PANEL = hijacked for step progression: advances to the next step; the incoming text snaps into place; the step's core animation plays; scrolling is LOCKED until it completes (Skip button unlocks immediately); then a "continue ↓" affordance shows. Same for keyboard (↓/↑, Space). **Superseded 2026-11-13: click-to-advance is REMOVED** — a plain click on reader text selects text only; progression is wheel / Space / ↓ / ↑ / the continue hint / Skip / the rail (see STATUS.md).
 - Steps whose point is an animation auto-play on snap (hero race, materialization).
 
 **Universal ▶ Play system:** every trajectory-bearing state — drawn arrow (§2), η slider (§2), β (§3), steepness (§4), lab sliders (§5), fog-game replays, tilt replays — gets a Play control that animates the ball continuously rolling along the current path (eased per step, trail painting as it rolls), with replay and speed toggle.
@@ -32,8 +32,8 @@ The landscape is a genuine 3D surface: height field `f(x, y) → loss` with vall
 
 **Carried-in fixes:** m̂/v̂ hat typography (detached carets in §4 — medium, judge-verified); low nits: β slider missing in mom-b beat, grey-vs-green regime labels, hot additive trail knot (mom shot), low-contrast hero eyebrow.
 
-## Status (updated 2026-11-05)
-**All work packages WP-A..WP-F are complete** — every section built, gated and QA'd through multiple cycles. See **STATUS.md** for the current per-section table, the guided-tour pilot reminder, and known-open findings. The stable snapshot is git tag **`BackupPlan1`** (see RESTORE.md).
+## Status (updated 2026-11-13)
+**All work packages WP-A..WP-F are complete** — every section built, gated and QA'd through multiple cycles, with the guided tour on all nine sections and the camera pan/orbit/zoom rig shipped. See **STATUS.md** for the current per-section table, the interaction shell, and the QA record. The stable snapshot is git tag **`BackupPlan1`** (see RESTORE.md).
 
 
 ## Tech stack

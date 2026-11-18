@@ -16,6 +16,7 @@
  */
 
 import { chromium } from "playwright";
+import { launchGL } from "./gl-launch.mjs";
 import { mkdirSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -23,7 +24,7 @@ const base = process.argv[2] ?? "http://localhost:4173";
 const outDir = resolve("shots");
 mkdirSync(outDir, { recursive: true });
 
-const browser = await chromium.launch();
+const browser = await launchGL(chromium);
 const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
 page.on("pageerror", (err) => console.log("PAGEERROR:", err.message));
 
@@ -195,6 +196,58 @@ if (!(await waitIdle())) check("fog-b unlocks after entry", false, "still locked
   check("live fog-b Finish button hides when done", finishHidden === true);
 }
 
+/* ---------- 3b. taps / jitters never spend the budget (QA SEC6-F1) -------- */
+// A fresh game: a no-travel tap on the ball's pixel, ten ~3px jitters and a
+// tap on the caption below the canvas must each leave `used` at 0 (the cell
+// snap used to turn any of them into a whole stride). A real drag still
+// commits afterwards.
+
+await page.goto(`${base}/?step=16`, { waitUntil: "load" });
+if (!(await waitIdle())) check("fog-b (tap block) unlocks after entry", false, "still locked");
+{
+  let d = await diag();
+  check("tap block: fresh Rosenbrock game", d?.level === "rb" && d?.used === 0, JSON.stringify(d));
+  const box = await page.locator("#minimap-canvas").boundingBox();
+  const ballPx = await page.evaluate(() => {
+    // The learner point is drawn at the minimap's mapped fog point; find it
+    // through the param extent the minimap draws (same plane as the canvas).
+    const c = document.querySelector("#minimap-canvas").getBoundingClientRect();
+    return { x: c.left + c.width / 2, y: c.top + c.height / 2 };
+  });
+  // 1. a tap with no movement (on the canvas)
+  await page.mouse.move(ballPx.x, ballPx.y);
+  await page.mouse.down();
+  await page.mouse.up();
+  await sleep(900);
+  d = await diag();
+  check("tap block: a no-travel tap spends nothing", d?.used === 0, `used=${d?.used}`);
+  // 2. ten ~3px jitters
+  for (let i = 0; i < 10; i++) {
+    const jx = ballPx.x + (i % 2 ? 3 : -3);
+    const jy = ballPx.y + (i % 3 ? 3 : -3);
+    await page.mouse.move(jx, jy);
+    await page.mouse.down();
+    await page.mouse.move(jx + 2, jy + 2, { steps: 2 });
+    await page.mouse.up();
+    await sleep(80);
+  }
+  await sleep(900);
+  d = await diag();
+  check("tap block: ten 3px jitters spend nothing", d?.used === 0, `used=${d?.used}`);
+  // 3. a tap on the caption below the canvas (the panel is the grab surface)
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height + 14);
+  await page.mouse.down();
+  await page.mouse.up();
+  await sleep(900);
+  d = await diag();
+  check("tap block: a caption tap spends nothing", d?.used === 0, `used=${d?.used}`);
+  // A real drag still commits.
+  await dragMinimap(12, 25, 55, 70);
+  await sleep(1300);
+  d = await diag();
+  check("tap block: a real drag still commits one stride", d?.used === 1, `used=${d?.used}`);
+}
+
 /* ---------------- 4. the reveal screen ---------------- */
 
 await page.locator("#rail button").nth(17).click();
@@ -219,6 +272,13 @@ await sleep(400);
   check("fog-c annotation visible", note === "true");
   const replay = await page.locator("#play-btn").isVisible();
   check("fog-c transport visible", replay === true);
+  // C2-CAP-TOOLTIP: the virtual pointer is still parked on the rail tick
+  // clicked above, holding the rail's own CSS hover pill (.tick-name, a
+  // 0.25s opacity fade) fully opaque over the reader copy in the capture.
+  // Automation pointer hygiene only — the hover pill is legitimate human
+  // UI. (400,450) is an empty, hover-inert spot of the 3D canvas pane.
+  await page.mouse.move(400, 450);
+  await sleep(400);
   await page.screenshot({ path: resolve(outDir, "20-fog-c-live.png") });
 
   // Replay relaunches the ghosts.
@@ -226,10 +286,41 @@ await sleep(400);
   await sleep(700);
   const d2 = await diag();
   check("fog-c Replay relaunches the ghosts", d2?.ghostsPlaying === true, JSON.stringify(d2));
+  // Same hygiene before this capture (future-proofing: the pointer would
+  // otherwise park on #play-btn — clean today, but not worth re-proving).
+  await page.mouse.move(400, 450);
+  await sleep(400);
   await page.screenshot({ path: resolve(outDir, "21-fog-c-ghosts-mid.png") });
   await sleep(9000);
   const d3 = await diag();
   check("fog-c replay finishes cleanly", d3?.ghostsPlaying === false);
+
+  // Skip mid-ride (QA fog-reveal-3): the finished race must read '▶ Play'
+  // with a full bar, relaunch cleanly, and a later scrub must stay put.
+  await page.locator("#play-btn").click();
+  await sleep(3000);
+  await page.evaluate(() => window.__wp1.skip());
+  await sleep(400);
+  const d4 = await diag();
+  const label = (await page.locator("#play-btn").textContent())?.trim() ?? "";
+  const scrubSkip = await page.locator("#replay-scrub").inputValue();
+  check("fog-c skip finishes the ghosts", d4?.ghostsPlaying === false, JSON.stringify(d4));
+  check("fog-c skipped race reads '▶ Play'", label === "▶ Play", `label="${label}"`);
+  check("fog-c skipped race shows a full scrub bar", scrubSkip === "1000", `scrub=${scrubSkip}`);
+  await page.locator("#play-btn").click();
+  await sleep(700);
+  const d5 = await diag();
+  check("fog-c '▶ Play' after a skip relaunches", d5?.ghostsPlaying === true, JSON.stringify(d5));
+  await page.evaluate(() => window.__wp1.skip());
+  await sleep(300);
+  await page.evaluate(() => {
+    const s = document.querySelector("#replay-scrub");
+    s.value = "700";
+    s.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await sleep(300);
+  const scrub700 = await page.locator("#replay-scrub").inputValue();
+  check("fog-c scrub to 700 after a skip stays at 700", scrub700 === "700", `scrub=${scrub700}`);
 }
 
 /* ---------------- screenshot size sanity ---------------- */

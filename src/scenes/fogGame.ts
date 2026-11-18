@@ -199,6 +199,16 @@ export function fogSnapToCell(level: FogLevel, p: Vec2): Vec2 {
   };
 }
 
+/** True when `a` and `b` sit in the same fog grid cell (the indices
+ *  fogSnapToCell uses). */
+export function fogSameCell(level: FogLevel, a: Vec2, b: Vec2): boolean {
+  const e = level.landscape.extent;
+  const g = fogCellGrid(level);
+  const ix = (p: Vec2): number => Math.min(g.nx - 1, Math.max(0, Math.floor((p.x - e.xMin) / g.cw)));
+  const iy = (p: Vec2): number => Math.min(g.ny - 1, Math.max(0, Math.floor((p.y - e.yMin) / g.ch)));
+  return ix(a) === ix(b) && iy(a) === iy(b);
+}
+
 /** Pure commit: spends one measurement and moves to `tip`. */
 export function fogCommit(level: FogLevel, st: FogState, tip: Vec2): FogState {
   return {
@@ -208,6 +218,40 @@ export function fogCommit(level: FogLevel, st: FogState, tip: Vec2): FogState {
     loss: level.landscape.f(tip),
     done: st.used + 1 >= level.budget,
   };
+}
+
+/** A compass gesture that travelled less than this (CSS px) is a tap or a
+ *  jitter, not a drag — the copy says "Drag on the compass". */
+export const FOG_DRAG_SLOP_PX = 6;
+
+/**
+ * Resolves a compass gesture into the stride it commits, or null when it must
+ * NOT spend a measurement:
+ *   (a) the pointer travelled < FOG_DRAG_SLOP_PX — a tap/jitter, not a drag
+ *       (the cell snap would otherwise turn any tap into a whole stride);
+ *   (b) the RAW (reach-clamped) tip is on or next to the ball — checked
+ *       BEFORE snapping, which would move it a cell away;
+ *   (c) the snapped + clamped tip falls back into the ball's own cell.
+ * Otherwise returns the snapped, reach-clamped tip (the same snap-then-clamp
+ * order the live preview uses).
+ */
+export function fogResolveStride(
+  level: FogLevel,
+  from: Vec2,
+  rawTip: Vec2,
+  travelPx: number,
+): Vec2 | null {
+  if (travelPx < FOG_DRAG_SLOP_PX) return null;
+  const minStep = fogMinStep(level);
+  const raw = fogClampTip(level, from, rawTip);
+  if (Math.hypot(raw.x - from.x, raw.y - from.y) < minStep) return null;
+  const snapped = fogClampTip(level, from, fogSnapToCell(level, rawTip));
+  if (Math.hypot(snapped.x - from.x, snapped.y - from.y) < minStep) return null;
+  // Rule (c) on cell INDICES (QA S2A-FOG-OWNCELL-SPEND): reach-clamped
+  // strides land off-grid, so a hop back to the ball's own cell centre can be
+  // far longer than minStep — it must still never spend a measurement.
+  if (fogSameCell(level, from, snapped)) return null;
+  return snapped;
 }
 
 /**
