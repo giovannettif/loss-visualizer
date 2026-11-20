@@ -1,8 +1,0 @@
-PASS  ball has a screen position in task-c — {"x":484.533744901473,"y":497.14836693541776}
-PASS  surface drag moves (w, b) — fit 0.91,1.31 -> 0.40,-0.82
-PASS  loss readout follows the drag — loss=77.66
-PASS  w readout follows the drag — ro-w=0.40
-PASS  inset handle drag changes the fit — fit -> 0.69,0.26
-PASS  ?step=2 lands on task-b — {"scene":"task-b","step":2,"fit":{"w":-0.35,"b":0.8},"minimap":"true","hero":"false"}
-PASS  ?step=2 fit eased to the task-b target — fit -0.35, 0.8
-PASS  ?step=2 shows minimap, hides hero — {"scene":"task-b","step":2,"fit":{"w":-0.35,"b":0.8},"minimap":"true","hero":"false"}

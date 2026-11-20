@@ -1,9 +1,44 @@
+# ————— dependencies & build outputs (regenerable) —————
 node_modules/
 dist/
+dist-bench/
 tools/node.zip
-*.local
-qa/
+
+# ————— portable Node runtime (local convenience; a fresh clone can use system Node) —————
+tools/node/
+
+# ————— QA / test evidence (local only) —————
+# evidence/ consolidates everything: per-finding QA captures (evidence/qa),
+# the old root-level qa-* scatter, and archived workflow shot dirs.
+evidence/
 shots/
 .shots/
+qa/
+qa-*
+
+# ————— planning / status / working documents (local only — not part of the website) —————
+# Working copies live in docs/; the root-level patterns stay as insurance in
+# case a future session drops a doc back at the root.
+/docs/PLAN.md
+/docs/STATUS.md
+/docs/RESTORE.md
+/docs/PROPOSAL-DRAFT.md
+/docs/COPY-PLAN.md
+/docs/archive/
+/PLAN.md
+/STATUS.md
+/RESTORE.md
+/PROPOSAL-DRAFT.md
+/BUILD-PLAN.md
+/P3-proposal.md
+
+# ————— archived non-website artifacts (bench page, one-off probes) —————
+tools/archive/
+/archive/
+
+# ————— agent state —————
 .zcode/
+
+# ————— Windows accidents —————
 nul
+*.local

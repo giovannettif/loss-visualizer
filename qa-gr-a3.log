@@ -1,7 +1,0 @@
-PASS  rail is a fixed right-edge overlay inside the viewport — position=fixed rail=1544..1590 x 295..606
-PASS  rail never overlaps the active step text — rail.left=1544 body.right=1544
-PASS  hover names exist for every tick and the current tick tracks the active step — names=27/27 currentTick=2 active=2
-PASS  the active step fills the panel height — rstep=900px panel=900px
-PASS  v4 document: steps stack in flow, strictly increasing, pages adjacent — tops[0..2]=[900,1800,1800]
-PASS  v4 document: every step is at least one panel tall (a full page each) — panel=900px
-PASS  v4 document: parked on the active step once the boot drains — scrollTop=1800 park=1800

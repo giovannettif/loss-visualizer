@@ -1,6 +1,0 @@
-[31merror when starting preview server:
-Error: Port 4185 is already in use
-    at httpServerStart (file:///C:/Users/Franco/Desktop/Projects/NJIT-CS375-ProjectPart4/node_modules/vite/dist/node/chunks/node.js:14661:10)
-    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
-    at async preview (file:///C:/Users/Franco/Desktop/Projects/NJIT-CS375-ProjectPart4/node_modules/vite/dist/node/chunks/node.js:35859:2)
-    at async CAC.<anonymous> (file:///C:/Users/Franco/Desktop/Projects/NJIT-CS375-ProjectPart4/node_modules/vite/dist/node/cli.js:821:18)[39m
